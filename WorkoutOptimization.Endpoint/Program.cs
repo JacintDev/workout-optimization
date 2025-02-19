@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using WorkoutOptimization.Repository;
+
 namespace WorkoutOptimization.Endpoint
 {
     public class Program
@@ -13,6 +16,12 @@ namespace WorkoutOptimization.Endpoint
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            string conn = "Server=localhost;Port=3306;Database=workoutoptimization;Uid=root;Pwd=;";
+            builder.Services.AddDbContext<WorkoutOptimizationDbContext>(opt =>
+            {
+                opt.UseMySql(conn, new MySqlServerVersion("8.0.30")).UseLazyLoadingProxies();
+            });
 
             var app = builder.Build();
 
