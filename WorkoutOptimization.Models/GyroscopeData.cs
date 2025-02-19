@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WorkoutOptimization.Models
 {
-    public class GyrosscopeData
+    public class GyroscopeData
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
