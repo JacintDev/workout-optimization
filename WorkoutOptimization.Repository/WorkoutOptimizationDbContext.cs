@@ -5,7 +5,7 @@ namespace WorkoutOptimization.Repository
 {
     public class WorkoutOptimizationDbContext : DbContext
     {
-        public DbSet<GyrosscopeData> GyrosScropeData { get; set; }
+        public DbSet<GyroscopeData> GyrosScropeData { get; set; }
 
         public WorkoutOptimizationDbContext(DbContextOptions<WorkoutOptimizationDbContext> opt) : base(opt)
         {
@@ -15,7 +15,7 @@ namespace WorkoutOptimization.Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<GyrosscopeData>().HasData(new GyrosscopeData()
+            modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {
                 AccelX = 1,
                 AccelY = 1,
