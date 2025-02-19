@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99 d17.13
+VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutOptimization.Models", "WorkoutOptimization.Models\WorkoutOptimization.Models.csproj", "{94C3E79A-8659-4E8A-87B1-8F710566954F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{74C71A56-7FF7-4B00-B15F-7BF4B007B703}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutOptimization.Repository", "WorkoutOptimization.Repository\WorkoutOptimization.Repository.csproj", "{58BB805C-AF39-4AC0-904A-98B486D541BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutOptimization.Endpoint", "WorkoutOptimization.Endpoint\WorkoutOptimization.Endpoint.csproj", "{87F4E1CD-9B66-450D-98C0-362A69C4F1E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,12 +23,22 @@ Global
 		{94C3E79A-8659-4E8A-87B1-8F710566954F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94C3E79A-8659-4E8A-87B1-8F710566954F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94C3E79A-8659-4E8A-87B1-8F710566954F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58BB805C-AF39-4AC0-904A-98B486D541BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58BB805C-AF39-4AC0-904A-98B486D541BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58BB805C-AF39-4AC0-904A-98B486D541BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58BB805C-AF39-4AC0-904A-98B486D541BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87F4E1CD-9B66-450D-98C0-362A69C4F1E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87F4E1CD-9B66-450D-98C0-362A69C4F1E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87F4E1CD-9B66-450D-98C0-362A69C4F1E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87F4E1CD-9B66-450D-98C0-362A69C4F1E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{94C3E79A-8659-4E8A-87B1-8F710566954F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{94C3E79A-8659-4E8A-87B1-8F710566954F} = {74C71A56-7FF7-4B00-B15F-7BF4B007B703}
+		{74C71A56-7FF7-4B00-B15F-7BF4B007B703} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{58BB805C-AF39-4AC0-904A-98B486D541BA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B8787F3F-84F5-40F8-B874-94C1EA52BE7E}
