@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WorkoutOptimization.Repository
 {
-    public abstract class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
         WorkoutOptimizationDbContext _db;
 
