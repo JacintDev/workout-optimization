@@ -12,7 +12,7 @@ namespace WorkoutOptimization.Repository
     {
         WorkoutOptimizationDbContext _db;
 
-        protected Repository(WorkoutOptimizationDbContext db)
+        public Repository(WorkoutOptimizationDbContext db)
         {
             _db = db;
         }

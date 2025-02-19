@@ -7,6 +7,11 @@ namespace WorkoutOptimization.Logic
     {
         readonly IRepository<GyroscopeData> _repo;
 
+        public GyroscopeDataLogic(IRepository<GyroscopeData> repo)
+        {
+            _repo = repo;
+        }
+
         public void Create(GyroscopeData entity)
         {
             _repo.Create(entity);

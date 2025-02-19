@@ -1,5 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
+using WorkoutOptimization.Logic;
+using WorkoutOptimization.Models;
 using WorkoutOptimization.Repository;
 
 namespace WorkoutOptimization.Endpoint
@@ -22,6 +24,9 @@ namespace WorkoutOptimization.Endpoint
             {
                 opt.UseMySql(conn, new MySqlServerVersion("8.0.30")).UseLazyLoadingProxies();
             });
+
+            builder.Services.AddTransient<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
+            builder.Services.AddTransient<IGyroscopeDataLogic, GyroscopeDataLogic>();
 
             var app = builder.Build();
 
