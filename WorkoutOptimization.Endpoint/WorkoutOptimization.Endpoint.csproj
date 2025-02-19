@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WorkoutOptimization.Logic\WorkoutOptimization.Logic.csproj" />
     <ProjectReference Include="..\WorkoutOptimization.Models\WorkoutOptimization.Models.csproj" />
     <ProjectReference Include="..\WorkoutOptimization.Repository\WorkoutOptimization.Repository.csproj" />
   </ItemGroup>
