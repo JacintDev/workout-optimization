@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WorkoutOptimization.Logic;
+using WorkoutOptimization.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +10,46 @@ namespace WorkoutOptimization.Endpoint.Controllers
     [ApiController]
     public class GyroscopeDataController : ControllerBase
     {
-        // GET: api/<GyroscopeDataController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+         IGyroscopeDataLogic _logic;
+
+        public GyroscopeDataController(IGyroscopeDataLogic logic)
         {
-            return new string[] { "value1", "value2" };
+            _logic = logic;
+        }
+
+       
+        [HttpGet]
+        public IEnumerable<GyroscopeData> Get()
+        {
+            return _logic.ReadAll();
         }
 
         // GET api/<GyroscopeDataController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public GyroscopeData Get(int id)
         {
-            return "value";
+            return _logic.Read(id);
         }
 
         // POST api/<GyroscopeDataController>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Post([FromBody] GyroscopeData entity)
         {
+            _logic.Create(entity);
         }
 
         // PUT api/<GyroscopeDataController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public void Update([FromBody] GyroscopeData entity)
         {
+            _logic.Update(entity);
         }
 
         // DELETE api/<GyroscopeDataController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            _logic.Delete(id);
         }
     }
 }
