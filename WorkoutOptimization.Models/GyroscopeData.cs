@@ -9,17 +9,17 @@ namespace WorkoutOptimization.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int GyroscopeDataId { get; set; }
         [Required]
-        public int AccelX { get; set; }
+        public float AccelX { get; set; }
         [Required]
-        public int AccelY { get; set; }
+        public float AccelY { get; set; }
         [Required]
-        public int AccelZ { get; set; }
+        public float AccelZ { get; set; }
         [Required]
-        public int GyrosX { get; set; }
+        public float GyrosX { get; set; }
         [Required]
-        public int GyrosY { get; set; }
+        public float GyrosY { get; set; }
         [Required]
-        public int GyrosZ { get; set; }
+        public float GyrosZ { get; set; }
         public DateTime? Date { get; set; }
     }
 }
