@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using WorkoutOptimization.Logic;
+using WorkoutOptimization.Logic.Helpers;
 using WorkoutOptimization.Models;
 using WorkoutOptimization.Repository;
 
@@ -19,14 +20,19 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //Mysql --------------------------------------
             string conn = "Server=localhost;Port=3306;Database=workoutoptimization;Uid=root;Pwd=;";
             builder.Services.AddDbContext<WorkoutOptimizationDbContext>(opt =>
             {
                 opt.UseMySql(conn, new MySqlServerVersion("8.0.30")).UseLazyLoadingProxies();
             });
+            //----------------------------------------------
 
-            builder.Services.AddTransient<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
-            builder.Services.AddTransient<IGyroscopeDataLogic, GyroscopeDataLogic>();
+            builder.Services.AddScoped<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
+            builder.Services.AddScoped<IGyroscopeDataLogic, GyroscopeDataLogic>();
+            
+            //Automapper
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             var app = builder.Build();
 
