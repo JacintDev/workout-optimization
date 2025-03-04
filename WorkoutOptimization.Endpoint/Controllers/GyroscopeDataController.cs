@@ -39,7 +39,8 @@ namespace WorkoutOptimization.Endpoint.Controllers
         }
 
         // PUT api/<GyroscopeDataController>/5
-        [HttpPut("{id}")]
+
+        [HttpPut]
         public void Update([FromBody] GyroscopeData entity)
         {
             _logic.Update(entity);
