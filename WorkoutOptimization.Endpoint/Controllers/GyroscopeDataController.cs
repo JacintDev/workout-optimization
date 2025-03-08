@@ -39,6 +39,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
         [HttpPost]
         public void Post([FromBody] GyroscopeDataDto entity)
         {
+            entity.Date = DateTime.Now;
             _logic.Create(entity);
         }
 
