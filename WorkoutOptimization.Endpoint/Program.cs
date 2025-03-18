@@ -1,4 +1,5 @@
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
@@ -19,10 +20,19 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            string conn = "Server=localhost;Port=3306;Database=workoutoptimization;Uid=root;Pwd=;";
+            SqlConnectionStringBuilder conn = new SqlConnectionStringBuilder()
+            {
+                DataSource = "localhost",
+                InitialCatalog = "workoutoptimization",
+                UserID = "sa",
+                Password = "Horthy2000?",
+                TrustServerCertificate = true,
+
+            };
+
             builder.Services.AddDbContext<WorkoutOptimizationDbContext>(opt =>
             {
-                opt.UseMySql(conn, new MySqlServerVersion("8.0.30")).UseLazyLoadingProxies();
+                opt.UseSqlServer(conn.ConnectionString).UseLazyLoadingProxies();
             });
 
             builder.Services.AddTransient<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
