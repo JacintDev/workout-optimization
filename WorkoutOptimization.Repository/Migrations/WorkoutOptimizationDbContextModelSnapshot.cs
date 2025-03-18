@@ -18,12 +18,9 @@ namespace WorkoutOptimization.Repository.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.13")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("WorkoutOptimization.Models.GyroscopeData", b =>
                 {
@@ -31,7 +28,7 @@ namespace WorkoutOptimization.Repository.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("GyroscopeDataId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GyroscopeDataId"));
 
                     b.Property<int>("AccelX")
                         .HasColumnType("int");
@@ -43,7 +40,7 @@ namespace WorkoutOptimization.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GyrosX")
                         .HasColumnType("int");
@@ -65,7 +62,7 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1,
                             AccelY = 1,
                             AccelZ = 1,
-                            Date = new DateTime(2025, 2, 19, 17, 25, 51, 611, DateTimeKind.Local).AddTicks(554),
+                            Date = new DateTime(2025, 3, 17, 16, 56, 58, 305, DateTimeKind.Local).AddTicks(1723),
                             GyrosX = 1,
                             GyrosY = 1,
                             GyrosZ = 1
