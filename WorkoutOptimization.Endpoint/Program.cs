@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WorkoutOptimization.Logic;
@@ -20,6 +21,7 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //mysql connection string create
             SqlConnectionStringBuilder conn = new SqlConnectionStringBuilder()
             {
                 DataSource = "localhost",
@@ -29,11 +31,18 @@ namespace WorkoutOptimization.Endpoint
                 TrustServerCertificate = true,
 
             };
-
             builder.Services.AddDbContext<WorkoutOptimizationDbContext>(opt =>
             {
                 opt.UseSqlServer(conn.ConnectionString).UseLazyLoadingProxies();
             });
+            builder.Services.AddIdentity<User, IdentityRole>(opt =>
+            {
+                opt.Password.RequireDigit = false;
+                opt.Password.RequireUppercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 3;
+            }).AddEntityFrameworkStores<WorkoutOptimizationDbContext>().AddDefaultTokenProviders();
+
 
             builder.Services.AddTransient<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
             builder.Services.AddTransient<IGyroscopeDataLogic, GyroscopeDataLogic>();

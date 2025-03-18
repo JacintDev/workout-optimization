@@ -14,7 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\WorkoutOptimization.Logic\WorkoutOptimization.Logic.csproj" />
     <ProjectReference Include="..\WorkoutOptimization.Models\WorkoutOptimization.Models.csproj" />
-    <ProjectReference Include="..\WorkoutOptimization.Repository\WorkoutOptimization.Repository.csproj" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
+	  <ProjectReference Include="..\WorkoutOptimization.Repository\WorkoutOptimization.Repository.csproj" />
   </ItemGroup>
 
 
