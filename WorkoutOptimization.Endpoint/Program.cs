@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WorkoutOptimization.Logic;
+using WorkoutOptimization.Logic.Helpers;
 using WorkoutOptimization.Models;
 using WorkoutOptimization.Repository;
 
@@ -44,8 +45,11 @@ namespace WorkoutOptimization.Endpoint
             }).AddEntityFrameworkStores<WorkoutOptimizationDbContext>().AddDefaultTokenProviders();
 
 
-            builder.Services.AddTransient<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
-            builder.Services.AddTransient<IGyroscopeDataLogic, GyroscopeDataLogic>();
+            builder.Services.AddScoped<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
+            builder.Services.AddScoped<IGyroscopeDataLogic, GyroscopeDataLogic>();
+            
+            //Automapper
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             var app = builder.Build();
 
@@ -61,7 +65,7 @@ namespace WorkoutOptimization.Endpoint
 
             app.MapControllers();
 
-            app.Run();
+            app.Run("http://0.0.0.0:5135");
         }
     }
 }

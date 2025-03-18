@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
 
@@ -10,11 +11,14 @@ namespace WorkoutOptimization.Endpoint.Controllers
     [ApiController]
     public class GyroscopeDataController : ControllerBase
     {
-         IGyroscopeDataLogic _logic;
+        readonly IGyroscopeDataLogic _logic;
+        readonly IMapper _mapper;
+       
 
-        public GyroscopeDataController(IGyroscopeDataLogic logic)
+        public GyroscopeDataController(IGyroscopeDataLogic logic, IMapper mapper)
         {
             _logic = logic;
+            _mapper = mapper;
         }
 
        
@@ -33,16 +37,18 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         // POST api/<GyroscopeDataController>
         [HttpPost]
-        public void Post([FromBody] GyroscopeData entity)
+        public void Post([FromBody] GyroscopeDataDto entity)
         {
+            entity.Date = DateTime.Now;
             _logic.Create(entity);
         }
 
         // PUT api/<GyroscopeDataController>/5
+
         [HttpPut("{id}")]
-        public void Update([FromBody] GyroscopeData entity)
+        public void Update([FromBody] GyroscopeDataDto entity, int id)
         {
-            _logic.Update(entity);
+            _logic.Update(entity, id);
         }
 
         // DELETE api/<GyroscopeDataController>/5
