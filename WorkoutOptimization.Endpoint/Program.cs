@@ -1,8 +1,11 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Logic.Helpers;
 using WorkoutOptimization.Models;
@@ -53,6 +56,25 @@ namespace WorkoutOptimization.Endpoint
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+            builder.Services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = true;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = "http://www.security.org",
+                    ValidIssuer = "http://www.security.org",
+                    IssuerSigningKey = new SymmetricSecurityKey
+                (Encoding.UTF8.GetBytes("nagyonhosszutitkoskodhelyenagyonhosszutitkoskodhelye"))
+                };
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -69,6 +91,11 @@ namespace WorkoutOptimization.Endpoint
                 var response = new { error = exception.Message };
                 await context.Response.WriteAsJsonAsync(response);
             }));
+
+            //Authentication
+
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
 
