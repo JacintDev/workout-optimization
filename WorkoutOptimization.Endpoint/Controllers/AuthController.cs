@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
 
 namespace WorkoutOptimization.Endpoint.Controllers
@@ -8,6 +11,16 @@ namespace WorkoutOptimization.Endpoint.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        UserManager<User> _userManager;
+        IMapper _mapper;
+        IAuthorizationLogic _logic;
+        public AuthController(UserManager<User> userManager, IMapper mapper, IAuthorizationLogic logic)
+        {
+            _userManager = userManager;
+            _mapper = mapper;
+            _logic = logic;
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
@@ -15,17 +28,19 @@ namespace WorkoutOptimization.Endpoint.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var user = new User()
+            var result= await _logic.Register(model);
+
+            if (result)
             {
-                UserName = model.UserName,
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                DateOfBirth = model.DateOfBirth,
-                Weight = model.Weight,
-                Height = model.Height,
-                Level = model.Level
-            };
+                //return ok with message json format
+                return Ok(new { message = "User created successfully" });
+            }
+            else
+            {
+                //return bad request with message json format
+                return BadRequest(new { message = "User creation failed" });
+            }
+
         }
     }
 }
