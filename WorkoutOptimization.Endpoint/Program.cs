@@ -47,7 +47,8 @@ namespace WorkoutOptimization.Endpoint
 
             builder.Services.AddScoped<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
             builder.Services.AddScoped<IGyroscopeDataLogic, GyroscopeDataLogic>();
-            
+            builder.Services.AddScoped<IAuthorizationLogic, AuthorizationLogic>();
+
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
