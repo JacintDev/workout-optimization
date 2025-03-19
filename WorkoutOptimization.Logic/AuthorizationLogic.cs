@@ -25,8 +25,26 @@ namespace WorkoutOptimization.Logic
             {
                 throw new Exception("User with this email already exists");
             }
-            var result = await _userManager.CreateAsync(_mapper.Map<User>(model), model.Password);
-            return result.Succeeded;
+            
+            try
+            {
+                var result = await _userManager.CreateAsync(_mapper.Map<User>(model), model.Password);
+                if (_userManager.Users.Count() == 1)
+                {
+                    await _userManager.AddToRoleAsync(await _userManager.FindByEmailAsync(model.Email), "Admin");
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(await _userManager.FindByEmailAsync(model.Email), "User");
+                }
+                return result.Succeeded;
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("User creation failed.");
+            }
+           
         }
     }
 }
