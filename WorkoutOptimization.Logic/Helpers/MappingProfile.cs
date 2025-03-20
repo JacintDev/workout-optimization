@@ -15,6 +15,8 @@ namespace WorkoutOptimization.Logic.Helpers
         {
             CreateMap<GyroscopeData, GyroscopeDataDto>().ReverseMap();
             CreateMap<User,RegisterModel>().ReverseMap();
+            CreateMap<User, LoginModel>().ReverseMap();
+            CreateMap<Exercise, ExerciseDto>().ReverseMap();
         }
 
     }
