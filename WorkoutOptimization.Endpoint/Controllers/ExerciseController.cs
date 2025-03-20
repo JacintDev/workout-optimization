@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
@@ -35,21 +36,21 @@ namespace WorkoutOptimization.Endpoint.Controllers
             return _logic.Read(id);
         }
 
-       
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public void Post([FromBody] ExerciseDto entity)
         {
             _logic.Create(entity);
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public void Update([FromBody] ExerciseDto entity, int id)
         {
             _logic.Update(entity, id);
         }
 
-       
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
