@@ -8,6 +8,7 @@ namespace WorkoutOptimization.Repository
     public class WorkoutOptimizationDbContext : IdentityDbContext<User>
     {
         public DbSet<GyroscopeData> GyrosScropeData { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
 
         public WorkoutOptimizationDbContext(DbContextOptions<WorkoutOptimizationDbContext> opt) : base(opt)
         {
@@ -27,6 +28,13 @@ namespace WorkoutOptimization.Repository
                 GyrosZ = 1,
                 Date = DateTime.Now,
                 GyroscopeDataId = 1
+            });
+            modelBuilder.Entity<Exercise>().HasData(new Exercise()
+            {
+                ExerciseId = 1,
+                Name = "Fekvenyomás",
+                Description = "Feküdj le a padra, és egy rudat tolj el a mellkasodtól, majd engedd rá vissza",
+                MuscleGroup = MuscleGroup.Chest
             });
             modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole()
                 {
