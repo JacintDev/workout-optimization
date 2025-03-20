@@ -1,6 +1,11 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Logic.Helpers;
 using WorkoutOptimization.Models;
@@ -21,6 +26,7 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //mysql connection string create
             SqlConnectionStringBuilder conn = new SqlConnectionStringBuilder()
             {
                 DataSource = "localhost",
@@ -30,19 +36,45 @@ namespace WorkoutOptimization.Endpoint
                 TrustServerCertificate = true,
 
             };
-
             builder.Services.AddDbContext<WorkoutOptimizationDbContext>(opt =>
             {
                 opt.UseSqlServer(conn.ConnectionString).UseLazyLoadingProxies();
             });
-            //----------------------------------------------
+            builder.Services.AddIdentity<User, IdentityRole>(opt =>
+            {
+                opt.Password.RequireDigit = false;
+                opt.Password.RequireUppercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 3;
+            }).AddEntityFrameworkStores<WorkoutOptimizationDbContext>().AddDefaultTokenProviders();
+
 
             builder.Services.AddScoped<IRepository<GyroscopeData>, Repository<GyroscopeData>>();
             builder.Services.AddScoped<IGyroscopeDataLogic, GyroscopeDataLogic>();
-            
+            builder.Services.AddScoped<IAuthorizationLogic, AuthorizationLogic>();
+
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+            builder.Services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = true;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = "http://www.security.org",
+                    ValidIssuer = "http://www.security.org",
+                    IssuerSigningKey = new SymmetricSecurityKey
+                (Encoding.UTF8.GetBytes("nagyonhosszutitkoskodhelyenagyonhosszutitkoskodhelye"))
+                };
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -51,6 +83,18 @@ namespace WorkoutOptimization.Endpoint
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseExceptionHandler(c => c.Run(async context =>
+            {
+                var exception = context.Features
+                .Get<IExceptionHandlerPathFeature>()
+                .Error;
+                var response = new { error = exception.Message };
+                await context.Response.WriteAsJsonAsync(response);
+            }));
+
+            //Authentication
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
