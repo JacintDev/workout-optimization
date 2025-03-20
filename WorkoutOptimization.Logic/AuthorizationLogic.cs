@@ -28,7 +28,10 @@ namespace WorkoutOptimization.Logic
             
             try
             {
-                var result = await _userManager.CreateAsync(_mapper.Map<User>(model), model.Password);
+                var user = _mapper.Map<User>(model);
+                user.UserName=user.Email;
+
+                var result = await _userManager.CreateAsync(user, model.Password);
                 if (_userManager.Users.Count() == 1)
                 {
                     await _userManager.AddToRoleAsync(await _userManager.FindByEmailAsync(model.Email), "Admin");
