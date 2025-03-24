@@ -9,6 +9,7 @@ namespace WorkoutOptimization.Repository
     {
         public DbSet<GyroscopeData> GyrosScropeData { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<Training> Trainings { get; set; }
 
         public WorkoutOptimizationDbContext(DbContextOptions<WorkoutOptimizationDbContext> opt) : base(opt)
         {
@@ -18,6 +19,18 @@ namespace WorkoutOptimization.Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<User>()
+               .HasMany(x => x.Exercises)
+               .WithMany(x => x.Users)
+               .UsingEntity<Training>(
+               x => x.HasOne(x => x.Exercise).
+               WithMany().HasForeignKey(x => x.ExerciseId).OnDelete(DeleteBehavior.Cascade),
+               x => x.HasOne(x => x.User).
+               WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade));
+
+
             modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {
                 AccelX = 1,
