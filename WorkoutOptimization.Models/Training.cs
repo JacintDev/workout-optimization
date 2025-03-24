@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace WorkoutOptimization.Models
@@ -21,9 +22,11 @@ namespace WorkoutOptimization.Models
         [ForeignKey(nameof(Exercise))]
         public int ExerciseId { get; set; }
         [ForeignKey(nameof(User))]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
+        [JsonIgnore]
         public virtual Exercise Exercise { get; set; }
+        [JsonIgnore]
         public virtual User User { get; set; }
 
     }

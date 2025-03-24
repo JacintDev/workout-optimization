@@ -20,7 +20,7 @@ namespace WorkoutOptimization.Models
         [ForeignKey(nameof(Exercise))]
         public int ExerciseId { get; set; }
         [ForeignKey(nameof(User))]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
     public enum Level
@@ -44,6 +45,7 @@ namespace WorkoutOptimization.Models
         public Level? Level { get; set; }
         public Sex? Sex { get; set; }
         public string? MacAddress { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Exercise> Exercises { get; set; }
         public User()
         {
