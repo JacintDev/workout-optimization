@@ -29,5 +29,11 @@ namespace WorkoutOptimization.Models
         [Required]
         public MuscleGroup MuscleGroup { get; set; }
         public string? Video { get; set; }
+        public virtual ICollection<User> Users { get; set; }
+
+        public Exercise()
+        {
+            Users=new HashSet<User>();
+        }
     }
 }

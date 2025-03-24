@@ -43,6 +43,12 @@ namespace WorkoutOptimization.Models
 
         public Level? Level { get; set; }
         public Sex? Sex { get; set; }
+        public string? MacAddress { get; set; }
+        public virtual ICollection<Exercise> Exercises { get; set; }
+        public User()
+        {
+            this.Exercises=new HashSet<Exercise>();
+        }
 
 
 
