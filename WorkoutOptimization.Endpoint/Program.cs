@@ -85,9 +85,17 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddScoped<IAuthorizationLogic, AuthorizationLogic>();
             builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
             builder.Services.AddScoped<IExerciseLogic, ExerciseLogic>();
+            builder.Services.AddScoped<IRepository<Training>, Repository<Training>>();
+            builder.Services.AddScoped<ITrainingLogic, TrainingLogic>();
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            //exception handler
+            builder.Services.AddControllers(opt =>
+            {
+                opt.Filters.Add<ExceptionFilter>();
+            });
 
             builder.Services.AddAuthentication(option =>
             {
