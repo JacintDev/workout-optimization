@@ -85,9 +85,19 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddScoped<IAuthorizationLogic, AuthorizationLogic>();
             builder.Services.AddScoped<IRepository<Exercise>, Repository<Exercise>>();
             builder.Services.AddScoped<IExerciseLogic, ExerciseLogic>();
+            builder.Services.AddScoped<IRepository<Training>, Repository<Training>>();
+            builder.Services.AddScoped<ITrainingLogic, TrainingLogic>();
+            builder.Services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
+            builder.Services.AddScoped<IPromotionLogic, PromotionLogic>();
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            //exception handler
+            builder.Services.AddControllers(opt =>
+            {
+                opt.Filters.Add<ExceptionFilter>();
+            });
 
             builder.Services.AddAuthentication(option =>
             {
@@ -116,14 +126,14 @@ namespace WorkoutOptimization.Endpoint
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseExceptionHandler(c => c.Run(async context =>
-            {
-                var exception = context.Features
-                .Get<IExceptionHandlerPathFeature>()
-                .Error;
-                var response = new { error = exception.Message };
-                await context.Response.WriteAsJsonAsync(response);
-            }));
+            //app.UseExceptionHandler(c => c.Run(async context =>
+            //{
+            //    var exception = context.Features
+            //    .Get<IExceptionHandlerPathFeature>()
+            //    .Error;
+            //    var response = new { error = exception.Message };
+            //    await context.Response.WriteAsJsonAsync(response);
+            //}));
 
             //Authentication
 

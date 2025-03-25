@@ -9,6 +9,8 @@ namespace WorkoutOptimization.Repository
     {
         public DbSet<GyroscopeData> GyrosScropeData { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<Training> Trainings { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
 
         public WorkoutOptimizationDbContext(DbContextOptions<WorkoutOptimizationDbContext> opt) : base(opt)
         {
@@ -18,6 +20,18 @@ namespace WorkoutOptimization.Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<User>()
+               .HasMany(x => x.Exercises)
+               .WithMany(x => x.Users)
+               .UsingEntity<Training>(
+               x => x.HasOne(x => x.Exercise).
+               WithMany().HasForeignKey(x => x.ExerciseId).OnDelete(DeleteBehavior.Cascade),
+               x => x.HasOne(x => x.User).
+               WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade));
+
+
             modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {
                 AccelX = 1,
@@ -35,6 +49,13 @@ namespace WorkoutOptimization.Repository
                 Name = "Fekvenyomás",
                 Description = "Feküdj le a padra, és egy rudat tolj el a mellkasodtól, majd engedd rá vissza",
                 MuscleGroup = MuscleGroup.Chest
+            });
+
+            modelBuilder.Entity<Promotion>().HasData(new Promotion()
+            {
+                PromotionId = 1,
+                Name = "Valós idejű visszajelzés",
+                Description = "A valós idejű visszajelzés rendkívül hasznos dolog az edzés közben, mert azon nyomban látja ön is, hogy az adott gyakorlatot megfelelően végzi-e",
             });
             modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole()
                 {

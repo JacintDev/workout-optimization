@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 public enum MuscleGroup
@@ -29,5 +30,12 @@ namespace WorkoutOptimization.Models
         [Required]
         public MuscleGroup MuscleGroup { get; set; }
         public string? Video { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<User> Users { get; set; }
+
+        public Exercise()
+        {
+            Users=new HashSet<User>();
+        }
     }
 }

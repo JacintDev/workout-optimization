@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkoutOptimization.Repository;
 
@@ -11,9 +12,11 @@ using WorkoutOptimization.Repository;
 namespace WorkoutOptimization.Repository.Migrations
 {
     [DbContext(typeof(WorkoutOptimizationDbContext))]
-    partial class WorkoutOptimizationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250324173359_training")]
+    partial class training
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -248,42 +251,10 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1f,
                             AccelY = 1f,
                             AccelZ = 1f,
-                            Date = new DateTime(2025, 3, 25, 10, 49, 45, 471, DateTimeKind.Local).AddTicks(8746),
+                            Date = new DateTime(2025, 3, 24, 18, 33, 59, 128, DateTimeKind.Local).AddTicks(4413),
                             GyrosX = 1f,
                             GyrosY = 1f,
                             GyrosZ = 1f
-                        });
-                });
-
-            modelBuilder.Entity("WorkoutOptimization.Models.Promotion", b =>
-                {
-                    b.Property<int>("PromotionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PromotionId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("PromotionId");
-
-                    b.ToTable("Promotions");
-
-                    b.HasData(
-                        new
-                        {
-                            PromotionId = 1,
-                            Description = "A valós idejű visszajelzés rendkívül hasznos dolog az edzés közben, mert azon nyomban látja ön is, hogy az adott gyakorlatot megfelelően végzi-e",
-                            Name = "Valós idejű visszajelzés"
                         });
                 });
 
