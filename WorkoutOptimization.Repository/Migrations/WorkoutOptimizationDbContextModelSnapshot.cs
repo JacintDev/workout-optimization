@@ -237,7 +237,18 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Property<float>("GyrosZ")
                         .HasColumnType("real");
 
+                    b.Property<int>("TrainingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("GyroscopeDataId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("GyrosScropeData");
 
@@ -248,10 +259,12 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1f,
                             AccelY = 1f,
                             AccelZ = 1f,
-                            Date = new DateTime(2025, 3, 25, 10, 49, 45, 471, DateTimeKind.Local).AddTicks(8746),
+                            Date = new DateTime(2025, 3, 25, 14, 28, 57, 537, DateTimeKind.Local).AddTicks(2378),
                             GyrosX = 1f,
                             GyrosY = 1f,
-                            GyrosZ = 1f
+                            GyrosZ = 1f,
+                            TrainingId = 1,
+                            UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
                         });
                 });
 
@@ -315,6 +328,16 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Trainings");
+
+                    b.HasData(
+                        new
+                        {
+                            TrainingId = 1,
+                            End = new DateTime(2025, 3, 25, 14, 28, 57, 463, DateTimeKind.Local).AddTicks(8291),
+                            ExerciseId = 1,
+                            Start = new DateTime(2025, 3, 25, 14, 28, 57, 463, DateTimeKind.Local).AddTicks(8236),
+                            UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
+                        });
                 });
 
             modelBuilder.Entity("WorkoutOptimization.Models.User", b =>
@@ -404,6 +427,23 @@ namespace WorkoutOptimization.Repository.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "c4e8158d-bff3-4114-a8a9-13a9c4d44c15",
+                            Email = "admin@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBbOtP0WRmxI0dgJu7BiUckkhqnTD2kHIq0vbKHYfL9LCafZaY8GsnDNvrUWWX/pzg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "f6d72983-81dd-4e75-a0db-3e8e9771d9e6",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -457,6 +497,25 @@ namespace WorkoutOptimization.Repository.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WorkoutOptimization.Models.GyroscopeData", b =>
+                {
+                    b.HasOne("WorkoutOptimization.Models.Training", "Training")
+                        .WithMany("GyroscopeData")
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WorkoutOptimization.Models.User", "User")
+                        .WithMany("GyroscopeData")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Training");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
                 {
                     b.HasOne("WorkoutOptimization.Models.Exercise", "Exercise")
@@ -474,6 +533,16 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Navigation("Exercise");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+                {
+                    b.Navigation("GyroscopeData");
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.User", b =>
+                {
+                    b.Navigation("GyroscopeData");
                 });
 #pragma warning restore 612, 618
         }
