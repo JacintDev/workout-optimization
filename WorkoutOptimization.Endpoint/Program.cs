@@ -87,6 +87,8 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddScoped<IExerciseLogic, ExerciseLogic>();
             builder.Services.AddScoped<IRepository<Training>, Repository<Training>>();
             builder.Services.AddScoped<ITrainingLogic, TrainingLogic>();
+            builder.Services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
+            builder.Services.AddScoped<IPromotionLogic, PromotionLogic>();
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
