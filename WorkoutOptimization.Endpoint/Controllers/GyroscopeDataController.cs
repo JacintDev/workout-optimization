@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
@@ -21,7 +22,8 @@ namespace WorkoutOptimization.Endpoint.Controllers
             _mapper = mapper;
         }
 
-       
+
+        //TODO csak a sajátodat adja vissza
         [HttpGet]
         public IEnumerable<GyroscopeData> Get()
         {
@@ -35,7 +37,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
             return _logic.Read(id);
         }
 
-        // POST api/<GyroscopeDataController>
+        
         [HttpPost]
         public void Post([FromBody] GyroscopeDataDto entity)
         {
@@ -43,15 +45,14 @@ namespace WorkoutOptimization.Endpoint.Controllers
             _logic.Create(entity);
         }
 
-        // PUT api/<GyroscopeDataController>/5
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public void Update([FromBody] GyroscopeDataDto entity, int id)
         {
             _logic.Update(entity, id);
         }
 
-        // DELETE api/<GyroscopeDataController>/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

@@ -23,6 +23,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
         }
 
 
+        //Csak a sajátodat adja vissza, kivéve admin
         [HttpGet]
         public IEnumerable<Training> Get()
         {
@@ -36,7 +37,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
             return _logic.Read(id);
         }
 
-        [Authorize(Roles = "Admin")]
+        
         [HttpPost]
         public void Post([FromBody] TrainingDto entity)
         {
