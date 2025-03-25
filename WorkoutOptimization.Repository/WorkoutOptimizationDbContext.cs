@@ -55,14 +55,22 @@ namespace WorkoutOptimization.Repository
                 UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
 
             });
-            modelBuilder.Entity<User>().HasData(new User()
+            var user= new User()
             {
                 Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
-                UserName = "admin",
+                UserName = "admin@gmail.com",
                 NormalizedUserName = "ADMIN",
                 Email = "admin@gmail.com",
-                PasswordHash = new PasswordHasher<User>().HashPassword(null, "admin"),
-            });
+                NormalizedEmail = "ADMIN@GMAIL.COM",
+                EmailConfirmed = true, // Ha az email megerősítés szükséges
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+
+            };
+            PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, "admin");
+
+            modelBuilder.Entity<User>().HasData(user);
 
             modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {
