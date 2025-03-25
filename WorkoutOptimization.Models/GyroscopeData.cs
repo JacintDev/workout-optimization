@@ -28,7 +28,7 @@ namespace WorkoutOptimization.Models
 
 
         [ForeignKey(nameof(Training))]
-        public string TrainingId { get; set; }
+        public int TrainingId { get; set; }
 
         public virtual Training Training { get; set; }
 
