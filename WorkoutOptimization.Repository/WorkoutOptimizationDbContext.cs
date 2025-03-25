@@ -37,6 +37,11 @@ namespace WorkoutOptimization.Repository
                 .WithOne(x => x.User)
                 .HasForeignKey(x => x.UserId);
 
+            modelBuilder.Entity<Training>()
+                .HasMany(x => x.GyroscopeData)
+                .WithOne(x => x.Training)
+                .HasForeignKey(x => x.TrainingId);
+
 
             modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {

@@ -26,6 +26,12 @@ namespace WorkoutOptimization.Models
 
         public virtual User User { get; set; }
 
+
+        [ForeignKey(nameof(Training))]
+        public string TrainingId { get; set; }
+
+        public virtual Training Training { get; set; }
+
         public DateTime? Date { get; set; }
     }
 }
