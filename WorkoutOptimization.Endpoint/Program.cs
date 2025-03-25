@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -92,13 +93,20 @@ namespace WorkoutOptimization.Endpoint
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
-
+            builder.Services.Configure<ApiBehaviorOptions>(opt =>
+            {
+                opt.SuppressModelStateInvalidFilter = true;
+            });
             //exception handler
             builder.Services.AddControllers(opt =>
             {
                 opt.Filters.Add<ExceptionFilter>();
+                opt.Filters.Add<ValidationFilter>();
+
             });
 
+        
+            
             builder.Services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
