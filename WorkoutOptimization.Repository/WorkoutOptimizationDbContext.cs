@@ -32,6 +32,12 @@ namespace WorkoutOptimization.Repository
                WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade));
 
 
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.GyroscopeData)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId);
+
+
             modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {
                 AccelX = 1,
