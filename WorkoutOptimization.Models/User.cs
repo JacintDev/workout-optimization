@@ -46,8 +46,9 @@ namespace WorkoutOptimization.Models
         public Sex? Sex { get; set; }
         public string? MacAddress { get; set; }
         [JsonIgnore]
+        
         public virtual ICollection<Exercise> Exercises { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<GyroscopeData> GyroscopeData { get; set; }
         public User()
         {

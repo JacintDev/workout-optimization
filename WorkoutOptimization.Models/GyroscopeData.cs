@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace WorkoutOptimization.Models
 {
@@ -24,11 +25,13 @@ namespace WorkoutOptimization.Models
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }
 
+        [JsonIgnore]
         public virtual User User { get; set; }
 
 
         [ForeignKey(nameof(Training))]
-        public int TrainingId { get; set; }
+        public int? TrainingId { get; set; }
+        [JsonIgnore]
 
         public virtual Training Training { get; set; }
 

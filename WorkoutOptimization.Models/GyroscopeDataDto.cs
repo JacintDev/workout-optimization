@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace WorkoutOptimization.Models
 {
@@ -18,5 +19,13 @@ namespace WorkoutOptimization.Models
         
         public float GyrosZ { get; set; }
         public DateTime? Date { get; set; }
+        [JsonIgnore]
+        public virtual User User { get; set; }
+
+
+        [ForeignKey(nameof(Training))]
+        public int? TrainingId { get; set; }
+      
+  
     }
 }
