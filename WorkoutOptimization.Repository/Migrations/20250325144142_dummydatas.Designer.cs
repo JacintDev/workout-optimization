@@ -12,8 +12,8 @@ using WorkoutOptimization.Repository;
 namespace WorkoutOptimization.Repository.Migrations
 {
     [DbContext(typeof(WorkoutOptimizationDbContext))]
-    [Migration("20250320152916_exercise")]
-    partial class exercise
+    [Migration("20250325144142_dummydatas")]
+    partial class dummydatas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -240,7 +240,18 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Property<float>("GyrosZ")
                         .HasColumnType("real");
 
+                    b.Property<int?>("TrainingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("GyroscopeDataId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("GyrosScropeData");
 
@@ -251,10 +262,84 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1f,
                             AccelY = 1f,
                             AccelZ = 1f,
-                            Date = new DateTime(2025, 3, 20, 16, 29, 15, 802, DateTimeKind.Local).AddTicks(5897),
+                            Date = new DateTime(2025, 3, 25, 15, 41, 41, 689, DateTimeKind.Local).AddTicks(8548),
                             GyrosX = 1f,
                             GyrosY = 1f,
-                            GyrosZ = 1f
+                            GyrosZ = 1f,
+                            TrainingId = 1,
+                            UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
+                        });
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.Promotion", b =>
+                {
+                    b.Property<int>("PromotionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PromotionId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PromotionId");
+
+                    b.ToTable("Promotions");
+
+                    b.HasData(
+                        new
+                        {
+                            PromotionId = 1,
+                            Description = "A valós idejű visszajelzés rendkívül hasznos dolog az edzés közben, mert azon nyomban látja ön is, hogy az adott gyakorlatot megfelelően végzi-e",
+                            Name = "Valós idejű visszajelzés"
+                        });
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+                {
+                    b.Property<int>("TrainingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TrainingId"));
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("TrainingId");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Trainings");
+
+                    b.HasData(
+                        new
+                        {
+                            TrainingId = 1,
+                            End = new DateTime(2025, 3, 25, 15, 41, 41, 620, DateTimeKind.Local).AddTicks(5679),
+                            ExerciseId = 1,
+                            Start = new DateTime(2025, 3, 25, 15, 41, 41, 620, DateTimeKind.Local).AddTicks(5636),
+                            UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
                         });
                 });
 
@@ -297,6 +382,9 @@ namespace WorkoutOptimization.Repository.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("MacAddress")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -342,6 +430,24 @@ namespace WorkoutOptimization.Repository.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "9de68ce6-726f-461f-9349-9a9092ef9e58",
+                            Email = "admin@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@GMAIL.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGyiuLEnlrodM7cXAwt+089EVRvZ8MZMrw9uG7yzJIZNKvvT1h/ciXPaXg8bF9Thvg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "39578718-9817-4657-852b-32b29cce7d0b",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -393,6 +499,53 @@ namespace WorkoutOptimization.Repository.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.GyroscopeData", b =>
+                {
+                    b.HasOne("WorkoutOptimization.Models.Training", "Training")
+                        .WithMany("GyroscopeData")
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WorkoutOptimization.Models.User", "User")
+                        .WithMany("GyroscopeData")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Training");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+                {
+                    b.HasOne("WorkoutOptimization.Models.Exercise", "Exercise")
+                        .WithMany()
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WorkoutOptimization.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+                {
+                    b.Navigation("GyroscopeData");
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.User", b =>
+                {
+                    b.Navigation("GyroscopeData");
                 });
 #pragma warning restore 612, 618
         }

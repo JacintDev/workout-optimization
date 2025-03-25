@@ -32,6 +32,46 @@ namespace WorkoutOptimization.Repository
                WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade));
 
 
+
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.GyroscopeData)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Training>()
+                .HasMany(x => x.GyroscopeData)
+                .WithOne(x => x.Training)
+                .HasForeignKey(x => x.TrainingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<Training>().HasData(new Training()
+            {
+                Start = DateTime.Now,
+                End = DateTime.Now,
+                ExerciseId = 1,
+                TrainingId = 1,
+                UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
+
+            });
+            var user= new User()
+            {
+                Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
+                UserName = "admin@gmail.com",
+                NormalizedUserName = "ADMIN",
+                Email = "admin@gmail.com",
+                NormalizedEmail = "ADMIN@GMAIL.COM",
+                EmailConfirmed = true, // Ha az email megerősítés szükséges
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+
+            };
+            PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, "admin");
+
+            modelBuilder.Entity<User>().HasData(user);
+
             modelBuilder.Entity<GyroscopeData>().HasData(new GyroscopeData()
             {
                 AccelX = 1,
@@ -41,7 +81,10 @@ namespace WorkoutOptimization.Repository
                 GyrosY = 1,
                 GyrosZ = 1,
                 Date = DateTime.Now,
-                GyroscopeDataId = 1
+                GyroscopeDataId = 1,
+                UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
+                TrainingId = 1,
+
             });
             modelBuilder.Entity<Exercise>().HasData(new Exercise()
             {

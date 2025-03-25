@@ -29,5 +29,13 @@ namespace WorkoutOptimization.Models
         [JsonIgnore]
         public virtual User User { get; set; }
 
+        [JsonIgnore]
+        public virtual ICollection<GyroscopeData> GyroscopeData { get; set; }
+
+        public Training()
+        {
+            this.GyroscopeData=new HashSet<GyroscopeData>();
+        }
+
     }
 }
