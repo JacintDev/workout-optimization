@@ -58,6 +58,16 @@ namespace WorkoutOptimization.Endpoint
             });
 
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy => policy.AllowAnyOrigin()
+                                    .AllowAnyMethod()
+                                    .AllowAnyHeader());
+            });
+
+
+
             //mysql connection string create
             SqlConnectionStringBuilder conn = new SqlConnectionStringBuilder()
             {
@@ -127,6 +137,8 @@ namespace WorkoutOptimization.Endpoint
                 };
             });
             var app = builder.Build();
+
+            app.UseCors("AllowAll"); // CORS middleware aktiválása
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
