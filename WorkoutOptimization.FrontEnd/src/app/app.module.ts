@@ -8,10 +8,11 @@ import { UnathorizedNavComponent } from './unathorized-nav/unathorized-nav.compo
 
 //material
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [AppComponent, WelcomeComponent, UnathorizedNavComponent],
-  imports: [BrowserModule, AppRoutingModule, MatIconModule],
+  imports: [BrowserModule, AppRoutingModule, MatIconModule, MatTabsModule],
   providers: [],
   bootstrap: [AppComponent],
 })
