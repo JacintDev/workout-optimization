@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApplicationComponent } from './application/application.component';
+import { WorkingComponent } from './working/working.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { ApplicationComponent } from './application/application.component';
     UnathorizedNavComponent,
     LandingPageComponent,
     ApplicationComponent,
+    WorkingComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, MatIconModule, MatTabsModule],
   providers: [provideHttpClient()],

@@ -4,12 +4,14 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { UnathorizedNavComponent } from './unathorized-nav/unathorized-nav.component';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApplicationComponent } from './application/application.component';
+import { WorkingComponent } from './working/working.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
   { path: 'unauthorizednav', component: UnathorizedNavComponent },
   { path: 'landingpage', component: LandingPageComponent },
   { path: 'application', component: ApplicationComponent },
+  { path: 'working', component: WorkingComponent },
 ];
 
 @NgModule({
