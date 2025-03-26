@@ -10,9 +10,10 @@ import { UnathorizedNavComponent } from './unathorized-nav/unathorized-nav.compo
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { LandingPageComponent } from './landing-page/landing-page.component';
+import { ApplicationComponent } from './application/application.component';
 
 @NgModule({
-  declarations: [AppComponent, WelcomeComponent, UnathorizedNavComponent, LandingPageComponent],
+  declarations: [AppComponent, WelcomeComponent, UnathorizedNavComponent, LandingPageComponent, ApplicationComponent],
   imports: [BrowserModule, AppRoutingModule, MatIconModule, MatTabsModule],
   providers: [],
   bootstrap: [AppComponent],
