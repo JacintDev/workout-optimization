@@ -13,6 +13,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApplicationComponent } from './application/application.component';
 import { WorkingComponent } from './working/working.component';
+import { ContactComponent } from './contact/contact.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { WorkingComponent } from './working/working.component';
     LandingPageComponent,
     ApplicationComponent,
     WorkingComponent,
+    ContactComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, MatIconModule, MatTabsModule],
   providers: [provideHttpClient()],

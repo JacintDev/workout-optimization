@@ -5,6 +5,7 @@ import { UnathorizedNavComponent } from './unathorized-nav/unathorized-nav.compo
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApplicationComponent } from './application/application.component';
 import { WorkingComponent } from './working/working.component';
+import { ContactComponent } from './contact/contact.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -12,6 +13,7 @@ const routes: Routes = [
   { path: 'landingpage', component: LandingPageComponent },
   { path: 'application', component: ApplicationComponent },
   { path: 'working', component: WorkingComponent },
+  { path: 'contact', component: ContactComponent },
 ];
 
 @NgModule({
