@@ -10,6 +10,16 @@ import { provideHttpClient } from '@angular/common/http';
 //material
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatButtonModule } from '@angular/material/button';
+
+//FORM
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApplicationComponent } from './application/application.component';
 import { WorkingComponent } from './working/working.component';
@@ -25,7 +35,18 @@ import { ContactComponent } from './contact/contact.component';
     WorkingComponent,
     ContactComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, MatIconModule, MatTabsModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    MatIconModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatButtonModule,
+  ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
 })
