@@ -19,11 +19,13 @@ import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
 
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApplicationComponent } from './application/application.component';
 import { WorkingComponent } from './working/working.component';
 import { ContactComponent } from './contact/contact.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +36,7 @@ import { ContactComponent } from './contact/contact.component';
     ApplicationComponent,
     WorkingComponent,
     ContactComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,6 +49,7 @@ import { ContactComponent } from './contact/contact.component';
     MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
+    MatSelectModule,
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
