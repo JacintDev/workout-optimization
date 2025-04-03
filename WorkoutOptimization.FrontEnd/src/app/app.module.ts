@@ -26,6 +26,7 @@ import { ApplicationComponent } from './application/application.component';
 import { WorkingComponent } from './working/working.component';
 import { ContactComponent } from './contact/contact.component';
 import { RegisterComponent } from './register/register.component';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { RegisterComponent } from './register/register.component';
     WorkingComponent,
     ContactComponent,
     RegisterComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
