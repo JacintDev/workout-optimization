@@ -1,0 +1,45 @@
+<header><h2>Bejelentkezés</h2></header>
+<div class="login-container">
+  <div class="form-container">
+    <div class="form-content">
+      <mat-form-field appearance="outline">
+        <input
+          matInput
+          [formControl]="this.formControl[0]"
+          [(ngModel)]="LoginModel.email"
+        />
+        <mat-label>Email cím</mat-label>
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="this.formControl[0].invalid">{{
+          this.getEmailErrorMessage()
+        }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input
+          matInput
+          type="password"
+          [formControl]="this.formControl[1]"
+          [(ngModel)]="LoginModel.password"
+        />
+        <mat-label>Jelszó</mat-label>
+        <mat-icon matSuffix>lock</mat-icon>
+        <mat-error *ngIf="this.formControl[1].invalid">{{
+          this.getPasswordErrorMessage()
+        }}</mat-error>
+      </mat-form-field>
+      <button
+        mat-flat-button
+        class="btn-send"
+        (click)="sendLogin()"
+        [disabled]="!btnCheck()"
+      >
+        Bejelentkezés
+      </button>
+      <p class="login-href">
+        Amennyiben még nincs fiókod, akkor
+        <span routerLink="/register">kattints ide</span> a regsztrációhoz
+      </p>
+    </div>
+  </div>
+</div>
