@@ -9,6 +9,8 @@ import { ContactComponent } from './contact/contact.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
+import { AuthGuard } from './auth.guard';
+import { GuestGuard } from './guest.guard';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -17,9 +19,14 @@ const routes: Routes = [
   { path: 'application', component: ApplicationComponent },
   { path: 'working', component: WorkingComponent },
   { path: 'contact', component: ContactComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'home', component: HomeComponent },
+  { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
+  {
+    path: 'home',
+    component: HomeComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
   { path: '**', redirectTo: 'welcome', pathMatch: 'full' }, // Redirect to welcome for any unknown routes
 ];
 
