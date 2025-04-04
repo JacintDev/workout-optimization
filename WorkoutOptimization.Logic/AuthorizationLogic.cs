@@ -55,7 +55,9 @@ namespace WorkoutOptimization.Logic
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                var claim = new List<Claim> { new Claim(JwtRegisteredClaimNames.Sub, user.Email) };
+                var claim = new List<Claim> 
+                { new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                  new Claim(ClaimTypes.Name, user.Email)};
                 foreach (var role in await _userManager.GetRolesAsync(user))
                 {
                     claim.Add(new Claim(ClaimTypes.Role, role));
