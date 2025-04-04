@@ -21,16 +21,6 @@ namespace WorkoutOptimization.Models
         [Required]
         [Length(2, 20)]
         public string LastName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-        [NotMapped]
-        public int GetAge
-        {
-            get => DateOfBirth.HasValue ? DateTime.Now.Year - DateOfBirth.Value.Year : 0;
-        }
-        public int Weight { get; set; }
-        public int Height { get; set; }
-
-        public Level Level { get; set; }
         public Sex Sex { get; set; }
 
     }
