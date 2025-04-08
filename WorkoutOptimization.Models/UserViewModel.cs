@@ -5,15 +5,22 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+<<<<<<< HEAD
 using System.Text.Json.Serialization;
+=======
+>>>>>>> 494a3d9c4c0a543a5c6cdc49659b7c70a1901f20
 
 namespace WorkoutOptimization.Models
 {
     public class UserViewModel
     {
+<<<<<<< HEAD
         [JsonPropertyName("UserId")]
         public string? Id { get; set; }
         public string? Email { get; set; }
+=======
+        public string? UserId { get; set; }
+>>>>>>> 494a3d9c4c0a543a5c6cdc49659b7c70a1901f20
         public string? FirstName { get; set; }
 
         public string? LastName { get; set; }

@@ -1,0 +1,78 @@
+<header><h2>Regisztráció</h2></header>
+<div class="register-container">
+  <div class="form-container">
+    <div class="form-content">
+      <mat-form-field appearance="outline">
+        <input
+          matInput
+          [formControl]="this.formControl[0]"
+          [(ngModel)]="RegisterModel.email"
+        />
+        <mat-label>Email cím</mat-label>
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="this.formControl[0].invalid">{{
+          this.getEmailErrorMessage()
+        }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <input
+          matInput
+          [formControl]="this.formControl[1]"
+          [(ngModel)]="RegisterModel.password"
+        />
+        <mat-label>Jelszó</mat-label>
+        <mat-icon matSuffix>lock</mat-icon>
+        <mat-error *ngIf="this.formControl[1].invalid">{{
+          this.getPasswordErrorMessage()
+        }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <input
+          matInput
+          [formControl]="this.formControl[3]"
+          [(ngModel)]="RegisterModel.lastName"
+        />
+        <mat-label>Vezetéknév</mat-label>
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="this.formControl[3].invalid">{{
+          this.getLastNameErrorMessage()
+        }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <input
+          matInput
+          [formControl]="this.formControl[2]"
+          [(ngModel)]="RegisterModel.firstName"
+        />
+        <mat-label>Keresztnév</mat-label>
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="this.formControl[2].invalid">{{
+          this.getFirstNameErrorMessage()
+        }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nem</mat-label>
+        <mat-select [(value)]="RegisterModel.sex">
+          <mat-option *ngFor="let x of sex" [value]="x.value">{{
+            x.viewValue
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        class="btn-send"
+        (click)="sendRegister()"
+        [disabled]="!btnCheck()"
+      >
+        Regisztráció
+      </button>
+      <p class="login-href">
+        Amennyiben már regisztráltál
+        <span routerLink="/login">kattints ide</span> a belépéshez
+      </p>
+    </div>
+  </div>
+</div>

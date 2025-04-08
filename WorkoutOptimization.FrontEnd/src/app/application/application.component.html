@@ -1,0 +1,23 @@
+<header>
+  <h2>Alkalmazás</h2>
+</header>
+<div class="application-container">
+  <div class="application-content">
+    <h3>A WorkoutOptimization mit nyújt számodra?</h3>
+    <div class="cards">
+      <div class="card" *ngFor="let promotion of Promotions">
+        <div class="card-header">
+          <h4>{{ promotion.name }}</h4>
+        </div>
+        <div class="card-image">
+          <mat-icon fontIcon="{{ promotion.image }}"></mat-icon>
+        </div>
+        <div class="card-context">
+          <p>
+            {{ promotion.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

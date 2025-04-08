@@ -56,5 +56,24 @@ namespace WorkoutOptimization.Endpoint.Controllers
             }
             return Unauthorized();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> IsLoggedIn()
+        {
+            if (string.IsNullOrEmpty(User.Identity.Name))
+            {
+                return BadRequest(new { isLoggedIn = false });
+            }
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            if (user != null)
+            {
+                return (Ok(new { isLoggedIn = true, user = _mapper.Map<UserViewModel>(user) }));
+            }
+            else
+            {
+                return (BadRequest(new { isLoggedIn = false }));
+            }
+        }
+
     }
 }

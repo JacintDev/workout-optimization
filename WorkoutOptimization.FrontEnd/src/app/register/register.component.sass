@@ -1,0 +1,61 @@
+@import '../../assets/styles/variables'
+
+header
+    background: $primary
+    text-align: center
+    padding: 20px
+
+header h2
+    font-size: 54px
+    font-family: 'Russo One', sans-serif
+
+.register-container
+    max-width: 600px
+    margin: 100px auto
+
+.form-container
+    padding: 20px
+    border: 1px solid #9f999946
+    box-shadow: 0 0 10px #a4a8a6af
+
+mat-form-field
+    --mat-sys-primary: #000 
+    --mat-sys-on-surface: #212121
+    --mat-sys-on-surface-variant: #b0afaf
+    --mat-sys-on-error-container: red
+    --mat-sys-error: red
+    width: 100%
+    margin-bottom: 20px
+
+.btn-send
+    border-radius: 0
+    font-size: 18px
+    padding: 1rem
+    background: $primary !important
+    font-family: 'Russo One', sans-serif
+    &:disabled
+        color: black
+        background: #ffef3a68 !important
+        transition: 0.8s ease-in-out
+    &:valid
+        background: $primary !important
+        color: black
+        transition: 0.8s ease-in-out
+
+
+
+.login-href
+    margin-top: 10px
+
+.login-href span
+    color: #0d6deb
+    cursor: pointer
+    text-decoration: underline
+    font-size: 14px
+    font-family: 'Russo One', sans-serif
+    font-weight: 500
+    &:hover
+        color: #0d6deb65
+        text-decoration: none
+        transition: all 0.3s ease-in-out
+        
