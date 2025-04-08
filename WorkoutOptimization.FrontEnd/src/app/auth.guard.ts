@@ -24,11 +24,23 @@ export class AuthGuard implements CanActivate {
           this.router.navigate(['/login']); // Ha nincs bejelentkezve, átirányítjuk a loginra
           return false; // Ha nem bejelentkezett, akkor nem engedjük az útvonalra lépni
         }
+        // Ellenőrizzük, hogy a felhasználó szerepköre benne van-e az engedélyezettek között
+        const expectedRoles: string[] = route.data['roles']; // Több szerepkör is lehet
+        const userRole = this.authService.getUserRole(); // A felhasználó aktuális szerepköre
+        if (userRole) {
+          if (expectedRoles && !expectedRoles.includes(userRole)) {
+            this.router.navigate(['/welcome']); // Ha nincs megfelelő jogosultság, átirányítjuk
+            console.error('Jogosultság megtagadva!');
+            return false; // Ha nincs megfelelő jogosultság, akkor nem engedjük az útvonalra lépni
+          }
+        } else {
+          return false;
+        }
         return true; // Ha be van jelentkezve, akkor engedjük az útvonalra lépni
       })
     );
-    // const expectedRoles: string[] = route.data['roles']; // Több szerepkör is lehet
-    // const userRole = this.authService.getUserRole(); // A felhasználó aktuális szerepköre
+    const expectedRoles: string[] = route.data['roles']; // Több szerepkör is lehet
+    const userRole = this.authService.getUserRole(); // A felhasználó aktuális szerepköre
 
     // if (!userRole) {
     //   this.router.navigate(['/login']); // Ha nincs bejelentkezve, átirányítjuk a loginra
@@ -43,7 +55,5 @@ export class AuthGuard implements CanActivate {
     //   return false;
     // }
     // console.warn('Jogosultság megadva: ' + userRole);
-
-    return of(true); // Ha minden stimmel, akkor engedjük az útvonalra lépni
   }
 }
