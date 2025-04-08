@@ -15,10 +15,18 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('token');
   }
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('expiration');
-    localStorage.clear();
+  logout(): Observable<void> {
+    return new Observable((observer) => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('expiration');
+      localStorage.clear();
+      console.log('MŰKÖDJ TE GECI');
+
+      this.currentUserSubject.next(null);
+
+      observer.next();
+      observer.complete();
+    });
   }
 
   getUserRole(): string | null {

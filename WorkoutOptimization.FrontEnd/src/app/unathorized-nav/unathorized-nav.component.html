@@ -38,7 +38,7 @@
       ></mat-icon
       >ELÉRHETŐSÉG
     </li>
-    <li class="join" routerLink="/register" *ngIf="!(this.user$ | async)">
+    <li class="join" routerLink="/register" *ngIf="!this.isLoggedIn">
       CSATLAKOZZ
       <mat-icon
         aria-hidden="false"
@@ -46,8 +46,9 @@
         fontIcon="arrow_right_alt"
       ></mat-icon>
     </li>
-    <li class="join" routerLink="/register" *ngIf="this.user$ | async">
+    <li class="join" routerLink="/logout" *ngIf="this.isLoggedIn">
       KILÉPÉS
+
       <mat-icon
         aria-hidden="false"
         aria-label="logout"

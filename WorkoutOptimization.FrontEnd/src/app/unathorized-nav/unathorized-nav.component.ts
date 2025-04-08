@@ -12,13 +12,21 @@ import { UserModel } from '../../models/UserModel';
   styleUrl: './unathorized-nav.component.sass',
 })
 export class UnathorizedNavComponent implements OnInit {
-  user$: Observable<UserModel | null>;
+  isLoggedIn: boolean = false;
   constructor(
     private scrollToService: ScrollToService,
     private router: Router,
     private auth: AuthService
   ) {
-    this.user$ = this.auth.currentUser$;
+    this.auth.currentUser$.subscribe((user) => {
+      if (user?.UserId != null) {
+        this.isLoggedIn = true;
+      } else {
+        this.isLoggedIn = false;
+      }
+    });
+
+    console.error(this.isLoggedIn);
   }
   ngOnInit(): void {}
   scrollTo(fragment: string): void {

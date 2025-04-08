@@ -11,6 +11,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 //FORM
 
@@ -28,6 +29,7 @@ import { ContactComponent } from './contact/contact.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
+import { LogoutComponent } from './logout/logout.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +43,7 @@ import { HomeComponent } from './home/home.component';
     RegisterComponent,
     LoginComponent,
     HomeComponent,
+    LogoutComponent,
   ],
   imports: [
     BrowserModule,
@@ -54,6 +57,7 @@ import { HomeComponent } from './home/home.component';
     MatCheckboxModule,
     MatButtonModule,
     MatSelectModule,
+    MatSnackBarModule,
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],

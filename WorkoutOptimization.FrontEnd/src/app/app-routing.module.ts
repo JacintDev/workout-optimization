@@ -11,6 +11,7 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './auth.guard';
 import { GuestGuard } from './guest.guard';
+import { LogoutComponent } from './logout/logout.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -21,6 +22,12 @@ const routes: Routes = [
   { path: 'contact', component: ContactComponent },
   { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
   { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
+  {
+    path: 'logout',
+    component: LogoutComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
   {
     path: 'home',
     component: HomeComponent,
