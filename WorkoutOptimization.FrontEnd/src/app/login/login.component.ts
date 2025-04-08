@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { TokenModel } from '../../models/TokenModel';
 import { Route, Router } from '@angular/router';
 import { AuthService } from '../AuthService';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ export class LoginComponent {
   constructor(
     http: HttpClient,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackbar: MatSnackBar
   ) {
     this.formControl = new Array<FormControl>();
     this.formControl.push(
@@ -70,11 +72,12 @@ export class LoginComponent {
           (resp) => {
             localStorage.setItem('token', resp.token);
             localStorage.setItem('expiration', resp.expiration.toString());
-
             this.router.navigate(['/home']);
           },
           (error) => {
-            console.log(error);
+            this.snackbar.open('Sikertelen bejelentkezés!', 'OK', {
+              duration: 2000,
+            });
           }
         );
     }
