@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { RegisterModel } from '../../models/RegisterModel';
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -17,8 +19,9 @@ export class RegisterComponent {
     { value: 1, viewValue: 'Férfi' },
   ];
   http: HttpClient;
+  snackbar: MatSnackBar;
 
-  constructor(http: HttpClient) {
+  constructor(http: HttpClient, snackbar: MatSnackBar, private router: Router) {
     this.formControl = new Array<FormControl>();
     this.formControl.push(
       new FormControl('', [Validators.required, Validators.email])
@@ -33,6 +36,7 @@ export class RegisterComponent {
       new FormControl('', [Validators.required, Validators.minLength(2)])
     );
     this.http = http;
+    this.snackbar = snackbar;
   }
 
   getEmailErrorMessage() {
@@ -87,7 +91,12 @@ export class RegisterComponent {
         .post('http://localhost:5135/Auth/Register', this.RegisterModel)
         .subscribe(
           (success) => {
-            console.log(success);
+            this.snackbar
+              .open('Sikeres regisztráckió', 'OK', { duration: 2000 })
+              .afterDismissed()
+              .subscribe(() => {
+                this.router.navigate(['/login']);
+              });
           },
           (error) => {
             console.log(error);
