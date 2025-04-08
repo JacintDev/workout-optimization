@@ -1,11 +1,15 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
+import { UserModel } from '../models/UserModel';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private currentUserSubject = new BehaviorSubject<UserModel | null>(null);
+  public currentUser$ = this.currentUserSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
   getToken(): string | null {
@@ -34,24 +38,36 @@ export class AuthService {
     }
   }
 
+  setUser(user: any): UserModel {
+    let u = user as UserModel;
+    return u;
+  }
+
   isLoggedIn(): Observable<boolean> {
     const token = this.getToken();
     if (!token) {
       return of(false);
     }
 
-    return of(false); // TODO: Implement token expiration check
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http
+      .get<any>('http://localhost:5135/Auth/IsLoggedIn', { headers })
+      .pipe(
+        map((resp) => {
+          if (resp.isLoggedIn === true) {
+            this.currentUserSubject.next(this.setUser(resp.user));
+            return true;
+          }
+          this.currentUserSubject.next(null);
 
-    //let expiration = localStorage.getItem('expiration');
-    // if (!expiration) {
-    //   return false;
-    // }
-    // const expirationTime = new Date(expiration).getTime();
-    // const currentTime = Date.now(); // Convert to seconds
-    // if (expirationTime > currentTime) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
+          return false;
+        }),
+        catchError((error) => {
+          return of(false);
+        })
+      );
   }
 }

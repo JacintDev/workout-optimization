@@ -38,11 +38,19 @@
       ></mat-icon
       >ELÉRHETŐSÉG
     </li>
-    <li class="join" routerLink="/register">
+    <li class="join" routerLink="/register" *ngIf="!(this.user$ | async)">
       CSATLAKOZZ
       <mat-icon
         aria-hidden="false"
-        aria-label="Elérhetőség"
+        aria-label="join"
+        fontIcon="arrow_right_alt"
+      ></mat-icon>
+    </li>
+    <li class="join" routerLink="/register" *ngIf="this.user$ | async">
+      KILÉPÉS
+      <mat-icon
+        aria-hidden="false"
+        aria-label="logout"
         fontIcon="arrow_right_alt"
       ></mat-icon>
     </li>

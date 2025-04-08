@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from './AuthService';
+import { map, Observable } from 'rxjs';
+import { UserModel } from '../models/UserModel';
 
 @Injectable({
   providedIn: 'root',
@@ -8,12 +10,17 @@ import { AuthService } from './AuthService';
 export class GuestGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(): boolean {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/home']); // Ha már be van jelentkezve, akkor átnavigáljuk a főoldalra
-      return false;
-    }
+  canActivate(): Observable<boolean> {
+    return this.authService.isLoggedIn().pipe(
+      map((isLoggedIn) => {
+        console.log(isLoggedIn);
 
-    return true; // Ha nincs bejelentkezve, akkor beléphet
+        if (isLoggedIn) {
+          this.router.navigate(['/home']); // Ha be van jelentkezve, átirányítjuk a welcome oldalra
+          return false; // Ha be van jelentkezve, akkor nem engedjük az útvonalra lépni
+        }
+        return true;
+      })
+    );
   }
 }
