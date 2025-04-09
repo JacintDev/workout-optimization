@@ -12,6 +12,7 @@ import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './auth.guard';
 import { GuestGuard } from './guest.guard';
 import { LogoutComponent } from './logout/logout.component';
+import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'application', component: ApplicationComponent },
   { path: 'working', component: WorkingComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'authorizednav', component: AuthorizedNavbarComponent },
   { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
   { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
   {

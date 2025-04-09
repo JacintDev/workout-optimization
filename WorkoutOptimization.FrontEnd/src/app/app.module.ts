@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 //FORM
 
@@ -30,6 +31,7 @@ import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { LogoutComponent } from './logout/logout.component';
+import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +46,7 @@ import { LogoutComponent } from './logout/logout.component';
     LoginComponent,
     HomeComponent,
     LogoutComponent,
+    AuthorizedNavbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -58,6 +61,7 @@ import { LogoutComponent } from './logout/logout.component';
     MatButtonModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatSidenavModule,
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
