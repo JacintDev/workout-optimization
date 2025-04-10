@@ -13,6 +13,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatDialogModule } from '@angular/material/dialog';
 
 //FORM
 
@@ -32,6 +33,8 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { LogoutComponent } from './logout/logout.component';
 import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar.component';
+import { HeaderComponent } from './header/header.component';
+import { LogoutDialogComponent } from './logout-dialog/logout-dialog.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +50,8 @@ import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar
     HomeComponent,
     LogoutComponent,
     AuthorizedNavbarComponent,
+    HeaderComponent,
+    LogoutDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -62,6 +67,7 @@ import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar
     MatSelectModule,
     MatSnackBarModule,
     MatSidenavModule,
+    MatDialogModule,
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],

@@ -1,3 +1,9 @@
-<app-unathorized-nav *ngIf="!this.logged"></app-unathorized-nav>
-<app-authorized-navbar *ngIf="this.logged"></app-authorized-navbar>
-<router-outlet></router-outlet>
+<div class="unlogged-site" *ngIf="!this.logged">
+  <app-unathorized-nav></app-unathorized-nav>
+  <router-outlet></router-outlet>
+</div>
+<div class="logged-site" *ngIf="this.logged">
+  <div class="header"><app-header></app-header></div>
+  <div class="navbar"><app-authorized-navbar></app-authorized-navbar></div>
+  <div class="content"><router-outlet></router-outlet></div>
+</div>
