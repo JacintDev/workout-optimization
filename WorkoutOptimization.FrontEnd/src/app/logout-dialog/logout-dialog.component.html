@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>{{ data.name }}</h2>
+<mat-dialog-content
+  ><h3>{{ data.question }}</h3></mat-dialog-content
+>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Nem</button>
+  <button mat-button cdkFocusInitial mat-dialog-close (click)="logout()">
+    Igen
+  </button>
+</mat-dialog-actions>

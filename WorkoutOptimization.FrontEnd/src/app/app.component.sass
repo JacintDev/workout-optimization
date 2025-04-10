@@ -1,0 +1,20 @@
+
+.logged-site
+    display: grid
+    grid-template-columns: 1fr 5fr
+    grid-template-areas: 'a1 a1' 'a2 a3'
+
+.header
+    grid-area: a1
+    position: fixed   
+    top: 0
+    left: 0
+
+.navbar
+    grid-area: a2
+    z-index: 0
+  
+
+.content
+    grid-area: a3
+    margin-top: 60px
