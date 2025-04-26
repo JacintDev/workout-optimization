@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatStepperModule } from '@angular/material/stepper';
 
 //FORM
 
@@ -68,6 +69,7 @@ import { LogoutDialogComponent } from './logout-dialog/logout-dialog.component';
     MatSnackBarModule,
     MatSidenavModule,
     MatDialogModule,
+    MatStepperModule,
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],

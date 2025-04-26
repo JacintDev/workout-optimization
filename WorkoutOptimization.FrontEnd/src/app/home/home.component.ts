@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../AuthService';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -8,9 +9,13 @@ import { AuthService } from '../AuthService';
   styleUrl: './home.component.sass',
 })
 export class HomeComponent {
-  constructor(private auth: AuthService) {
-    this.auth.currentUser$.subscribe((user) => {
-      console.log(user);
-    });
-  }
+  private _formBuilder = inject(FormBuilder);
+  constructor(private auth: AuthService) {}
+  firstFormGroup = this._formBuilder.group({
+    firstCtrl: ['', Validators.required],
+  });
+  secondFormGroup = this._formBuilder.group({
+    secondCtrl: ['', Validators.required],
+  });
+  isLinear = false;
 }
