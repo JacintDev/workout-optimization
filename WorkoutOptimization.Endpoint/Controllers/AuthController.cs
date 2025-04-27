@@ -75,5 +75,29 @@ namespace WorkoutOptimization.Endpoint.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            user = _mapper.Map(model, user);
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "User updated successfully" });
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
+
     }
 }
