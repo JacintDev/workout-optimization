@@ -4,19 +4,30 @@
       <mat-step [stepControl]="firstFormGroup">
         <form [formGroup]="firstFormGroup">
           <ng-template matStepLabel class="label"
-            >Add meg az életkorod</ng-template
+            >Add meg a születési dátumod</ng-template
           >
           <mat-form-field appearance="outline">
-            <mat-label>Életkor</mat-label>
+            <mat-label>Születési dátum</mat-label>
             <input
               matInput
               placeholder=" "
               formControlName="firstCtrl"
               required
-              type="number"
-              min="12"
-              max="100"
+              type="date"
+              min="1920-01-01"
+              [max]="today"
+              [(ngModel)]="user.dateOfBirth"
             />
+            <mat-error
+              *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['minDate']"
+            >
+              A dátum nem lehet korábbi 1920-01-01-nél.
+            </mat-error>
+            <mat-error
+              *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['maxDate']"
+            >
+              A dátum nem lehet későbbi a mainál.
+            </mat-error>
           </mat-form-field>
           <div>
             <button
@@ -44,6 +55,7 @@
               type="number"
               min="30"
               max="200"
+              [(ngModel)]="user.weight"
             />
           </mat-form-field>
           <div>
@@ -70,6 +82,7 @@
               required
               min="100"
               max="220"
+              [(ngModel)]="user.height"
             />
           </mat-form-field>
           <div>
@@ -91,7 +104,11 @@
         <form [formGroup]="fourthFormGroup">
           <mat-form-field appearance="outline">
             <mat-label>Edzettségi szint</mat-label>
-            <mat-select required formControlName="fourthCtrl">
+            <mat-select
+              required
+              formControlName="fourthCtrl"
+              [(ngModel)]="user.level"
+            >
               <mat-option *ngFor="let x of fitnessLevel" [value]="x.value">{{
                 x.viewValue
               }}</mat-option>
