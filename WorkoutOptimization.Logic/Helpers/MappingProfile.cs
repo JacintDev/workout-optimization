@@ -20,6 +20,7 @@ namespace WorkoutOptimization.Logic.Helpers
             CreateMap<Training, TrainingDto>().ReverseMap();
             CreateMap<Promotion, PromotionDto>().ReverseMap();
             CreateMap<User, UserViewModel>().ReverseMap();
+            CreateMap<User, UserUpdateModel>().ReverseMap();
         }
 
     }
