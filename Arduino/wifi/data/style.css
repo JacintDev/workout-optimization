@@ -57,7 +57,8 @@ td {
 	padding: 30px;
 }
 
-#ssid-input {
+#ssid-input,
+#email-input {
 	margin-top: 40px;
 	border: none;
 	width: 100%;
