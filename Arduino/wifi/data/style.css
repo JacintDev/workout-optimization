@@ -1,0 +1,84 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+button {
+	padding: 10px;
+	border: none;
+	background-color: #ffee3a;
+	cursor: pointer;
+}
+
+button:hover {
+	background-color: #ffef3aa6;
+}
+
+body {
+	background-color: #080808e0;
+	color: white;
+}
+h2 {
+	margin-top: 40px;
+	text-align: center;
+}
+
+.container {
+	display: flex;
+	justify-content: center;
+	padding-top: 20px;
+	flex-direction: column;
+	max-width: 80%;
+	margin: 0 auto;
+}
+
+th {
+	background-color: red;
+	width: 100vw;
+	padding: 10px;
+}
+
+tr:nth-child(even) {
+	background-color: #2e2d2d;
+}
+td {
+	padding: 10px;
+}
+
+.connect-modal {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 80%;
+	height: 40%;
+	background-color: #2e2d2d;
+	padding: 30px;
+}
+
+#ssid-input,
+#email-input {
+	margin-top: 40px;
+	border: none;
+	width: 100%;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+#password {
+	border: none;
+	width: 100%;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+#close-button {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background-color: red;
+	color: black;
+	border: none;
+	padding: 5px 10px;
+	cursor: pointer;
+}
