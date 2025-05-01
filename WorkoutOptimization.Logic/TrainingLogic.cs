@@ -20,9 +20,22 @@ namespace WorkoutOptimization.Logic
             _repo = repo;
         }
 
-        public void Create(TrainingDto entity)
+        public async Task<bool> Create(TrainingDto entity, User user)
         {
-            _repo.Create(_mapper.Map<Training>(entity));
+            var training= _mapper.Map<Training>(entity);
+            training.User = user;
+            training.UserId=user.Id;
+            try
+            {
+                _repo.Create(training);
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+            
         }
 
         public void Delete(int id)

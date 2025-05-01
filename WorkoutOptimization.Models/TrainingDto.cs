@@ -15,12 +15,11 @@ namespace WorkoutOptimization.Models
         [Required]
         public DateTime Start { get; set; }
         [Required]
-        public DateTime End { get; set; }
-
-        [ForeignKey(nameof(Exercise))]
+        public DateTime? End { get; set; }
+        [Required]
+        public bool isActive { get; set; }
         public int ExerciseId { get; set; }
-        [ForeignKey(nameof(User))]
-        public string UserId { get; set; }
+
 
     }
 }
