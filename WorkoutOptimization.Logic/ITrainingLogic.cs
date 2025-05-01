@@ -4,7 +4,7 @@ namespace WorkoutOptimization.Logic
 {
     public interface ITrainingLogic
     {
-        void Create(TrainingDto entity);
+        Task<bool> Create(TrainingDto entity, User user);
         void Delete(int id);
         Training Read(int id);
         IQueryable<Training> ReadAll();
