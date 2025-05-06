@@ -14,7 +14,7 @@ namespace WorkoutOptimization.Models
       
         [Required]
         public DateTime Start { get; set; }
-        [Required]
+        
         public DateTime? End { get; set; }
         [Required]
         public bool isActive { get; set; }
