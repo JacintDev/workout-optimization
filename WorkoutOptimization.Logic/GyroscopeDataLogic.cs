@@ -15,10 +15,13 @@ namespace WorkoutOptimization.Logic
             _repo = repo;
         }
 
-        public void Create(GyroscopeDataDto entity)
+        public void Create(GyroscopeDataDto entity, User user)
         {
-
-            _repo.Create(_mapper.Map<GyroscopeData>(entity));
+            var gyroscopeData = _mapper.Map<GyroscopeData>(entity);
+            gyroscopeData.User = user;
+            gyroscopeData.UserId = user.Id;
+            gyroscopeData.Date = DateTime.Now;
+            _repo.Create(gyroscopeData);
         }
 
         public void Delete(int id)
