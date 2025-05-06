@@ -9,7 +9,7 @@ using WorkoutOptimization.Models;
 
 namespace WorkoutOptimization.Endpoint.Controllers
 {
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class TrainingController : ControllerBase
     {
@@ -29,7 +29,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
         //Csak a sajátodat adja vissza, kivéve admin
         [Authorize]
         [HttpGet]
-        public IEnumerable<Training> Get()
+        public IEnumerable<Training> GetAll()
         {
             return _logic.ReadAll();
         }
@@ -43,9 +43,9 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] TrainingDto entity)
+        public async Task<IActionResult> CreateTraining([FromBody] TrainingDto entity)
         {
-            //_logic.Create(entity);
+            
 
             if (String.IsNullOrEmpty(this.User.Identity!.Name))
             {
@@ -68,16 +68,42 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public void Update([FromBody] TrainingDto entity, int id)
+        public void UpdateTraining([FromBody] TrainingDto entity, int id)
         {
             _logic.Update(entity, id);
         }
 
         [Authorize]
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void DeleteTraining(int id)
         {
             _logic.Delete(id);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetActiveTraining()
+        {
+            if (String.IsNullOrEmpty(this.User.Identity!.Name))
+            {
+                return BadRequest(new { message = "Unathorized!" });
+            }
+            var user = await _userManager.FindByEmailAsync(this.User.Identity.Name);
+            if (user == null)
+            {
+                return BadRequest(new { message = "Unathorized!" });
+            }
+            //send to logic
+        
+            var res = _logic.GetIsActiveTraining(user);
+            if (res.Item1!=false)
+            {
+                return Ok(new { UserId= res.Item2.UserId, Start= res.Item2.Start, TrainingId= res.Item2.TrainingId});
+            }
+            else
+            {
+                return NotFound(new { message = "No active training found" });
+            }
         }
     }
 }

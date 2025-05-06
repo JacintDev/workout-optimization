@@ -20,10 +20,8 @@ namespace WorkoutOptimization.Models
         public float GyrosZ { get; set; }
         public DateTime? Date { get; set; }
         [JsonIgnore]
-        public virtual User User { get; set; }
+        public User? User { get; set; }
 
-
-        [ForeignKey(nameof(Training))]
         public int? TrainingId { get; set; }
       
   

@@ -38,6 +38,12 @@ namespace WorkoutOptimization.Logic
             
         }
 
+        public (bool, Training?) GetIsActiveTraining(User user)
+        {
+            var training= _repo.ReadAll().FirstOrDefault(x => x.UserId == user.Id && x.isActive == true);
+            return (training !=null, training);
+        }
+
         public void Delete(int id)
         {
             _repo.Delete(id);
