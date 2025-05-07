@@ -68,9 +68,20 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public void UpdateTraining([FromBody] TrainingDto entity, int id)
+        public async Task<IActionResult> UpdateTraining([FromBody] TrainingDto entity, int id)
         {
-            _logic.Update(entity, id);
+            if (String.IsNullOrEmpty(this.User.Identity!.Name))
+            {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+            var user = await _userManager.FindByEmailAsync(this.User.Identity.Name);
+            if (user == null) {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+
+            _logic.Update(entity, id, user);
+            return Ok(new { message = "Training updated!" });
+
         }
 
         [Authorize]

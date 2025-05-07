@@ -9,6 +9,6 @@ namespace WorkoutOptimization.Logic
         (bool, Training?) GetIsActiveTraining(User user);
         Training Read(int id);
         IQueryable<Training> ReadAll();
-        void Update(TrainingDto entity, int id);
+        void Update(TrainingDto entity, int id, User user);
     }
 }

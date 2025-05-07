@@ -18,6 +18,7 @@ namespace WorkoutOptimization.Models
         public float GyrosY { get; set; }
         
         public float GyrosZ { get; set; }
+        [JsonIgnore]
         public DateTime? Date { get; set; }
         [JsonIgnore]
         public User? User { get; set; }

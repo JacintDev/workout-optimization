@@ -1,8 +1,12 @@
 #include <WiFi.h>
 #include <WebServer.h>
+#include <Wire.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
+#include "esp_system.h"
+#include <MPU6050_tockn.h>
+
 
 // Wi-Fi AP beállítások
 const char *apSSID = "ESP32_Setup";
@@ -10,10 +14,16 @@ const char *apPassword = "12345678";
 
 // Webszerver példány
 WebServer server(80);
+//Gyroscope
+MPU6050 mpu(Wire);
 
 String currentSSID, currentPassword;
 bool wifiConnected = false;
 String authToken="";
+bool isLoggedIn = false;
+HTTPClient http;
+int trainingId=0;
+bool isActiveTraining = false;
 
 //Hotspot indítás
 void startAP() {
@@ -96,7 +106,7 @@ void handleLogin() {
     Serial.println(receivedJson);
 
     //Tovább küldjül a távoli API-nak
-    HTTPClient http;
+    
     http.begin("http://188.157.217.41/Auth/Login");  // Cél API cím
     http.addHeader("Content-Type", "application/json");
 
@@ -114,6 +124,7 @@ void handleLogin() {
             deserializeJson(doc, apiResponse);
             authToken = doc["token"].as<String>();
             Serial.println("🔹 Token: " + authToken);
+            isLoggedIn = true;
         } else {
             server.send(httpResponseCode, "text/plain", "Hibás felhasználónév vagy jelszó!");
         }
@@ -130,6 +141,7 @@ void handleLogin() {
 
 //Setup, amikor indul az esp32
 void setup() {
+    setCpuFrequencyMhz(80);
     Serial.begin(115200);
     //littlefs betöltése
     if (!LittleFS.begin()) {
@@ -167,9 +179,100 @@ void setup() {
     
     server.begin();
     Serial.println("🌍 Webszerver elindult!");
+
+    //Gyroscope init
+    Wire.begin(6, 7);
+    mpu.begin();
+    mpu.calcGyroOffsets(true);
 }
 
+void IsActiveRequest(){
+    http.begin("http://188.157.217.41/Training/GetActiveTraining");  // Cél API cím
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
+    int httpResponseCode = http.GET();  // GET kérés küldése
+    if (httpResponseCode > 0) {
+        String apiResponse = http.getString();
+        Serial.println("🔹 API válasz:");
+        Serial.println(apiResponse);
+        if(httpResponseCode == 200) {
+        
+            //itt kiszedjük a token-t a válaszból
+            DynamicJsonDocument doc(256);
+            deserializeJson(doc, apiResponse);
+            trainingId = doc["trainingId"].as<int>();
+            isActiveTraining = true;
+            
+        } else {
+           Serial.println("Nincs aktív training!");
+        }
+    } else {
+        Serial.println("❌ API hívási hiba!");
+        Serial.println(http.errorToString(httpResponseCode));
+    }
+
+    http.end();
+}
+
+
+void sendGyroscopeData(){
+    http.begin("http://188.157.217.41/api/GyroscopeData");  // Cél API cím
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
+
+    // JSON dokumentum létrehozása
+    DynamicJsonDocument doc(512);
+    mpu.update();
+    doc["accelX"] = mpu.getAccX();
+    doc["accelY"] = mpu.getAccY();
+    doc["accelZ"] = mpu.getAccZ();
+    doc["gyrosX"] = mpu.getGyroX();
+    doc["gyrosY"] = mpu.getGyroY();
+    doc["gyrosZ"] = mpu.getGyroZ();
+    doc["trainingId"] = trainingId;
+
+    // JSON string létrehozása
+    String requestBody;
+    serializeJson(doc, requestBody);
+    Serial.println(requestBody);
+
+    // POST kérés küldése
+    int httpResponseCode = http.POST(requestBody);
+
+    if (httpResponseCode > 0) {
+        String apiResponse = http.getString();
+        Serial.println("🔹 API válasz:");
+        Serial.println(apiResponse);
+    } else {
+        Serial.println("❌ API hívási hiba!");
+        Serial.println(http.errorToString(httpResponseCode));
+    }
+
+    http.end();
+}
+
+
+
+unsigned long lastActiveCheckTime = 0;
+unsigned long lastGyroSendTime = 0;
+
 void loop() {
-    //várjuk a kéréseket
-    server.handleClient();
+    server.handleClient();  // klienskérések kezelése
+
+    unsigned long now = millis();
+
+    if (isLoggedIn) {
+        // 500 ms-onként aktív tréning lekérdezése
+        if (now - lastActiveCheckTime >= 500) {
+            IsActiveRequest();  // ez állítja be az isActiveTraining változót
+            lastActiveCheckTime = now;
+        }
+
+        // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
+        if (isActiveTraining && now - lastGyroSendTime >= 100) {
+            sendGyroscopeData();
+            lastGyroSendTime = now;
+        }
+    }
+    delay(10);
 }
