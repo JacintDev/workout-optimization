@@ -59,9 +59,11 @@ namespace WorkoutOptimization.Logic
             return _repo.ReadAll();
         }
 
-        public void Update(TrainingDto entity, int id)
+        public void Update(TrainingDto entity, int id, User user)
         {
             var ent = _mapper.Map<Training>(entity);
+            ent.User = user;
+            ent.UserId = user.Id;
             ent.TrainingId = id;
             _repo.Update(ent);
         }
