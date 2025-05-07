@@ -65,9 +65,11 @@ artifacts/
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 
+#esp
 littlefs.bin
 mklittlefs.exe
 libwinpthread-1.dll
+helper.txt
 
 # StyleCop
 StyleCopReport.xml
