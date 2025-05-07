@@ -60,7 +60,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPut("{id}")]
         public void Update([FromBody] GyroscopeDataDto entity, int id)
         {
