@@ -205,6 +205,7 @@ void IsActiveRequest(){
             
         } else {
            Serial.println("Nincs aktív training!");
+           isActiveTraining = false;
         }
     } else {
         Serial.println("❌ API hívási hiba!");
@@ -263,9 +264,11 @@ void loop() {
 
     if (isLoggedIn) {
         // 500 ms-onként aktív tréning lekérdezése
-        if (now - lastActiveCheckTime >= 500) {
+        if (now - lastActiveCheckTime >= 1000) {
             IsActiveRequest();  // ez állítja be az isActiveTraining változót
             lastActiveCheckTime = now;
+            uint8_t temp_farenheit = temperatureRead();
+            Serial.println(temp_farenheit);  // kb. 40–70 °C lehet
         }
 
         // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
