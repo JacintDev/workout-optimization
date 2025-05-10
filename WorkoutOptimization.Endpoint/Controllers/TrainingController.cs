@@ -85,6 +85,25 @@ namespace WorkoutOptimization.Endpoint.Controllers
         }
 
         [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> StopTraining(int id)
+        {
+            if (String.IsNullOrEmpty(this.User.Identity!.Name))
+            {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+            var user = await _userManager.FindByEmailAsync(this.User.Identity.Name);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+            _logic.StopTraining(id, user);
+            return Ok(new { message = "Training stopped!" });
+        }
+
+
+
+        [Authorize]
         [HttpDelete("{id}")]
         public void DeleteTraining(int id)
         {
