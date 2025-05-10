@@ -59,6 +59,20 @@ namespace WorkoutOptimization.Logic
             return _repo.ReadAll();
         }
 
+        public void StopTraining(int id, User user)
+        {
+            var training = _repo.Read(id);
+            if (training == null)
+            {
+                throw new InvalidOperationException("Training not found with: " + id);
+            }
+            training.isActive = false;
+            training.User = user;
+            training.UserId = user.Id;
+            training.End = DateTime.Now;
+            _repo.Update(training);
+        }
+
         public void Update(TrainingDto entity, int id, User user)
         {
             var ent = _mapper.Map<Training>(entity);
