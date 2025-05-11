@@ -6,6 +6,7 @@
 #include <HTTPClient.h>
 #include "esp_system.h"
 #include <MPU6050_tockn.h>
+#include <WebSocketsClient.h>
 
 
 // Wi-Fi AP beállítások
@@ -16,6 +17,34 @@ const char *apPassword = "12345678";
 WebServer server(80);
 //Gyroscope
 MPU6050 mpu(Wire);
+
+//websocket
+WebSocketsClient webSocket;
+bool shouldSend = false;
+
+
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+  switch(type) {
+    case WStype_CONNECTED:
+      Serial.println("WebSocket connected!");
+      break;
+    case WStype_DISCONNECTED:
+      Serial.println("WebSocket disconnected!");
+      break;
+    case WStype_TEXT:
+      Serial.printf("[Server]: %s\n", payload);
+
+      if (strcmp((char*)payload, "start") == 0) {
+        shouldSend = true;
+        Serial.println(">> Indul az adatküldés");
+      } else if (strcmp((char*)payload, "stop") == 0) {
+        shouldSend = false;
+        Serial.println(">> Leáll az adatküldés");
+      }
+      break;
+  }
+}
+
 
 String currentSSID, currentPassword;
 bool wifiConnected = false;
@@ -184,6 +213,12 @@ void setup() {
     Wire.begin(6, 7);
     mpu.begin();
     mpu.calcGyroOffsets(true);
+
+   String path = "/Websocket/connect?access_token=" + token;
+  webSocket.begin("188.157.217.41", 80, path.c_str()); // vagy IP cím
+
+  webSocket.onEvent(webSocketEvent);
+  webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
 }
 
 void IsActiveRequest(){
@@ -256,26 +291,39 @@ void sendGyroscopeData(){
 
 unsigned long lastActiveCheckTime = 0;
 unsigned long lastGyroSendTime = 0;
+unsigned long lastSent = 0;
 
 void loop() {
     server.handleClient();  // klienskérések kezelése
 
-    unsigned long now = millis();
+if(isLoggedIn){
+ webSocket.loop();
 
-    if (isLoggedIn) {
-        // 500 ms-onként aktív tréning lekérdezése
-        if (now - lastActiveCheckTime >= 1000) {
-            IsActiveRequest();  // ez állítja be az isActiveTraining változót
-            lastActiveCheckTime = now;
-            uint8_t temp_farenheit = temperatureRead();
-            Serial.println(temp_farenheit);  // kb. 40–70 °C lehet
-        }
+  if (shouldSend && millis() - lastSent > 1000) {
+    String msg = "Üzenet: " + String(millis());
+    webSocket.sendTXT(msg);
+    Serial.println("Küldve: " + msg);
+    lastSent = millis();
+  }
+}
 
-        // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
-        if (isActiveTraining && now - lastGyroSendTime >= 100) {
-            sendGyroscopeData();
-            lastGyroSendTime = now;
-        }
-    }
-    delay(10);
+
+//    unsigned long now = millis();
+
+//    if (isLoggedIn) {
+//        // 500 ms-onként aktív tréning lekérdezése
+//        if (now - lastActiveCheckTime >= 1000) {
+//            IsActiveRequest();  // ez állítja be az isActiveTraining változót
+//            lastActiveCheckTime = now;
+//            uint8_t temp_farenheit = temperatureRead();
+//            Serial.println(temp_farenheit);  // kb. 40–70 °C lehet
+//        }
+//
+//        // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
+//        if (isActiveTraining && now - lastGyroSendTime >= 100) {
+//            sendGyroscopeData();
+//            lastGyroSendTime = now;
+//        }
+//    }
+//    delay(10);
 }
