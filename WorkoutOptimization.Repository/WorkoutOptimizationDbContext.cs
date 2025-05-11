@@ -33,11 +33,6 @@ namespace WorkoutOptimization.Repository
 
 
 
-            modelBuilder.Entity<User>()
-                .HasMany(x => x.GyroscopeData)
-                .WithOne(x => x.User)
-                .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Training>()
                 .HasMany(x => x.GyroscopeData)
@@ -55,7 +50,7 @@ namespace WorkoutOptimization.Repository
                 UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2"
 
             });
-            var user= new User()
+            var user = new User()
             {
                 Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                 UserName = "admin@gmail.com",
@@ -82,7 +77,6 @@ namespace WorkoutOptimization.Repository
                 GyrosZ = 1,
                 Date = DateTime.Now,
                 GyroscopeDataId = 1,
-                UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                 TrainingId = 1,
 
             });

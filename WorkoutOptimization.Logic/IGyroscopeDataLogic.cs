@@ -4,7 +4,7 @@ namespace WorkoutOptimization.Logic
 {
     public interface IGyroscopeDataLogic
     {
-        void Create(GyroscopeDataDto entity, User user);
+        void Create(GyroscopeDataDto entity);
         void Delete(int id);
         GyroscopeData Read(int id);
         IQueryable<GyroscopeData> ReadAll();

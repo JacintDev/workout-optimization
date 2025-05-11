@@ -48,12 +48,10 @@ namespace WorkoutOptimization.Models
         [JsonIgnore]
         
         public virtual ICollection<Exercise> Exercises { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<GyroscopeData> GyroscopeData { get; set; }
         public User()
         {
             this.Exercises=new HashSet<Exercise>();
-            this.GyroscopeData = new HashSet<GyroscopeData>();
+
         }
 
 

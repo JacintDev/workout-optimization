@@ -15,11 +15,9 @@ namespace WorkoutOptimization.Logic
             _repo = repo;
         }
 
-        public void Create(GyroscopeDataDto entity, User user)
+        public void Create(GyroscopeDataDto entity)
         {
             var gyroscopeData = _mapper.Map<GyroscopeData>(entity);
-            gyroscopeData.User = user;
-            gyroscopeData.UserId = user.Id;
             gyroscopeData.Date = DateTime.Now;
             _repo.Create(gyroscopeData);
         }

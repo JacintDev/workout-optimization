@@ -22,12 +22,6 @@ namespace WorkoutOptimization.Models
         [Required]
         public float GyrosZ { get; set; }
 
-        [ForeignKey(nameof(User))]
-        public string UserId { get; set; }
-
-        [JsonIgnore]
-        public virtual User User { get; set; }
-
 
         [ForeignKey(nameof(Training))]
         public int? TrainingId { get; set; }
