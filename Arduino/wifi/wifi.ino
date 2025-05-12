@@ -30,6 +30,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
     case WStype_DISCONNECTED:
       Serial.println("WebSocket disconnected!");
+      shouldSend = false;
       break;
     case WStype_TEXT:
       Serial.printf("[Server]: %s\n", payload);
@@ -214,8 +215,8 @@ void setup() {
     mpu.begin();
     mpu.calcGyroOffsets(true);
 
-   String path = "/Websocket/connect?access_token=" + token;
-  webSocket.begin("188.157.217.41", 80, path.c_str()); // vagy IP cím
+    
+  webSocket.begin("188.157.217.41", 80, "/Websocket/connect"); // vagy IP cím
 
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
@@ -251,10 +252,10 @@ void IsActiveRequest(){
 }
 
 
-void sendGyroscopeData(){
-    http.begin("http://188.157.217.41/api/GyroscopeData");  // Cél API cím
-    http.addHeader("Content-Type", "application/json");
-    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
+String sendGyroscopeData(){
+//    http.begin("http://188.157.217.41/api/GyroscopeData");  // Cél API cím
+//    http.addHeader("Content-Type", "application/json");
+//    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
 
     // JSON dokumentum létrehozása
     DynamicJsonDocument doc(512);
@@ -265,26 +266,34 @@ void sendGyroscopeData(){
     doc["gyrosX"] = mpu.getGyroX();
     doc["gyrosY"] = mpu.getGyroY();
     doc["gyrosZ"] = mpu.getGyroZ();
+
+//    doc["accelX"] = 0;
+//    doc["accelY"] = 0;
+//    doc["accelZ"] = 0;
+//    doc["gyrosX"] = 0;
+//    doc["gyrosY"] = 0;
+//    doc["gyrosZ"] = 0;
     doc["trainingId"] = trainingId;
 
     // JSON string létrehozása
     String requestBody;
     serializeJson(doc, requestBody);
     Serial.println(requestBody);
+    return requestBody;
 
-    // POST kérés küldése
-    int httpResponseCode = http.POST(requestBody);
-
-    if (httpResponseCode > 0) {
-        String apiResponse = http.getString();
-        Serial.println("🔹 API válasz:");
-        Serial.println(apiResponse);
-    } else {
-        Serial.println("❌ API hívási hiba!");
-        Serial.println(http.errorToString(httpResponseCode));
-    }
-
-    http.end();
+//    // POST kérés küldése
+//    int httpResponseCode = http.POST(requestBody);
+//
+//    if (httpResponseCode > 0) {
+//        String apiResponse = http.getString();
+//        Serial.println("🔹 API válasz:");
+//        Serial.println(apiResponse);
+//    } else {
+//        Serial.println("❌ API hívási hiba!");
+//        Serial.println(http.errorToString(httpResponseCode));
+//    }
+//
+//    http.end();
 }
 
 
@@ -299,14 +308,16 @@ void loop() {
 if(isLoggedIn){
  webSocket.loop();
 
-  if (shouldSend && millis() - lastSent > 1000) {
-    String msg = "Üzenet: " + String(millis());
+  if (shouldSend && millis() - lastSent > 100) {
+    IsActiveRequest();
+    
+    String msg = sendGyroscopeData();
     webSocket.sendTXT(msg);
     Serial.println("Küldve: " + msg);
     lastSent = millis();
   }
 }
-
+delay(10);
 
 //    unsigned long now = millis();
 
