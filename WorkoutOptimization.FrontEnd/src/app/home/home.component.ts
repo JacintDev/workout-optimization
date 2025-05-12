@@ -130,6 +130,7 @@ export class HomeComponent implements OnInit {
   }
 
   startTraining() {
+    this.startWebSocketSending();
     this.training.start = new Date().toISOString();
     this.training.isActive = true;
     this.training.exerciseId = 1;
@@ -146,6 +147,25 @@ export class HomeComponent implements OnInit {
       .subscribe(
         (success) => {
           this.getActiveTraining();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  startWebSocketSending() {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .get<any>('http://localhost:5135/Websocket/Start/', {
+        headers,
+      })
+      .subscribe(
+        (success) => {
+          console.log(success);
         },
         (error) => {
           console.log(error);
@@ -175,6 +195,7 @@ export class HomeComponent implements OnInit {
   }
 
   stopTraining() {
+    this.stopWebSocketSending();
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.auth.getToken()}`,
@@ -190,6 +211,25 @@ export class HomeComponent implements OnInit {
       .subscribe(
         (success) => {
           this.isActiveTraining = false;
+          console.log(success);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  stopWebSocketSending() {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .get<any>('http://localhost:5135/Websocket/Stop/', {
+        headers,
+      })
+      .subscribe(
+        (success) => {
           console.log(success);
         },
         (error) => {
