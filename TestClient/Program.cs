@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using WorkoutOptimization.Models;
 
 var uri = new Uri("ws://localhost:5135/Websocket/connect?access_token=1223231_asdasbadwweqeqwrtqdasddqwweq_dsadwqeqweqwrtwetew_");
 
@@ -23,19 +24,24 @@ async Task StartSendingLoop()
     {
         while (!sendingCts.Token.IsCancellationRequested)
         {
-            var input = new
+            var input = new GyroscopeDataDto()
             {
-                Name = "Test",
-                Age = 30,
-                Message = "Hello from client!"
+                AccelX = 0,
+                AccelY = 0,
+                AccelZ = 0,
+                GyrosX = 0,
+                GyrosY = 0,
+                GyrosZ = 0,
+                TrainingId=4038
             };
+            
             string json= JsonConvert.SerializeObject(input);
             var data = Encoding.UTF8.GetBytes(json);
             
             await client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
             Console.WriteLine($"Küldve: {input}");
 
-            await Task.Delay(1000, sendingCts.Token); // Várakozás megszakítható legyen
+            await Task.Delay(100000, sendingCts.Token); // Várakozás megszakítható legyen
         }
     }
     catch (TaskCanceledException)
