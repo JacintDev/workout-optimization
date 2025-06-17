@@ -41,6 +41,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
       if (strcmp((char*)payload, "start") == 0) {
         shouldSend = true;
+        mpu.calcGyroOffsets(true);
         Serial.println(">> Indul az adatküldés");
       } else if (strcmp((char*)payload, "stop") == 0) {
         shouldSend = false;
@@ -351,7 +352,7 @@ void loop() {
 if(isLoggedIn){
  webSocket.loop();
 
-  if (shouldSend && millis() - lastSent > 1000) {
+  if (shouldSend && millis() - lastSent > 100) {
     IsActiveRequest();
     
     String msg = sendGyroscopeData();
