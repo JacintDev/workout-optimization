@@ -19,6 +19,7 @@ namespace WorkoutOptimization.Models
         public DateTime? End { get; set; }
         [Required]
         public bool isActive { get; set; }
+        public bool? IsCorrect { get; set; }
 
         [ForeignKey(nameof(Exercise))]
         public int ExerciseId { get; set; }
