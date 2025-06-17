@@ -1,10 +1,10 @@
 <div class="home-container">
-  <div class="home-header">
+  <div class="home-header" *ngIf="!this.profilePropertiesNeedSetup">
     <h1>Üdvözöllek {{ user?.firstName }} {{ user?.lastName }}!</h1>
-    <p>
-      <button mat-button (click)="startTraining()" *ngIf="!isActiveTraining">
-        Indítás
-      </button>
+    <p *ngIf="!isActiveTraining">
+      <span class="label">Helyes? </span>
+      <input type="checkbox" [(ngModel)]="training.isCorrect" />
+      <button mat-button (click)="startTraining()">Indítás</button>
     </p>
     <p>
       <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
