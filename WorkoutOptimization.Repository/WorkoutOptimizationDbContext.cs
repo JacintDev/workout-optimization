@@ -38,7 +38,7 @@ namespace WorkoutOptimization.Repository
                 .HasMany(x => x.GyroscopeData)
                 .WithOne(x => x.Training)
                 .HasForeignKey(x => x.TrainingId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<Training>().HasData(new Training()
