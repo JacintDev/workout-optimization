@@ -12,11 +12,15 @@
 // Wi-Fi AP beállítások
 const char *apSSID = "ESP32_Setup";
 const char *apPassword = "12345678";
+String ip_address="84.3.231.158";
 
 // Webszerver példány
 WebServer server(80);
 //Gyroscope
 MPU6050 mpu(Wire);
+float filteredGyroX = 0, filteredGyroY = 0, filteredGyroZ = 0;
+float filteredAccX = 0, filteredAccY = 0, filteredAccZ = 0;
+float alpha = 0.3;  // szűrés mértéke (0.0 - 1.0)
 
 //websocket
 WebSocketsClient webSocket;
@@ -137,7 +141,7 @@ void handleLogin() {
 
     //Tovább küldjül a távoli API-nak
     
-    http.begin("http://188.157.217.41/Auth/Login");  // Cél API cím
+    http.begin("http://"+ip_address+"/Auth/Login");  // Cél API cím
     http.addHeader("Content-Type", "application/json");
 
     int httpResponseCode = http.POST(receivedJson);  // Továbbküldjük a JSON-t a frontendnek
@@ -155,6 +159,9 @@ void handleLogin() {
             authToken = doc["token"].as<String>();
             Serial.println("🔹 Token: " + authToken);
             isLoggedIn = true;
+              webSocket.begin(ip_address, 80, "/Websocket/connect"); // vagy IP cím
+              webSocket.onEvent(webSocketEvent);
+              webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
         } else {
             server.send(httpResponseCode, "text/plain", "Hibás felhasználónév vagy jelszó!");
         }
@@ -216,14 +223,13 @@ void setup() {
     mpu.calcGyroOffsets(true);
 
     
-  webSocket.begin("188.157.217.41", 80, "/Websocket/connect"); // vagy IP cím
-
-  webSocket.onEvent(webSocketEvent);
-  webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
+  //webSocket.begin(ip_address, 80, "/Websocket/connect"); // vagy IP cím
+  //webSocket.onEvent(webSocketEvent);
+  //webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
 }
 
 void IsActiveRequest(){
-    http.begin("http://188.157.217.41/Training/GetActiveTraining");  // Cél API cím
+    http.begin("http://"+ip_address+"/Training/GetActiveTraining");  // Cél API cím
     http.addHeader("Content-Type", "application/json");
     http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
     int httpResponseCode = http.GET();  // GET kérés küldése
@@ -253,19 +259,56 @@ void IsActiveRequest(){
 
 
 String sendGyroscopeData(){
-//    http.begin("http://188.157.217.41/api/GyroscopeData");  // Cél API cím
+//    http.begin("http://"+ip_address+"/api/GyroscopeData");  // Cél API cím
 //    http.addHeader("Content-Type", "application/json");
 //    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
 
     // JSON dokumentum létrehozása
     DynamicJsonDocument doc(512);
     mpu.update();
-    doc["accelX"] = mpu.getAccX();
-    doc["accelY"] = mpu.getAccY();
-    doc["accelZ"] = mpu.getAccZ();
-    doc["gyrosX"] = mpu.getGyroX();
-    doc["gyrosY"] = mpu.getGyroY();
-    doc["gyrosZ"] = mpu.getGyroZ();
+
+//Szűrés
+    float rawGyroX = mpu.getGyroX();
+    float rawGyroY = mpu.getGyroY();
+    float rawGyroZ = mpu.getGyroZ();
+
+    float rawAccX = mpu.getAccX();
+    float rawAccY = mpu.getAccY();
+    float rawAccZ = mpu.getAccZ();
+
+    filteredGyroX = alpha * rawGyroX + (1 - alpha) * filteredGyroX;
+    filteredGyroY = alpha * rawGyroY + (1 - alpha) * filteredGyroY;
+    filteredGyroZ = alpha * rawGyroZ + (1 - alpha) * filteredGyroZ;
+
+    filteredAccX = alpha * rawAccX + (1 - alpha) * filteredAccX;
+    filteredAccY = alpha * rawAccY + (1 - alpha) * filteredAccY;
+    filteredAccZ = alpha * rawAccZ + (1 - alpha) * filteredAccZ;
+
+    // 🔒 Statikus detektálás küszöbérték
+    float gyroThreshold = 0.5;
+    float accThreshold = 0.1;
+
+    // Ha a mozgás kisebb, mint a küszöb – tekintsd nyugalomnak
+    if (abs(filteredGyroX) < gyroThreshold) filteredGyroX = 0;
+    if (abs(filteredGyroY) < gyroThreshold) filteredGyroY = 0;
+    if (abs(filteredGyroZ) < gyroThreshold) filteredGyroZ = 0;
+
+    if (abs(filteredAccX) < accThreshold) filteredAccX = 0;
+    if (abs(filteredAccY) < accThreshold) filteredAccY = 0;
+    if (abs(filteredAccZ) < accThreshold) filteredAccZ = 0;
+
+
+
+    
+    doc["accelX"] = filteredAccX;
+    doc["accelY"] = filteredAccY;
+    doc["accelZ"] = filteredAccZ;
+    doc["gyrosX"] = filteredGyroX;
+    doc["gyrosY"] = filteredGyroY;
+    doc["gyrosZ"] = filteredGyroZ;
+
+
+
 
 //    doc["accelX"] = 0;
 //    doc["accelY"] = 0;
@@ -308,7 +351,7 @@ void loop() {
 if(isLoggedIn){
  webSocket.loop();
 
-  if (shouldSend && millis() - lastSent > 100) {
+  if (shouldSend && millis() - lastSent > 1000) {
     IsActiveRequest();
     
     String msg = sendGyroscopeData();
