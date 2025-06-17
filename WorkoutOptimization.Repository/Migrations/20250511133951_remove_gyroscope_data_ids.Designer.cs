@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkoutOptimization.Repository;
 
@@ -11,9 +12,11 @@ using WorkoutOptimization.Repository;
 namespace WorkoutOptimization.Repository.Migrations
 {
     [DbContext(typeof(WorkoutOptimizationDbContext))]
-    partial class WorkoutOptimizationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250511133951_remove_gyroscope_data_ids")]
+    partial class remove_gyroscope_data_ids
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,7 +256,7 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1f,
                             AccelY = 1f,
                             AccelZ = 1f,
-                            Date = new DateTime(2025, 6, 17, 12, 11, 47, 517, DateTimeKind.Local).AddTicks(7683),
+                            Date = new DateTime(2025, 5, 11, 15, 39, 51, 204, DateTimeKind.Local).AddTicks(409),
                             GyrosX = 1f,
                             GyrosY = 1f,
                             GyrosZ = 1f,
@@ -329,9 +332,9 @@ namespace WorkoutOptimization.Repository.Migrations
                         new
                         {
                             TrainingId = 1,
-                            End = new DateTime(2025, 6, 17, 12, 11, 47, 454, DateTimeKind.Local).AddTicks(3829),
+                            End = new DateTime(2025, 5, 11, 15, 39, 51, 135, DateTimeKind.Local).AddTicks(7451),
                             ExerciseId = 1,
-                            Start = new DateTime(2025, 6, 17, 12, 11, 47, 454, DateTimeKind.Local).AddTicks(3784),
+                            Start = new DateTime(2025, 5, 11, 15, 39, 51, 135, DateTimeKind.Local).AddTicks(7408),
                             UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                             isActive = false
                         });
@@ -430,15 +433,15 @@ namespace WorkoutOptimization.Repository.Migrations
                         {
                             Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "635984c2-b35c-4a7f-aa56-3965c2782ece",
+                            ConcurrencyStamp = "0d545257-64df-446e-bedf-35a6f335780d",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAECwqfK5p6711loMnafK5ewfDfTI1ORzE5hi5ynYF7KxaiNMhzgk9PT1ZZyWpRwy7PA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECu7Hdotc80P1ct+YvqxdNEoC6wzSiDtksQWOmk+F4chTbFO6QDkTd2qaeHCQSN+9w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e0cbecf6-c5c7-4fc0-bc6d-e1de9ae6e67a",
+                            SecurityStamp = "924feecb-8ebe-4203-985d-666fe80148dd",
                             TwoFactorEnabled = false,
                             UserName = "admin@gmail.com"
                         });
@@ -500,7 +503,7 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.HasOne("WorkoutOptimization.Models.Training", "Training")
                         .WithMany("GyroscopeData")
                         .HasForeignKey("TrainingId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Training");
                 });

@@ -9,6 +9,8 @@ import {
 } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserUpdateModel } from '../../models/UserUpdateModel';
+import { UserModel } from '../../models/UserModel';
+import { StartTrainingModel } from '../../models/StartTrainingModel';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +20,11 @@ import { UserUpdateModel } from '../../models/UserUpdateModel';
 })
 export class HomeComponent implements OnInit {
   profilePropertiesNeedSetup = true;
-  user = new UserUpdateModel();
+  userUpdate = new UserUpdateModel();
+  user: UserModel | null = null;
+  isActiveTraining: boolean = false;
+  trainingId: number = 0;
+  training: StartTrainingModel = new StartTrainingModel();
 
   fitnessLevel: any = [
     { value: 1, viewValue: 'Kezdő' },
@@ -28,7 +34,7 @@ export class HomeComponent implements OnInit {
 
   private _formBuilder = inject(FormBuilder);
 
-  today: string = new Date().toISOString().split('T')[0]; // Ez kell majd a HTML input max attribútumhoz
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(private auth: AuthService, private http: HttpClient) {}
 
@@ -38,6 +44,8 @@ export class HomeComponent implements OnInit {
         this.profilePropertiesNeedSetup = true;
       } else {
         this.profilePropertiesNeedSetup = false;
+        this.user = user;
+        console.log(user);
       }
     });
   }
@@ -107,7 +115,7 @@ export class HomeComponent implements OnInit {
         Authorization: `Bearer ${this.auth.getToken()}`,
       });
       this.http
-        .put<any>('http://localhost:5135/Auth/UpdateUser', this.user, {
+        .put<any>('http://localhost:5135/Auth/UpdateUser', this.userUpdate, {
           headers,
         })
         .subscribe(
@@ -119,5 +127,114 @@ export class HomeComponent implements OnInit {
           }
         );
     }
+  }
+
+  startTraining() {
+    this.startWebSocketSending();
+    this.training.start = new Date().toISOString();
+    this.training.isActive = true;
+    this.training.exerciseId = 1;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .post<any>(
+        'http://localhost:5135/Training/CreateTraining',
+        this.training,
+        { headers }
+      )
+      .subscribe(
+        (success) => {
+          this.getActiveTraining();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  startWebSocketSending() {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .get<any>('http://localhost:5135/Websocket/Start/', {
+        headers,
+      })
+      .subscribe(
+        (success) => {
+          console.log(success);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  private getActiveTraining() {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .get<any>('http://localhost:5135/Training/GetActiveTraining', {
+        headers,
+      })
+      .subscribe(
+        (success) => {
+          this.isActiveTraining = true;
+          this.trainingId = success.trainingId;
+          console.log(success);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  stopTraining() {
+    this.stopWebSocketSending();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .put<any>(
+        'http://localhost:5135/Training/StopTraining/' + this.trainingId,
+        null,
+        {
+          headers,
+        }
+      )
+      .subscribe(
+        (success) => {
+          this.isActiveTraining = false;
+          console.log(success);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  stopWebSocketSending() {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.auth.getToken()}`,
+    });
+    this.http
+      .get<any>('http://localhost:5135/Websocket/Stop/', {
+        headers,
+      })
+      .subscribe(
+        (success) => {
+          console.log(success);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   }
 }

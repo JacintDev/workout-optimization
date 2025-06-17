@@ -6,16 +6,51 @@
 #include <HTTPClient.h>
 #include "esp_system.h"
 #include <MPU6050_tockn.h>
+#include <WebSocketsClient.h>
 
 
 // Wi-Fi AP beállítások
 const char *apSSID = "ESP32_Setup";
 const char *apPassword = "12345678";
+String ip_address="84.3.231.158";
 
 // Webszerver példány
 WebServer server(80);
 //Gyroscope
 MPU6050 mpu(Wire);
+float filteredGyroX = 0, filteredGyroY = 0, filteredGyroZ = 0;
+float filteredAccX = 0, filteredAccY = 0, filteredAccZ = 0;
+float alpha = 0.3;  // szűrés mértéke (0.0 - 1.0)
+
+//websocket
+WebSocketsClient webSocket;
+bool shouldSend = false;
+
+
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+  switch(type) {
+    case WStype_CONNECTED:
+      Serial.println("WebSocket connected!");
+      break;
+    case WStype_DISCONNECTED:
+      Serial.println("WebSocket disconnected!");
+      shouldSend = false;
+      break;
+    case WStype_TEXT:
+      Serial.printf("[Server]: %s\n", payload);
+
+      if (strcmp((char*)payload, "start") == 0) {
+        shouldSend = true;
+        mpu.calcGyroOffsets(true);
+        Serial.println(">> Indul az adatküldés");
+      } else if (strcmp((char*)payload, "stop") == 0) {
+        shouldSend = false;
+        Serial.println(">> Leáll az adatküldés");
+      }
+      break;
+  }
+}
+
 
 String currentSSID, currentPassword;
 bool wifiConnected = false;
@@ -107,7 +142,7 @@ void handleLogin() {
 
     //Tovább küldjül a távoli API-nak
     
-    http.begin("http://188.157.217.41/Auth/Login");  // Cél API cím
+    http.begin("http://"+ip_address+"/Auth/Login");  // Cél API cím
     http.addHeader("Content-Type", "application/json");
 
     int httpResponseCode = http.POST(receivedJson);  // Továbbküldjük a JSON-t a frontendnek
@@ -125,6 +160,9 @@ void handleLogin() {
             authToken = doc["token"].as<String>();
             Serial.println("🔹 Token: " + authToken);
             isLoggedIn = true;
+              webSocket.begin(ip_address, 80, "/Websocket/connect"); // vagy IP cím
+              webSocket.onEvent(webSocketEvent);
+              webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
         } else {
             server.send(httpResponseCode, "text/plain", "Hibás felhasználónév vagy jelszó!");
         }
@@ -184,10 +222,15 @@ void setup() {
     Wire.begin(6, 7);
     mpu.begin();
     mpu.calcGyroOffsets(true);
+
+    
+  //webSocket.begin(ip_address, 80, "/Websocket/connect"); // vagy IP cím
+  //webSocket.onEvent(webSocketEvent);
+  //webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
 }
 
 void IsActiveRequest(){
-    http.begin("http://188.157.217.41/Training/GetActiveTraining");  // Cél API cím
+    http.begin("http://"+ip_address+"/Training/GetActiveTraining");  // Cél API cím
     http.addHeader("Content-Type", "application/json");
     http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
     int httpResponseCode = http.GET();  // GET kérés küldése
@@ -205,6 +248,7 @@ void IsActiveRequest(){
             
         } else {
            Serial.println("Nincs aktív training!");
+           isActiveTraining = false;
         }
     } else {
         Serial.println("❌ API hívási hiba!");
@@ -215,64 +259,126 @@ void IsActiveRequest(){
 }
 
 
-void sendGyroscopeData(){
-    http.begin("http://188.157.217.41/api/GyroscopeData");  // Cél API cím
-    http.addHeader("Content-Type", "application/json");
-    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
+String sendGyroscopeData(){
+//    http.begin("http://"+ip_address+"/api/GyroscopeData");  // Cél API cím
+//    http.addHeader("Content-Type", "application/json");
+//    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
 
     // JSON dokumentum létrehozása
     DynamicJsonDocument doc(512);
     mpu.update();
-    doc["accelX"] = mpu.getAccX();
-    doc["accelY"] = mpu.getAccY();
-    doc["accelZ"] = mpu.getAccZ();
-    doc["gyrosX"] = mpu.getGyroX();
-    doc["gyrosY"] = mpu.getGyroY();
-    doc["gyrosZ"] = mpu.getGyroZ();
+
+//Szűrés
+    float rawGyroX = mpu.getGyroX();
+    float rawGyroY = mpu.getGyroY();
+    float rawGyroZ = mpu.getGyroZ();
+
+    float rawAccX = mpu.getAccX();
+    float rawAccY = mpu.getAccY();
+    float rawAccZ = mpu.getAccZ();
+
+    filteredGyroX = alpha * rawGyroX + (1 - alpha) * filteredGyroX;
+    filteredGyroY = alpha * rawGyroY + (1 - alpha) * filteredGyroY;
+    filteredGyroZ = alpha * rawGyroZ + (1 - alpha) * filteredGyroZ;
+
+    filteredAccX = alpha * rawAccX + (1 - alpha) * filteredAccX;
+    filteredAccY = alpha * rawAccY + (1 - alpha) * filteredAccY;
+    filteredAccZ = alpha * rawAccZ + (1 - alpha) * filteredAccZ;
+
+    // 🔒 Statikus detektálás küszöbérték
+    float gyroThreshold = 0.5;
+    float accThreshold = 0.1;
+
+    // Ha a mozgás kisebb, mint a küszöb – tekintsd nyugalomnak
+    if (abs(filteredGyroX) < gyroThreshold) filteredGyroX = 0;
+    if (abs(filteredGyroY) < gyroThreshold) filteredGyroY = 0;
+    if (abs(filteredGyroZ) < gyroThreshold) filteredGyroZ = 0;
+
+    if (abs(filteredAccX) < accThreshold) filteredAccX = 0;
+    if (abs(filteredAccY) < accThreshold) filteredAccY = 0;
+    if (abs(filteredAccZ) < accThreshold) filteredAccZ = 0;
+
+
+
+    
+    doc["accelX"] = filteredAccX;
+    doc["accelY"] = filteredAccY;
+    doc["accelZ"] = filteredAccZ;
+    doc["gyrosX"] = filteredGyroX;
+    doc["gyrosY"] = filteredGyroY;
+    doc["gyrosZ"] = filteredGyroZ;
+
+
+
+
+//    doc["accelX"] = 0;
+//    doc["accelY"] = 0;
+//    doc["accelZ"] = 0;
+//    doc["gyrosX"] = 0;
+//    doc["gyrosY"] = 0;
+//    doc["gyrosZ"] = 0;
     doc["trainingId"] = trainingId;
 
     // JSON string létrehozása
     String requestBody;
     serializeJson(doc, requestBody);
     Serial.println(requestBody);
+    return requestBody;
 
-    // POST kérés küldése
-    int httpResponseCode = http.POST(requestBody);
-
-    if (httpResponseCode > 0) {
-        String apiResponse = http.getString();
-        Serial.println("🔹 API válasz:");
-        Serial.println(apiResponse);
-    } else {
-        Serial.println("❌ API hívási hiba!");
-        Serial.println(http.errorToString(httpResponseCode));
-    }
-
-    http.end();
+//    // POST kérés küldése
+//    int httpResponseCode = http.POST(requestBody);
+//
+//    if (httpResponseCode > 0) {
+//        String apiResponse = http.getString();
+//        Serial.println("🔹 API válasz:");
+//        Serial.println(apiResponse);
+//    } else {
+//        Serial.println("❌ API hívási hiba!");
+//        Serial.println(http.errorToString(httpResponseCode));
+//    }
+//
+//    http.end();
 }
 
 
 
 unsigned long lastActiveCheckTime = 0;
 unsigned long lastGyroSendTime = 0;
+unsigned long lastSent = 0;
 
 void loop() {
     server.handleClient();  // klienskérések kezelése
 
-    unsigned long now = millis();
+if(isLoggedIn){
+ webSocket.loop();
 
-    if (isLoggedIn) {
-        // 500 ms-onként aktív tréning lekérdezése
-        if (now - lastActiveCheckTime >= 500) {
-            IsActiveRequest();  // ez állítja be az isActiveTraining változót
-            lastActiveCheckTime = now;
-        }
+  if (shouldSend && millis() - lastSent > 100) {
+    IsActiveRequest();
+    
+    String msg = sendGyroscopeData();
+    webSocket.sendTXT(msg);
+    Serial.println("Küldve: " + msg);
+    lastSent = millis();
+  }
+}
+delay(10);
 
-        // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
-        if (isActiveTraining && now - lastGyroSendTime >= 100) {
-            sendGyroscopeData();
-            lastGyroSendTime = now;
-        }
-    }
-    delay(10);
+//    unsigned long now = millis();
+
+//    if (isLoggedIn) {
+//        // 500 ms-onként aktív tréning lekérdezése
+//        if (now - lastActiveCheckTime >= 1000) {
+//            IsActiveRequest();  // ez állítja be az isActiveTraining változót
+//            lastActiveCheckTime = now;
+//            uint8_t temp_farenheit = temperatureRead();
+//            Serial.println(temp_farenheit);  // kb. 40–70 °C lehet
+//        }
+//
+//        // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
+//        if (isActiveTraining && now - lastGyroSendTime >= 100) {
+//            sendGyroscopeData();
+//            lastGyroSendTime = now;
+//        }
+//    }
+//    delay(10);
 }

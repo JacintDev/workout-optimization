@@ -15,14 +15,14 @@ namespace WorkoutOptimization.Endpoint.Controllers
     {
         readonly IGyroscopeDataLogic _logic;
         readonly IMapper _mapper;
-        readonly UserManager<User> _userManager;
+       // readonly UserManager<User> _userManager;
 
 
-        public GyroscopeDataController(IGyroscopeDataLogic logic, IMapper mapper, UserManager<User> userManager)
+        public GyroscopeDataController(IGyroscopeDataLogic logic, IMapper mapper)
         {
             _logic = logic;
             _mapper = mapper;
-            _userManager = userManager;
+           
         }
 
 
@@ -42,25 +42,23 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] GyroscopeDataDto entity)
+        public IActionResult Post([FromBody] GyroscopeDataDto entity)
         {
-            if (String.IsNullOrEmpty(this.User.Identity!.Name))
+
+            try
             {
-                return BadRequest(new { message = "Unathorized!" });
-            }
-            var user = await _userManager.FindByEmailAsync(this.User.Identity.Name);
-            if (user != null)
-            {
-                _logic.Create(entity, user);
+                _logic.Create(entity);
                 return Ok(new { message = "GyroscopeData created!" });
             }
-            else{
-                return BadRequest(new { message = "Unathorized!" });
+            catch (Exception ex)
+            {
+
+                return BadRequest(new { message = ex.Message });
             }
+               
 
         }
 
-        [Authorize]
         [HttpPut("{id}")]
         public void Update([FromBody] GyroscopeDataDto entity, int id)
         {

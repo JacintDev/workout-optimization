@@ -7,6 +7,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
+using System.Net.WebSockets;
 using System.Text;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Logic.Helpers;
@@ -156,7 +158,8 @@ namespace WorkoutOptimization.Endpoint
             //}));
 
             //Authentication
-
+            app.UseWebSockets();
+          
             app.UseAuthentication();
 
             app.UseAuthorization();
