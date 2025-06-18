@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
 
@@ -39,6 +40,28 @@ namespace WorkoutOptimization.Endpoint.Controllers
         public Training Get(int id)
         {
             return _logic.Read(id);
+        }
+
+        [HttpGet]
+        public async Task WriteToJsonFile(int id, bool valid)
+        {
+
+            var datas = _mapper.Map<List<GyroscopeDataDto>>(Get(id).GyroscopeData);
+
+            var enriched = datas.Select(x => new
+            {
+                x.GyrosX,
+                x.GyrosY,
+                x.GyrosZ,
+                x.AccelX,
+                x.AccelY,
+                x.AccelZ,
+                IsValid = Get(id).IsCorrect
+            }).ToList();
+
+            var json = JsonConvert.SerializeObject(enriched);
+            await System.IO.File.WriteAllTextAsync("adat.json", json);
+
         }
 
         [Authorize]
