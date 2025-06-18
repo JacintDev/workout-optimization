@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
+from scipy.interpolate import interp1d
 
 def load_data(file_path):
     with open(file_path, 'r') as f:
@@ -98,86 +99,139 @@ def run_parameter_search(df, target_reps=None, min_reps=6, max_reps=12):
     return None
 
 
-def resample_rep(df, target_len=14):
-    old_len = len(df)
-    if old_len == target_len:
-        return df.round(5)
-    
-    old_indices = np.linspace(0, 1, old_len)
-    new_indices = np.linspace(0, 1, target_len)
-    
-    new_df = pd.DataFrame()
-    for col in df.columns:
-        new_df[col] = np.interp(new_indices, old_indices, df[col])
-    return new_df.round(5)
+def print_repetition_details(df, rep_peaks):
+    print("\n📋 Részletes ismétlés adatok:")
+    for i in range(len(rep_peaks) - 1):
+        start = rep_peaks[i]
+        end = rep_peaks[i + 1]
+        rep_df = df.iloc[start:end]
+        print(f"\n📌 Ismétlés {i+1}: index [{start}:{end}]")
+        print(rep_df[['GyrosX', 'GyrosY', 'GyrosZ']].to_string(index=True))
 
-
-def export_repetitions_to_json(df, rep_peaks, correct=True, filename="labeled_reps.json", target_len=14):
-    reps_data = []
+def normalize_repetition_length_smart(df, rep_peaks, target_length=40):
+    """
+    Fix hosszúságú ismétlések generálása, úgy hogy:
+    - az első és utolsó adat megmarad
+    - downsamplingnél fontos jellemzők ne vesszenek el
+    - upsamplingnél a görbe mentén interpolál
+    """
+    normalized_reps = []
 
     for i in range(len(rep_peaks) - 1):
-        start_idx = rep_peaks[i]
-        end_idx = rep_peaks[i + 1]
-        rep_df = df.iloc[start_idx:end_idx]
+        start = rep_peaks[i]
+        end = rep_peaks[i + 1]
+        rep_df = df.iloc[start:end].reset_index(drop=True)
+        current_len = len(rep_df)
 
-        rep_df_subset = rep_df[['GyrosX', 'GyrosY', 'GyrosZ', 'AccelX', 'AccelY', 'AccelZ']]
-        rep_df_resampled = resample_rep(rep_df_subset, target_len=target_len)
+        # Ha pont jó a hossz
+        if current_len == target_length:
+            normalized = rep_df.values
 
-        rep_dict = {
-            "index_range": [int(start_idx), int(end_idx)],
-            "sensor_data": rep_df_resampled.to_dict(orient="records"),
-            "correct": correct
-        }
+        # 🔽 DOWNsampling – több minta van, mint kellene
+        elif current_len > target_length:
+            # Mindig megtartjuk az első és utolsó sort
+            keep_idxs = [0, current_len - 1]
 
-        reps_data.append(rep_dict)
+            # A maradékból egyenletesen kiválasztunk szükséges mennyiséget
+            remaining = target_length - 2
+            step = (current_len - 2) / (remaining + 1)
+            additional_idxs = [int(round(step * j + 1)) for j in range(remaining)]
 
-    with open(filename, "w") as f:
-        json.dump(reps_data, f, indent=2)
+            selected_idxs = sorted(set(keep_idxs + additional_idxs))
+            downsampled_df = rep_df.iloc[selected_idxs]
+            normalized = downsampled_df.values
 
-    print(f"✅ {len(reps_data)} ismétlés elmentve a(z) {filename} fájlba.")
+        # 🔼 UPsampling – kevesebb minta van, mint kellene
+        else:
+            # Új indexek: [0, 1, ..., target_length - 1]
+            interp_idxs = np.linspace(0, current_len - 1, target_length)
+            interp_df = pd.DataFrame()
 
-def plot_all_resampled_reps(filename="labeled_reps.json"):
-    with open(filename, "r") as f:
+            for col in rep_df.columns:
+                f = interp1d(np.arange(current_len), rep_df[col], kind='cubic', fill_value="extrapolate")
+                interp_df[col] = f(interp_idxs)
+
+            normalized = interp_df.values
+
+        normalized_reps.append(normalized)
+
+    return np.array(normalized_reps)
+
+
+def save_normalized_repetitions_to_json(normalized_data, filename):
+    json_data = []
+    for repetition in normalized_data:
+        rep_list = []
+        for row in repetition:
+            entry = {
+                "GyrosX": float(row[0]),
+                "GyrosY": float(row[1]),
+                "GyrosZ": float(row[2]),
+                "AccelX": float(row[3]),
+                "AccelY": float(row[4]),
+                "AccelZ": float(row[5])
+            }
+            rep_list.append(entry)
+        rep_list.append({"IsCorrect": True})  # Minden ismétlés helyesnek van jelölve
+        json_data.append(rep_list)
+    
+
+    with open(filename, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+def plot_all_reps_combined(filename, rep_length=13):
+    with open(filename, 'r') as f:
         data = json.load(f)
 
-    all_reps = []
+    # Összefűzött listák
+    gyros_x, gyros_y, gyros_z = [], [], []
+    acc_x, acc_y, acc_z = [], [], []
 
-    for rep in data:
-        sensor_data = rep["sensor_data"]
-        df = pd.DataFrame(sensor_data)
-        df = df.apply(pd.to_numeric, errors='coerce')
-        all_reps.append(df)
+    for repetition in data:
+        gyros_x.extend([point["GyrosX"] for point in repetition])
+        gyros_y.extend([point["GyrosY"] for point in repetition])
+        gyros_z.extend([point["GyrosZ"] for point in repetition])
+        
+        acc_x.extend([point["AccelX"] for point in repetition])
+        acc_y.extend([point["AccelY"] for point in repetition])
+        acc_z.extend([point["AccelZ"] for point in repetition])
 
-    full_df = pd.concat(all_reps, ignore_index=True)
+    # Ábrázolás
+    plt.figure(figsize=(12, 6))
+    plt.suptitle("Összes ismétlés – Gyroscope & Accelerometer", fontsize=16)
 
-    # Elkülönítjük az oszlopokat
-    gyro_cols = ['GyrosX', 'GyrosY', 'GyrosZ']
-    accel_cols = ['AccelX', 'AccelY', 'AccelZ']
+    # Gyroscope
+    plt.subplot(2, 1, 1)
+    plt.plot(gyros_x, label="GyrosX")
+    plt.plot(gyros_y, label="GyrosY")
+    plt.plot(gyros_z, label="GyrosZ")
+    plt.title("Gyroscope")
+    plt.ylabel("°/s")
+    plt.legend()
+    plt.grid(True)
 
-    fig, axs = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
+    # Accelerometer
+    plt.subplot(2, 1, 2)
+    plt.plot(acc_x, label="AccelX")
+    plt.plot(acc_y, label="AccelY")
+    plt.plot(acc_z, label="AccelZ")
+    plt.title("Accelerometer")
+    plt.ylabel("g")
+    plt.xlabel("Idő (frame index)")
+    plt.legend()
+    plt.grid(True)
 
+    # Függőleges vonalak az ismétlések határánál (minden rep_length mintánál)
+    length = len(gyros_x)  # összes adat hossza (minden tengelynek ugyanannyi van)
+    peaks = range(rep_length, length, rep_length)
+    for peak in peaks:
+        plt.subplot(2, 1, 1)
+        plt.axvline(x=peak, color='red', linestyle='--', alpha=0.8, linewidth=1)
+        plt.subplot(2, 1, 2)
+        plt.axvline(x=peak, color='red', linestyle='--', alpha=0.8, linewidth=1)
 
-        # Accelerometer subplot
-    for col in accel_cols:
-        axs[0].plot(full_df[col], label=col)
-    axs[0].set_title("📈 Accelerometer adatok (összefűzött ismétlések)")
-    axs[0].set_xlabel("Idő (összefűzött minták)")
-    axs[0].set_ylabel("Érték")
-    axs[0].legend()
-    axs[0].grid(True)
-
-    # Gyroscope subplot
-    for col in gyro_cols:
-        axs[1].plot(full_df[col], label=col)
-    axs[1].set_title("📈 Gyroscope adatok (összefűzött ismétlések)")
-    axs[1].set_ylabel("Érték")
-    axs[1].legend()
-    axs[1].grid(True)
-
-
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
-
 
 
 if __name__ == "__main__":
@@ -203,10 +257,13 @@ if __name__ == "__main__":
         
         if best:
             distance, prominence, rep_peaks = best
-            rep_peaks = rep_peaks[1:]
+            # rep_peaks = rep_peaks[1:]
             print(f"\n🎯 Kalibrált paraméterek: distance={distance}, prominence={prominence}")
             print(f"📊 Detektált ismétlések: {len(rep_peaks)}")
             plot_sensor_data(df, rep_peaks, 
                            title=f"Kalibrált detektálás - {len(rep_peaks)} ismétlés")
-            export_repetitions_to_json(df, rep_peaks, correct=True)
-            plot_all_resampled_reps("labeled_reps.json")
+            print(rep_peaks)
+            print(distance)
+            normalized_data = normalize_repetition_length_smart(df, rep_peaks, target_length=13)
+            save_normalized_repetitions_to_json(normalized_data, "normalized_reps.json")
+            # plot_all_reps_combined("normalized_reps.json", rep_length=13)
