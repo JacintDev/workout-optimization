@@ -97,6 +97,89 @@ def run_parameter_search(df, target_reps=None, min_reps=6, max_reps=12):
     
     return None
 
+
+def resample_rep(df, target_len=14):
+    old_len = len(df)
+    if old_len == target_len:
+        return df.round(5)
+    
+    old_indices = np.linspace(0, 1, old_len)
+    new_indices = np.linspace(0, 1, target_len)
+    
+    new_df = pd.DataFrame()
+    for col in df.columns:
+        new_df[col] = np.interp(new_indices, old_indices, df[col])
+    return new_df.round(5)
+
+
+def export_repetitions_to_json(df, rep_peaks, correct=True, filename="labeled_reps.json", target_len=14):
+    reps_data = []
+
+    for i in range(len(rep_peaks) - 1):
+        start_idx = rep_peaks[i]
+        end_idx = rep_peaks[i + 1]
+        rep_df = df.iloc[start_idx:end_idx]
+
+        rep_df_subset = rep_df[['GyrosX', 'GyrosY', 'GyrosZ', 'AccelX', 'AccelY', 'AccelZ']]
+        rep_df_resampled = resample_rep(rep_df_subset, target_len=target_len)
+
+        rep_dict = {
+            "index_range": [int(start_idx), int(end_idx)],
+            "sensor_data": rep_df_resampled.to_dict(orient="records"),
+            "correct": correct
+        }
+
+        reps_data.append(rep_dict)
+
+    with open(filename, "w") as f:
+        json.dump(reps_data, f, indent=2)
+
+    print(f"✅ {len(reps_data)} ismétlés elmentve a(z) {filename} fájlba.")
+
+def plot_all_resampled_reps(filename="labeled_reps.json"):
+    with open(filename, "r") as f:
+        data = json.load(f)
+
+    all_reps = []
+
+    for rep in data:
+        sensor_data = rep["sensor_data"]
+        df = pd.DataFrame(sensor_data)
+        df = df.apply(pd.to_numeric, errors='coerce')
+        all_reps.append(df)
+
+    full_df = pd.concat(all_reps, ignore_index=True)
+
+    # Elkülönítjük az oszlopokat
+    gyro_cols = ['GyrosX', 'GyrosY', 'GyrosZ']
+    accel_cols = ['AccelX', 'AccelY', 'AccelZ']
+
+    fig, axs = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
+
+
+        # Accelerometer subplot
+    for col in accel_cols:
+        axs[0].plot(full_df[col], label=col)
+    axs[0].set_title("📈 Accelerometer adatok (összefűzött ismétlések)")
+    axs[0].set_xlabel("Idő (összefűzött minták)")
+    axs[0].set_ylabel("Érték")
+    axs[0].legend()
+    axs[0].grid(True)
+
+    # Gyroscope subplot
+    for col in gyro_cols:
+        axs[1].plot(full_df[col], label=col)
+    axs[1].set_title("📈 Gyroscope adatok (összefűzött ismétlések)")
+    axs[1].set_ylabel("Érték")
+    axs[1].legend()
+    axs[1].grid(True)
+
+
+    plt.tight_layout()
+    plt.show()
+
+
+
 if __name__ == "__main__":
     df = load_data("adatok.json")
     
@@ -111,7 +194,7 @@ if __name__ == "__main__":
     print(f"Összes mintaszám: {len(df)} (kb {len(df)/10:.1f} másodperc @ 10Hz)\n")
     
     # Ha tudod hány ismétlést csináltál, add meg itt:
-    known_reps = 10  # Változtasd meg vagy állítsd None-ra automatikus detektáláshoz
+    known_reps = 8  # Változtasd meg vagy állítsd None-ra automatikus detektáláshoz
     
     if known_reps:
         # Kalibrálás ismert ismétlésszámmal
@@ -120,8 +203,10 @@ if __name__ == "__main__":
         
         if best:
             distance, prominence, rep_peaks = best
-            # rep_peaks = rep_peaks[1:]
+            rep_peaks = rep_peaks[1:]
             print(f"\n🎯 Kalibrált paraméterek: distance={distance}, prominence={prominence}")
             print(f"📊 Detektált ismétlések: {len(rep_peaks)}")
             plot_sensor_data(df, rep_peaks, 
                            title=f"Kalibrált detektálás - {len(rep_peaks)} ismétlés")
+            export_repetitions_to_json(df, rep_peaks, correct=True)
+            plot_all_resampled_reps("labeled_reps.json")
