@@ -42,7 +42,7 @@ def plot_sensor_data(df, rep_peaks, title="Gyorsulás és giroszkóp adatok"):
     plt.tight_layout()
     plt.show()
 
-def run_parameter_search(df, target_reps=None, min_reps=6, max_reps=12):
+def run_parameter_search(df, target_reps=None, min_reps=25, max_reps=32):
     """
     Paraméterkereső edzés ismétlések detektálásához (6-14 tartomány)
     target_reps: ha konkrét ismétlésszámot tudunk, azt preferálja
@@ -158,7 +158,7 @@ def normalize_repetition_length_smart(df, rep_peaks, target_length=40):
     return np.array(normalized_reps)
 
 
-def save_normalized_repetitions_to_json(normalized_data, filename):
+def save_normalized_repetitions_to_json(normalized_data, filename, valid):
     json_data = []
     for repetition in normalized_data:
         rep_list = []
@@ -172,7 +172,7 @@ def save_normalized_repetitions_to_json(normalized_data, filename):
                 "AccelZ": float(row[5])
             }
             rep_list.append(entry)
-        rep_list.append({"IsCorrect": True})  # Minden ismétlés helyesnek van jelölve
+        rep_list.append({"IsCorrect": valid})  # Minden ismétlés helyesnek van jelölve
         json_data.append(rep_list)
     
 
@@ -248,16 +248,16 @@ if __name__ == "__main__":
     print(f"Összes mintaszám: {len(df)} (kb {len(df)/10:.1f} másodperc @ 10Hz)\n")
     
     # Ha tudod hány ismétlést csináltál, add meg itt:
-    known_reps = 8  # Változtasd meg vagy állítsd None-ra automatikus detektáláshoz
+    known_reps = 10# Változtasd meg vagy állítsd None-ra automatikus detektáláshoz
     
     if known_reps:
         # Kalibrálás ismert ismétlésszámmal
         print(f"🎯 Kalibrálás {known_reps} ismétlésre...")
-        best = run_parameter_search(df, target_reps=known_reps)
+        best = run_parameter_search(df, target_reps=known_reps, min_reps=known_reps-3, max_reps=known_reps+3)
         
         if best:
             distance, prominence, rep_peaks = best
-            # rep_peaks = rep_peaks[1:]
+            rep_peaks = rep_peaks[1:]
             print(f"\n🎯 Kalibrált paraméterek: distance={distance}, prominence={prominence}")
             print(f"📊 Detektált ismétlések: {len(rep_peaks)}")
             plot_sensor_data(df, rep_peaks, 
@@ -265,5 +265,5 @@ if __name__ == "__main__":
             print(rep_peaks)
             print(distance)
             normalized_data = normalize_repetition_length_smart(df, rep_peaks, target_length=13)
-            save_normalized_repetitions_to_json(normalized_data, "normalized_reps.json")
+            save_normalized_repetitions_to_json(normalized_data, "normalized_reps.json", valid=False)
             # plot_all_reps_combined("normalized_reps.json", rep_length=13)
