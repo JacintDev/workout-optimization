@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Concurrent;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Models;
 
@@ -15,13 +16,15 @@ namespace WorkoutOptimization.Endpoint.Controllers
     {
         readonly IGyroscopeDataLogic _logic;
         readonly IMapper _mapper;
+        ConcurrentQueue<GyroscopeDataDto> _queue;
        // readonly UserManager<User> _userManager;
 
 
-        public GyroscopeDataController(IGyroscopeDataLogic logic, IMapper mapper)
+        public GyroscopeDataController(IGyroscopeDataLogic logic, IMapper mapper, ConcurrentQueue<GyroscopeDataDto> queue)
         {
             _logic = logic;
             _mapper = mapper;
+            _queue = queue;
            
         }
 
@@ -47,7 +50,8 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
             try
             {
-                _logic.Create(entity);
+                //_logic.Create(entity);
+                _queue.Enqueue(entity);
                 return Ok(new { message = "GyroscopeData created!" });
             }
             catch (Exception ex)

@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -102,6 +103,11 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddScoped<ITrainingLogic, TrainingLogic>();
             builder.Services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
             builder.Services.AddScoped<IPromotionLogic, PromotionLogic>();
+            builder.Services.AddSingleton<IBicepsCurlLogic, BicepsCurlLogic>();
+            builder.Services.AddSingleton<ConcurrentQueue<GyroscopeDataDto>>();
+            builder.Services.AddHostedService<GyroscopeDataProcessor>();
+
+
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));

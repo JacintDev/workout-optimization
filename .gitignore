@@ -463,3 +463,11 @@ baseline.json
 
 # Ignore cache created with the Angular CLI.
 .angular/
+
+## Ignore local files
+adatok.json
+adat.json
+best_model.h5
+best_model22.h5
+labeled_reps.json
+normalized_reps.json

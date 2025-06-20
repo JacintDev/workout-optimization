@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using WorkoutOptimization.Logic;
@@ -13,9 +14,11 @@ namespace WorkoutOptimization.Endpoint.Controllers
     {
 
         private readonly IGyroscopeDataLogic _gyroscopeDataLogic;
-        public WebsocketController(IGyroscopeDataLogic gyroscopeDataLogic)
+        private readonly ConcurrentQueue<GyroscopeDataDto> _queue;
+        public WebsocketController(IGyroscopeDataLogic gyroscopeDataLogic, ConcurrentQueue<GyroscopeDataDto> queue)
         {
             this._gyroscopeDataLogic = gyroscopeDataLogic;
+            this._queue = queue;
         }
         [HttpGet("connect")]
         public async Task<IActionResult> Connect()
@@ -50,7 +53,9 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
                     var msg = Encoding.UTF8.GetString(buffer, 0, res.Count);
                     GyroscopeDataDto gyD = JsonConvert.DeserializeObject<GyroscopeDataDto>(msg)!;
-                    _gyroscopeDataLogic.Create(gyD);
+
+                    //_gyroscopeDataLogic.Create(gyD);
+                    _queue.Enqueue(gyD);
                 }
             }
             catch (WebSocketException ex)

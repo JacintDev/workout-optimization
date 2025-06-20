@@ -10,11 +10,22 @@
     <PackageReference Include="AutoMapper" Version="14.0.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.22.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\WorkoutOptimization.Models\WorkoutOptimization.Models.csproj" />
     <ProjectReference Include="..\WorkoutOptimization.Repository\WorkoutOptimization.Repository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="best_model.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Onxx\" />
   </ItemGroup>
 
 </Project>
