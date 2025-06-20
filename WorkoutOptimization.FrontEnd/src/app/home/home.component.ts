@@ -11,6 +11,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserUpdateModel } from '../../models/UserUpdateModel';
 import { UserModel } from '../../models/UserModel';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
+import * as signalR from '@microsoft/signalr';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +21,8 @@ import { StartTrainingModel } from '../../models/StartTrainingModel';
 })
 export class HomeComponent implements OnInit {
   profilePropertiesNeedSetup = true;
+  private hubConnection!: signalR.HubConnection;
+  public predictionMessage: string = '';
   userUpdate = new UserUpdateModel();
   user: UserModel | null = null;
   isActiveTraining: boolean = false;
@@ -47,6 +50,21 @@ export class HomeComponent implements OnInit {
         this.user = user;
         console.log(user);
       }
+    });
+    //SignalR
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5135/exercisehub')
+      .build();
+
+    this.hubConnection
+      .start()
+      .then(() => {
+        console.log('SignalR connection started');
+      })
+      .catch((err) => console.error('SignalR error:', err));
+
+    this.hubConnection.on('ReceivePrediction', (message: string) => {
+      this.predictionMessage = message;
     });
   }
 

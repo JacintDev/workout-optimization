@@ -11,6 +11,9 @@
         Megállítás
       </button>
     </p>
+    <div *ngIf="predictionMessage" class="prediction-box">
+      {{ predictionMessage }}
+    </div>
     <div class="stepper" *ngIf="this.profilePropertiesNeedSetup">
       <mat-stepper [linear]="isLinear" #stepper>
         <mat-step [stepControl]="firstFormGroup">

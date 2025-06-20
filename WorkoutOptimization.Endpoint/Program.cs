@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
+using WorkoutOptimization.Endpoint.Helpers;
 using WorkoutOptimization.Logic;
 using WorkoutOptimization.Logic.Helpers;
 using WorkoutOptimization.Models;
@@ -63,10 +64,12 @@ namespace WorkoutOptimization.Endpoint
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll",
-                    policy => policy.AllowAnyOrigin()
-                                    .AllowAnyMethod()
-                                    .AllowAnyHeader());
+                options.AddPolicy("AllowFrontend",
+                    policy => policy
+                        .WithOrigins("http://localhost:4200") //  Itt add meg az Angular URL-jét!
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()); //  Ezt csak konkrét origin esetén lehet!
             });
 
 
@@ -107,7 +110,7 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddSingleton<ConcurrentQueue<GyroscopeDataDto>>();
             builder.Services.AddHostedService<GyroscopeDataProcessor>();
 
-
+            builder.Services.AddSignalR();
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -146,7 +149,7 @@ namespace WorkoutOptimization.Endpoint
             });
             var app = builder.Build();
 
-            app.UseCors("AllowAll"); // CORS middleware aktiválása
+            app.UseCors("AllowFrontend"); // CORS middleware aktiválása
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -169,7 +172,7 @@ namespace WorkoutOptimization.Endpoint
             app.UseAuthentication();
 
             app.UseAuthorization();
-
+            app.MapHub<ExerciseHub>("/exercisehub");
 
             app.MapControllers();
 

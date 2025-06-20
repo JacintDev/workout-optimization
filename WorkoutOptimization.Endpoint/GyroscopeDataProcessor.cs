@@ -5,6 +5,9 @@ using WorkoutOptimization.Models;
 using WorkoutOptimization.Repository;
 using ScottPlot;
 using System.Text.Json;
+using Microsoft.AspNetCore.SignalR;
+using WorkoutOptimization.Endpoint.Helpers;
+using WorkoutOptimization.Repository.Migrations;
 
 namespace WorkoutOptimization.Endpoint
 {
@@ -13,13 +16,15 @@ namespace WorkoutOptimization.Endpoint
         private readonly ConcurrentQueue<GyroscopeDataDto> _queue;
         IBicepsCurlLogic _bicepsCurlLogic;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IHubContext<ExerciseHub> _hubContext;
 
         public GyroscopeDataProcessor(ConcurrentQueue<GyroscopeDataDto> queue,
-            IServiceScopeFactory scopeFactory, IBicepsCurlLogic bicepsCurlLogic)
+            IServiceScopeFactory scopeFactory, IBicepsCurlLogic bicepsCurlLogic, IHubContext<ExerciseHub> hubContext)
         {
             _queue = queue;
             _scopeFactory = scopeFactory;
             _bicepsCurlLogic= bicepsCurlLogic;
+            _hubContext=hubContext;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -184,7 +189,9 @@ namespace WorkoutOptimization.Endpoint
                 converted[0, i, 4] = d.AccelY;
                 converted[0, i, 5] = d.AccelZ;
             }
-            Console.WriteLine(_bicepsCurlLogic.DataValidation(converted));
+            var res = _bicepsCurlLogic.DataValidation(converted);
+            string message = res ? "Helyes gyakorlat!" : "Hibás végrehajtás!";
+            await _hubContext.Clients.All.SendAsync("ReceivePrediction", message);
 
         }
 
