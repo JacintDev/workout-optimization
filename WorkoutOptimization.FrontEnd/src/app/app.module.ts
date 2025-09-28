@@ -36,6 +36,7 @@ import { LogoutComponent } from './logout/logout.component';
 import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar.component';
 import { HeaderComponent } from './header/header.component';
 import { LogoutDialogComponent } from './logout-dialog/logout-dialog.component';
+import { BicepsCurlAnimateComponent } from './biceps-curl-animate/biceps-curl-animate.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { LogoutDialogComponent } from './logout-dialog/logout-dialog.component';
     AuthorizedNavbarComponent,
     HeaderComponent,
     LogoutDialogComponent,
+    BicepsCurlAnimateComponent,
   ],
   imports: [
     BrowserModule,
