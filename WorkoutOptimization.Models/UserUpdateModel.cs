@@ -12,7 +12,7 @@ namespace WorkoutOptimization.Models
         [Required]
         public DateTime? DateOfBirth { get; set; }
         [Required]
-        public int? Weight { get; set; }
+        public float? Weight { get; set; }
         [Required]
         public int? Height { get; set; }
         [Required]
