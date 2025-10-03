@@ -1,4 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { AuthService } from '../AuthService';
 import {
   FormBuilder,
@@ -10,6 +18,7 @@ import {
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserUpdateModel } from '../../models/UserUpdateModel';
 import { UserModel } from '../../models/UserModel';
+import { Chart } from 'chart.js/auto';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 import * as signalR from '@microsoft/signalr';
 
@@ -17,9 +26,13 @@ import * as signalR from '@microsoft/signalr';
   selector: 'app-home',
   standalone: false,
   templateUrl: './home.component.html',
-  styleUrl: './home.component.sass',
+  styleUrls: ['./home.component.sass'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('weightChart') weightChart!: ElementRef<HTMLCanvasElement>;
+
+  private weightChartInstance?: Chart;
+
   profilePropertiesNeedSetup = true;
   private hubConnection!: signalR.HubConnection;
   public predictionMessage: string = '';
@@ -66,6 +79,104 @@ export class HomeComponent implements OnInit {
     this.hubConnection.on('ReceivePrediction', (message: string) => {
       this.predictionMessage = message;
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.createWeightChart();
+  }
+
+  createWeightChart(): void {
+    const ctx = this.weightChart.nativeElement.getContext('2d');
+    if (ctx) {
+      this.weightChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [
+            'Jan',
+            'Feb',
+            'Már',
+            'Ápr',
+            'Máj',
+            'Jún',
+            'Júl',
+            'Aug',
+            'Szep',
+            'Okt',
+            'Nov',
+            'Dec',
+          ],
+          datasets: [
+            {
+              label: 'Testsúly (kg)',
+              data: [85, 87, 89, 91, 93, 95, 96, 98, 99, 100, 102, 105],
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.1)',
+              tension: 0.4,
+              fill: true,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointBackgroundColor: 'rgb(255, 99, 132)',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointHoverRadius: 7,
+            },
+            {
+              label: 'Célsúly',
+              data: [80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
+              borderColor: 'rgb(75, 192, 192)',
+              borderDash: [10, 5],
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Súlyváltozás - A dagadék útja 🍔📈',
+              font: {
+                size: 16,
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return (
+                    context.dataset.label + ': ' + context.parsed.y + ' kg'
+                  );
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              min: 75,
+              max: 110,
+              ticks: {
+                callback: function (value) {
+                  return value + ' kg';
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.weightChartInstance) {
+      this.weightChartInstance.destroy();
+    }
   }
 
   // === Validator függvények ===

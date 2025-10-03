@@ -1,163 +1,170 @@
 <div class="home-container">
   <div class="home-header" *ngIf="!this.profilePropertiesNeedSetup">
-    <h1>Üdvözöllek {{ user?.firstName }} {{ user?.lastName }}!</h1>
-    <div *ngIf="!isActiveTraining">
-      <div
-        class="three-container"
-        #rendererContainer
-        style="width: 100%; height: 400px"
-      ></div>
-
-      <span class="label">Helyes? </span>
-      <input type="checkbox" [(ngModel)]="training.isCorrect" />
-      <button mat-button (click)="startTraining()">Indítás</button>
-    </div>
-    <p>
-      <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
-        Megállítás
-      </button>
-    </p>
     <div *ngIf="predictionMessage" class="prediction-box">
       {{ predictionMessage }}
     </div>
-    <div class="stepper" *ngIf="this.profilePropertiesNeedSetup">
-      <mat-stepper [linear]="isLinear" #stepper>
-        <mat-step [stepControl]="firstFormGroup">
-          <form [formGroup]="firstFormGroup">
-            <ng-template matStepLabel class="label"
-              >Add meg a születési dátumod</ng-template
-            >
-            <mat-form-field appearance="outline">
-              <mat-label>Születési dátum</mat-label>
-              <input
-                matInput
-                placeholder=" "
-                formControlName="firstCtrl"
-                required
-                type="date"
-                min="1920-01-01"
-                [max]="today"
-                [(ngModel)]="userUpdate.dateOfBirth"
-              />
-              <mat-error
-                *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['minDate']"
-              >
-                A dátum nem lehet korábbi 1920-01-01-nél.
-              </mat-error>
-              <mat-error
-                *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['maxDate']"
-              >
-                A dátum nem lehet későbbi a mainál.
-              </mat-error>
-            </mat-form-field>
-            <div>
-              <button
-                mat-button
-                matStepperNext
-                [disabled]="!firstFormGroup.valid"
-              >
-                Következő
-              </button>
-            </div>
-          </form>
-        </mat-step>
-        <mat-step [stepControl]="secondFormGroup">
-          <form [formGroup]="secondFormGroup">
-            <ng-template matStepLabel class="label"
-              >Add meg a testsúlyod</ng-template
-            >
-            <mat-form-field appearance="outline">
-              <mat-label>Testsúly</mat-label>
-              <input
-                matInput
-                placeholder=" "
-                formControlName="secondCtrl"
-                required
-                type="number"
-                min="30"
-                max="200"
-                [(ngModel)]="userUpdate.weight"
-              />
-            </mat-form-field>
-            <div>
-              <button mat-button matStepperPrevious>Vissza</button>
-              <button
-                mat-button
-                matStepperNext
-                [disabled]="!secondFormGroup.valid"
-              >
-                Következő
-              </button>
-            </div>
-          </form>
-        </mat-step>
-        <mat-step [stepControl]="thirdFormGroup" label="Add meg a magasságod">
-          <form [formGroup]="thirdFormGroup">
-            <mat-form-field appearance="outline">
-              <mat-label>Magasság</mat-label>
-              <input
-                matInput
-                type="number"
-                formControlName="thirdCtrl"
-                placeholder="Ex. 1 Main St, New York, NY"
-                required
-                min="100"
-                max="220"
-                [(ngModel)]="userUpdate.height"
-              />
-            </mat-form-field>
-            <div>
-              <button mat-button matStepperPrevious>Vissza</button>
-              <button
-                mat-button
-                matStepperNext
-                [disabled]="!thirdFormGroup.valid"
-              >
-                Következő
-              </button>
-            </div>
-          </form>
-        </mat-step>
-        <mat-step
-          [stepControl]="fourthFormGroup"
-          label="Add meg az edzettségi szinted"
-        >
-          <form [formGroup]="fourthFormGroup">
-            <mat-form-field appearance="outline">
-              <mat-label>Edzettségi szint</mat-label>
-              <mat-select
-                required
-                formControlName="fourthCtrl"
-                [(ngModel)]="userUpdate.level"
-              >
-                <mat-option *ngFor="let x of fitnessLevel" [value]="x.value">{{
-                  x.viewValue
-                }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <div>
-              <button mat-button matStepperPrevious>Vissza</button>
-              <button
-                mat-button
-                matStepperNext
-                [disabled]="!fourthFormGroup.valid"
-                (click)="onSubmit()"
-              >
-                Befejezés
-              </button>
-            </div>
-          </form>
-        </mat-step>
-        <mat-step>
-          <ng-template matStepLabel>Done</ng-template>
-          <p>You are now done.</p>
-          <div>
-            <button mat-button matStepperPrevious>Back</button>
-            <button mat-button (click)="stepper.reset()">Reset</button>
-          </div>
-        </mat-step>
-      </mat-stepper>
+    <div class="card-1">
+      <h1>Üdvözöllek {{ user?.firstName }}!</h1>
+      <div *ngIf="!isActiveTraining">
+        <div class="three-container" #rendererContainer></div>
+        <button mat-button>Edzés</button>
+        <span class="label">Helyes? </span>
+        <input type="checkbox" [(ngModel)]="training.isCorrect" />
+        <button mat-button (click)="startTraining()">Indítás</button>
+      </div>
+      <p>
+        <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
+          Megállítás
+        </button>
+      </p>
+    </div>
+    <div class="card-2">Edzések száma</div>
+    <div class="card-3">Aktív napok</div>
+    <div class="card-4">Gyakorlatok száma</div>
+    <div class="card-5">Átlag pulzus</div>
+    <div class="card-6">6</div>
+    <div class="card-7" style="position: relative; height: 300px; width: 100%">
+      <canvas #weightChart></canvas>
     </div>
   </div>
-  <app-biceps-curl-animate></app-biceps-curl-animate>
+  <div class="stepper" *ngIf="this.profilePropertiesNeedSetup">
+    <mat-stepper [linear]="isLinear" #stepper>
+      <mat-step [stepControl]="firstFormGroup">
+        <form [formGroup]="firstFormGroup">
+          <ng-template matStepLabel class="label"
+            >Add meg a születési dátumod</ng-template
+          >
+          <mat-form-field appearance="outline">
+            <mat-label>Születési dátum</mat-label>
+            <input
+              matInput
+              placeholder=" "
+              formControlName="firstCtrl"
+              required
+              type="date"
+              min="1920-01-01"
+              [max]="today"
+              [(ngModel)]="userUpdate.dateOfBirth"
+            />
+            <mat-error
+              *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['minDate']"
+            >
+              A dátum nem lehet korábbi 1920-01-01-nél.
+            </mat-error>
+            <mat-error
+              *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['maxDate']"
+            >
+              A dátum nem lehet későbbi a mainál.
+            </mat-error>
+          </mat-form-field>
+          <div>
+            <button
+              mat-button
+              matStepperNext
+              [disabled]="!firstFormGroup.valid"
+            >
+              Következő
+            </button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="secondFormGroup">
+        <form [formGroup]="secondFormGroup">
+          <ng-template matStepLabel class="label"
+            >Add meg a testsúlyod</ng-template
+          >
+          <mat-form-field appearance="outline">
+            <mat-label>Testsúly</mat-label>
+            <input
+              matInput
+              placeholder=" "
+              formControlName="secondCtrl"
+              required
+              type="number"
+              min="30"
+              max="200"
+              [(ngModel)]="userUpdate.weight"
+            />
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Vissza</button>
+            <button
+              mat-button
+              matStepperNext
+              [disabled]="!secondFormGroup.valid"
+            >
+              Következő
+            </button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="thirdFormGroup" label="Add meg a magasságod">
+        <form [formGroup]="thirdFormGroup">
+          <mat-form-field appearance="outline">
+            <mat-label>Magasság</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="thirdCtrl"
+              placeholder="Ex. 1 Main St, New York, NY"
+              required
+              min="100"
+              max="220"
+              [(ngModel)]="userUpdate.height"
+            />
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Vissza</button>
+            <button
+              mat-button
+              matStepperNext
+              [disabled]="!thirdFormGroup.valid"
+            >
+              Következő
+            </button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step
+        [stepControl]="fourthFormGroup"
+        label="Add meg az edzettségi szinted"
+      >
+        <form [formGroup]="fourthFormGroup">
+          <mat-form-field appearance="outline">
+            <mat-label>Edzettségi szint</mat-label>
+            <mat-select
+              required
+              formControlName="fourthCtrl"
+              [(ngModel)]="userUpdate.level"
+            >
+              <mat-option *ngFor="let x of fitnessLevel" [value]="x.value">{{
+                x.viewValue
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Vissza</button>
+            <button
+              mat-button
+              matStepperNext
+              [disabled]="!fourthFormGroup.valid"
+              (click)="onSubmit()"
+            >
+              Befejezés
+            </button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Done</ng-template>
+        <p>You are now done.</p>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </div>
 </div>
+<div class="cards"></div>
+<!-- <app-biceps-curl-animate></app-biceps-curl-animate> -->
