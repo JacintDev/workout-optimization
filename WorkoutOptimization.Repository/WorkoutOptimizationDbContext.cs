@@ -11,6 +11,7 @@ namespace WorkoutOptimization.Repository
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Training> Trainings { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<DailyWeight> DailyWeights { get; set; }
 
         public WorkoutOptimizationDbContext(DbContextOptions<WorkoutOptimizationDbContext> opt) : base(opt)
         {
@@ -32,7 +33,11 @@ namespace WorkoutOptimization.Repository
                WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade));
 
 
-
+            modelBuilder.Entity<User>()
+                .HasMany(x=> x.DailyWeights)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Training>()
                 .HasMany(x => x.GyroscopeData)
