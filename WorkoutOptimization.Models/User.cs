@@ -48,6 +48,9 @@ namespace WorkoutOptimization.Models
         [JsonIgnore]
         
         public virtual ICollection<Exercise> Exercises { get; set; }
+
+        public virtual ICollection<DailyWeight> DailyWeights { get; set; }
+
         public User()
         {
             this.Exercises=new HashSet<Exercise>();
