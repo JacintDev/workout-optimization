@@ -21,6 +21,7 @@ namespace WorkoutOptimization.Logic.Helpers
             CreateMap<Promotion, PromotionDto>().ReverseMap();
             CreateMap<User, UserViewModel>().ReverseMap();
             CreateMap<User, UserUpdateModel>().ReverseMap();
+            CreateMap<DailyWeight, DailyWeightCreateModel>().ReverseMap();
         }
 
     }
