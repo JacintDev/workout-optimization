@@ -172,6 +172,31 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("WorkoutOptimization.Models.DailyWeight", b =>
+                {
+                    b.Property<int>("DailyWeightId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DailyWeightId"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<float>("Weight")
+                        .HasColumnType("real");
+
+                    b.HasKey("DailyWeightId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DailyWeights");
+                });
+
             modelBuilder.Entity("WorkoutOptimization.Models.Exercise", b =>
                 {
                     b.Property<int>("ExerciseId")
@@ -253,7 +278,7 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1f,
                             AccelY = 1f,
                             AccelZ = 1f,
-                            Date = new DateTime(2025, 6, 17, 13, 41, 43, 848, DateTimeKind.Local).AddTicks(3182),
+                            Date = new DateTime(2025, 10, 3, 21, 8, 50, 663, DateTimeKind.Local).AddTicks(9443),
                             GyrosX = 1f,
                             GyrosY = 1f,
                             GyrosZ = 1f,
@@ -332,9 +357,9 @@ namespace WorkoutOptimization.Repository.Migrations
                         new
                         {
                             TrainingId = 1,
-                            End = new DateTime(2025, 6, 17, 13, 41, 43, 704, DateTimeKind.Local).AddTicks(5755),
+                            End = new DateTime(2025, 10, 3, 21, 8, 50, 603, DateTimeKind.Local).AddTicks(1512),
                             ExerciseId = 1,
-                            Start = new DateTime(2025, 6, 17, 13, 41, 43, 704, DateTimeKind.Local).AddTicks(5547),
+                            Start = new DateTime(2025, 10, 3, 21, 8, 50, 603, DateTimeKind.Local).AddTicks(1458),
                             UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                             isActive = false
                         });
@@ -433,15 +458,15 @@ namespace WorkoutOptimization.Repository.Migrations
                         {
                             Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5c9f4b2e-6f26-4f79-b344-c704a90729a4",
+                            ConcurrencyStamp = "a02ebfe6-dd87-4d21-bbdc-b58e93e67a41",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA+S9cDBSw5eVsdiiMyrtF5NX00+VjGzHv7NpNZRsCBmvAG58HeMEQBTZToYAAj1mw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENe3rFS3z+u4AztPNVtDHrzHn9jpcUFZnmvJZeqiJqMkAAQj6oAsb4vBqay5K1s+rA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "325dd98c-b56e-4e73-9f19-add2b71b07f6",
+                            SecurityStamp = "4e8f1e71-6aa4-43ce-b26e-170149f24368",
                             TwoFactorEnabled = false,
                             UserName = "admin@gmail.com"
                         });
@@ -498,6 +523,17 @@ namespace WorkoutOptimization.Repository.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WorkoutOptimization.Models.DailyWeight", b =>
+                {
+                    b.HasOne("WorkoutOptimization.Models.User", "User")
+                        .WithMany("DailyWeights")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WorkoutOptimization.Models.GyroscopeData", b =>
                 {
                     b.HasOne("WorkoutOptimization.Models.Training", "Training")
@@ -530,6 +566,11 @@ namespace WorkoutOptimization.Repository.Migrations
             modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
                 {
                     b.Navigation("GyroscopeData");
+                });
+
+            modelBuilder.Entity("WorkoutOptimization.Models.User", b =>
+                {
+                    b.Navigation("DailyWeights");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,55 @@
+﻿using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using WorkoutOptimization.Models;
+using WorkoutOptimization.Repository;
+
+namespace WorkoutOptimization.Logic
+{
+    public class DailyWeightLogic : IDailyWeightLogic
+    {
+        IRepository<DailyWeight> _repo;
+        IMapper _mapper;
+        public DailyWeightLogic(IRepository<DailyWeight> repo, IMapper mapper)
+        {
+            _repo = repo;
+            _mapper = mapper;
+        }
+
+        public void Create(DailyWeightCreateModel entity, string userId)
+        {
+            var ent=_mapper.Map<DailyWeight>(entity);
+            ent.UserId = userId;
+            _repo.Create(ent);
+        }
+
+        public void Delete(int id)
+        {
+            _repo.Delete(id);
+        }
+
+        public DailyWeight Read(int id)
+        {
+            return _repo.Read(id);
+        }
+
+        public IQueryable<DailyWeight> ReadAll(bool role, string UserId)
+        {
+            if (!role)
+            {
+                return _repo.ReadAll().Where(x => x.UserId == UserId);
+            }
+            return _repo.ReadAll();
+        }
+
+        public void Update(DailyWeightCreateModel entity, int id)
+        {
+            var mapped = _mapper.Map<DailyWeight>(entity);
+            mapped.DailyWeightId = id;
+            _repo.Update(mapped);
+        }
+    }
+}
