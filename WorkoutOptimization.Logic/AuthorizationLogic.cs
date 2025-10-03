@@ -57,7 +57,9 @@ namespace WorkoutOptimization.Logic
             {
                 var claim = new List<Claim> 
                 { new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                  new Claim(ClaimTypes.Name, user.Email)};
+                  new Claim(ClaimTypes.Name, user.Email),
+                  new Claim("UserId", user.Id)
+                  };
                 foreach (var role in await _userManager.GetRolesAsync(user))
                 {
                     claim.Add(new Claim(ClaimTypes.Role, role));
