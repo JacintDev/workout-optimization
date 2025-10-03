@@ -6,8 +6,8 @@ namespace WorkoutOptimization.Logic
     {
         void Create(DailyWeightCreateModel entity, string userId);
         void Delete(int id);
-        DailyWeight Read(int id);
-        IQueryable<DailyWeight> ReadAll(bool role, string userId);
+        DailyWeightViewModel Read(int id);
+        IQueryable<DailyWeightViewModel> ReadAll(bool role, string userId);
         void Update(DailyWeightCreateModel entity, int id);
     }
 }

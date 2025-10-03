@@ -22,7 +22,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
             _userManager = userManager;
         }
         [HttpGet]
-        public IEnumerable<DailyWeight> Get()
+        public IEnumerable<DailyWeightViewModel> Get()
         {
             var role = User.IsInRole("Admin");
             var userId= User.FindFirst("UserId")?.Value;
@@ -31,7 +31,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         // GET api/<DailyWeightController>/5
         [HttpGet("{id}")]
-        public DailyWeight Get(int id)
+        public DailyWeightViewModel Get(int id)
         {
             return _logic.Read(id);
         }
