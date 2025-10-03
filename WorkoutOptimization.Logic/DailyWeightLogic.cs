@@ -19,10 +19,11 @@ namespace WorkoutOptimization.Logic
             _mapper = mapper;
         }
 
-        public void Create(DailyWeightCreateModel entity, string userId)
+        public void Create(DailyWeightCreateModel entity, User user)
         {
             var ent=_mapper.Map<DailyWeight>(entity);
-            ent.UserId = userId;
+            ent.User = user;
+            user.Weight = entity.Weight; // TODO: update weight from int to float 
             _repo.Create(ent);
         }
 
