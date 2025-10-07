@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { UserModel } from '../models/UserModel';
+import { UserUpdateModel } from '../models/UserUpdateModel';
 
 @Injectable({
   providedIn: 'root',
@@ -73,6 +74,12 @@ export class AuthService {
       catchError((error) => {
         return of(false);
       })
+    );
+  }
+  userUpdate(userUpdateModel: UserUpdateModel): Observable<any> {
+    return this.http.put<any>(
+      'http://localhost:5135/Auth/UpdateUser',
+      userUpdateModel
     );
   }
 }
