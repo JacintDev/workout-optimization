@@ -1,8 +1,8 @@
-<div class="unlogged-site" *ngIf="!this.logged">
+<div class="unlogged-site" *ngIf="(userLoggedIn$ | async) === false">
   <app-unathorized-nav></app-unathorized-nav>
   <router-outlet></router-outlet>
 </div>
-<div class="logged-site" *ngIf="this.logged">
+<div class="logged-site" *ngIf="(userLoggedIn$ | async) === true">
   <div class="header"><app-header></app-header></div>
   <div class="navbar"><app-authorized-navbar></app-authorized-navbar></div>
   <div class="content"><router-outlet></router-outlet></div>
