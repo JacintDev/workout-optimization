@@ -4,8 +4,17 @@
   </div>
 
   <ul>
-    <li><mat-icon fontIcon="dashboard"></mat-icon>Irányítópult</li>
-    <li><mat-icon fontIcon="fitness_center"></mat-icon>Edzések</li>
+    <a routerLink="/home">
+      <li>
+        <mat-icon fontIcon="dashboard"></mat-icon><span>Irányítópult</span>
+      </li>
+    </a>
+    <a routerLink="/training">
+      <li>
+        <mat-icon fontIcon="fitness_center"></mat-icon>
+        <span>Edzések</span>
+      </li>
+    </a>
     <li>
       <mat-icon fontIcon="assignment_turned_in"></mat-icon>Ajánlott edzésterv
     </li>

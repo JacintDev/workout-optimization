@@ -1,0 +1,19 @@
+<div class="training-new-container">
+  <div class="create-new">
+    <h2 class="title">Új edzés létrehozása</h2>
+    <div class="image-container">
+      <img src="weightlifting.webp" alt="weightlifting" class="image" />
+    </div>
+    <mat-form-field>
+      <mat-label>Gyakorlat kiválasztása</mat-label>
+      <mat-select [(value)]="selected">
+        <mat-option
+          *ngFor="let exercise of exercises"
+          [value]="exercise.value"
+          >{{ exercise.name }}</mat-option
+        >
+      </mat-select>
+    </mat-form-field>
+    <button mat-button [disabled]="!selected">Tovább</button>
+  </div>
+</div>

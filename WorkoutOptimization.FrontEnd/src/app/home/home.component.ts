@@ -70,20 +70,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentUserTrainingCount$ = this.homeService.currentUserTrainingCount$;
 
     //SignalR
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5135/exercisehub')
-      .build();
+    // this.hubConnection = new signalR.HubConnectionBuilder()
+    //   .withUrl('http://localhost:5135/exercisehub')
+    //   .build();
 
-    this.hubConnection
-      .start()
-      .then(() => {
-        console.log('SignalR connection started');
-      })
-      .catch((err) => console.error('SignalR error:', err));
+    // this.hubConnection
+    //   .start()
+    //   .then(() => {
+    //     console.log('SignalR connection started');
+    //   })
+    //   .catch((err) => console.error('SignalR error:', err));
 
-    this.hubConnection.on('ReceivePrediction', (message: string) => {
-      this.predictionMessage = message;
-    });
+    // this.hubConnection.on('ReceivePrediction', (message: string) => {
+    //   this.predictionMessage = message;
+    // });
   }
 
   ngAfterViewInit(): void {

@@ -38,6 +38,9 @@ import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar
 import { HeaderComponent } from './header/header.component';
 import { LogoutDialogComponent } from './logout-dialog/logout-dialog.component';
 import { BicepsCurlAnimateComponent } from './biceps-curl-animate/biceps-curl-animate.component';
+import { TrainingComponent } from './training/training.component';
+import { MatTableModule } from '@angular/material/table';
+import { TrainingNewComponent } from './training-new/training-new.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +59,8 @@ import { BicepsCurlAnimateComponent } from './biceps-curl-animate/biceps-curl-an
     HeaderComponent,
     LogoutDialogComponent,
     BicepsCurlAnimateComponent,
+    TrainingComponent,
+    TrainingNewComponent,
   ],
   imports: [
     BrowserModule,
@@ -73,6 +78,7 @@ import { BicepsCurlAnimateComponent } from './biceps-curl-animate/biceps-curl-an
     MatSidenavModule,
     MatDialogModule,
     MatStepperModule,
+    MatTableModule,
   ],
   providers: [provideHttpClient(withInterceptors([authInterceptor]))],
   bootstrap: [AppComponent],

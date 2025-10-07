@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from './AuthService';
+import { map, Observable } from 'rxjs';
+import { UserModel } from '../models/UserModel';
 
 @Component({
   selector: 'app-root',
@@ -9,14 +11,12 @@ import { AuthService } from './AuthService';
 })
 export class AppComponent {
   title = 'WorkoutOptimization.FrontEnd';
-  logged: boolean = false;
+  userLoggedIn$: Observable<boolean>;
   constructor(private auth: AuthService) {
-    this.auth.currentUser$.subscribe((user) => {
-      if (user?.UserId != null) {
-        this.logged = true;
-      } else {
-        this.logged = false;
-      }
-    });
+    this.userLoggedIn$ = this.auth.currentUser$.pipe(
+      map((user) => {
+        return !!user;
+      })
+    );
   }
 }

@@ -13,6 +13,8 @@ import { AuthGuard } from './auth.guard';
 import { GuestGuard } from './guest.guard';
 import { LogoutComponent } from './logout/logout.component';
 import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar.component';
+import { TrainingComponent } from './training/training.component';
+import { TrainingNewComponent } from './training-new/training-new.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -33,6 +35,18 @@ const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
+  {
+    path: 'training',
+    component: TrainingComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
+  {
+    path: 'createtraining',
+    component: TrainingNewComponent,
     canActivate: [AuthGuard],
     data: { roles: ['User', 'Admin'] },
   },
