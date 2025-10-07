@@ -20,7 +20,6 @@ export class AuthService {
       localStorage.removeItem('token');
       localStorage.removeItem('expiration');
       localStorage.clear();
-      console.log('MŰKÖDJ TE GECI');
 
       this.currentUserSubject.next(null);
 
@@ -57,25 +56,23 @@ export class AuthService {
       return of(false);
     }
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http
-      .get<any>('http://localhost:5135/Auth/IsLoggedIn', { headers })
-      .pipe(
-        map((resp) => {
-          if (resp.isLoggedIn === true) {
-            this.currentUserSubject.next(this.setUser(resp.user));
-            return true;
-          }
-          this.currentUserSubject.next(null);
+    // const headers = new HttpHeaders({
+    //   'Content-Type': 'application/json',
+    //   Authorization: `Bearer ${token}`,
+    // });
+    return this.http.get<any>('http://localhost:5135/Auth/IsLoggedIn').pipe(
+      map((resp) => {
+        if (resp.isLoggedIn === true) {
+          this.currentUserSubject.next(this.setUser(resp.user));
+          return true;
+        }
+        this.currentUserSubject.next(null);
 
-          return false;
-        }),
-        catchError((error) => {
-          return of(false);
-        })
-      );
+        return false;
+      }),
+      catchError((error) => {
+        return of(false);
+      })
+    );
   }
 }

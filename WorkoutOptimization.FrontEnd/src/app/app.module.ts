@@ -4,7 +4,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { UnathorizedNavComponent } from './unathorized-nav/unathorized-nav.component';
-import { provideHttpClient } from '@angular/common/http';
+import {
+  provideHttpClient,
+  HTTP_INTERCEPTORS,
+  HttpClientModule,
+  withInterceptors,
+} from '@angular/common/http';
+import { authInterceptor } from './auth.interceptor';
 //material
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -68,7 +74,7 @@ import { BicepsCurlAnimateComponent } from './biceps-curl-animate/biceps-curl-an
     MatDialogModule,
     MatStepperModule,
   ],
-  providers: [provideHttpClient()],
+  providers: [provideHttpClient(withInterceptors([authInterceptor]))],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
