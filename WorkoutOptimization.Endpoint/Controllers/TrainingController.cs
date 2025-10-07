@@ -134,6 +134,17 @@ namespace WorkoutOptimization.Endpoint.Controllers
             }
             return _logic.CountTrainings(user);
         }
+        [HttpGet]
+        public async Task<IQueryable<CountWorkoutSessionModel>> CountWorkoutSessions()
+        {
+            var user = await _userManager.FindByEmailAsync(this.User.Identity!.Name!);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+            var res=_logic.CountWorkoutSessions(user);
+            return res;
+        }
 
 
 
