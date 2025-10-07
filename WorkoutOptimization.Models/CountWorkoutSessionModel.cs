@@ -8,7 +8,7 @@ namespace WorkoutOptimization.Models
 {
     public class CountWorkoutSessionModel
     {
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public int Count { get; set; }
     }
 }

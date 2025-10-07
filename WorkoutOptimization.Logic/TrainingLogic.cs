@@ -95,7 +95,7 @@ namespace WorkoutOptimization.Logic
                 .GroupBy(x => x.Start.Date)
                 .Select(g => new CountWorkoutSessionModel
                 {
-                    Date = g.Key,
+                    Date = g.Key.ToShortDateString(),
                     Count = g.Count()
                 });
             return res;
