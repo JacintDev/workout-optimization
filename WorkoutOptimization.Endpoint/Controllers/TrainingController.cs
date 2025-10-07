@@ -123,6 +123,17 @@ namespace WorkoutOptimization.Endpoint.Controllers
             _logic.StopTraining(id, user);
             return Ok(new { message = "Training stopped!" });
         }
+        [Authorize]
+        [HttpGet]
+        public async Task<int> CountTrainings()
+        {
+            var user = await _userManager.FindByEmailAsync(this.User.Identity!.Name!);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+            return _logic.CountTrainings(user);
+        }
 
 
 

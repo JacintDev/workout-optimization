@@ -11,5 +11,6 @@ namespace WorkoutOptimization.Logic
         void StopTraining(int id, User user);
         IQueryable<Training> ReadAll();
         void Update(TrainingDto entity, int id, User user);
+        int CountTrainings(User user);
     }
 }
