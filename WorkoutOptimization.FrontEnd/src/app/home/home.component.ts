@@ -40,6 +40,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public predictionMessage: string = '';
   userUpdate = new UserUpdateModel();
   user$!: Observable<UserModel | null>;
+  currentUserTrainingCount$!: Observable<number>;
   isActiveTraining: boolean = false;
   trainingId: number = 0;
   training: StartTrainingModel = new StartTrainingModel();
@@ -65,6 +66,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       map((user) => !user || !user.height || !user.weight)
     );
     this.user$ = this.auth.currentUser$;
+    this.homeService.getUserTrainingCount().subscribe();
+    this.currentUserTrainingCount$ = this.homeService.currentUserTrainingCount$;
 
     //SignalR
     this.hubConnection = new signalR.HubConnectionBuilder()
