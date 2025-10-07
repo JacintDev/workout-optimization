@@ -82,6 +82,10 @@ namespace WorkoutOptimization.Logic
             _repo.Update(ent);
         }
 
-
+        public int CountTrainings(User user)
+        {
+            var result=_repo.ReadAll().Count(x=>x.UserId == user.Id);
+            return result;
+        }
     }
 }
