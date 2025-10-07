@@ -87,5 +87,18 @@ namespace WorkoutOptimization.Logic
             var result=_repo.ReadAll().Count(x=>x.UserId == user.Id);
             return result;
         }
+
+        public IQueryable<CountWorkoutSessionModel> CountWorkoutSessions(User user)
+        {
+            var res = _repo.ReadAll()
+                .Where(x=> x.UserId == user.Id)
+                .GroupBy(x => x.Start.Date)
+                .Select(g => new CountWorkoutSessionModel
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                });
+            return res;
+        }
     }
 }
