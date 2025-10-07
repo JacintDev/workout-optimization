@@ -241,22 +241,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.thirdFormGroup.valid &&
       this.fourthFormGroup.valid
     ) {
-      // const headers = new HttpHeaders({
-      //   'Content-Type': 'application/json',
-      //   Authorization: `Bearer ${this.auth.getToken()}`,
-      // });
-      // this.http
-      //   .put<any>('http://localhost:5135/Auth/UpdateUser', this.userUpdate, {
-      //     headers,
-      //   })
-      //   .subscribe(
-      //     (success) => {
-      //       console.log(success);
-      //     },
-      //     (error) => {
-      //       console.log(error);
-      //     }
-      //   );
       this.auth.userUpdate(this.userUpdate).subscribe({
         next: (res) => console.log(res),
         error: (err) => console.log(err),
@@ -269,24 +253,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.training.start = new Date().toISOString();
     this.training.isActive = true;
     this.training.exerciseId = 1;
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   Authorization: `Bearer ${this.auth.getToken()}`,
-    // });
-    // this.http
-    //   .post<any>(
-    //     'http://localhost:5135/Training/CreateTraining',
-    //     this.training,
-    //     { headers }
-    //   )
-    //   .subscribe(
-    //     (success) => {
-    //       this.getActiveTraining();
-    //     },
-    //     (error) => {
-    //       console.log(error);
-    //     }
-    //   );
+
     this.homeService.startTraining(this.training).subscribe({
       next: (res) => this.getActiveTraining(),
       error: (err) => console.log(err),
@@ -294,22 +261,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   startWebSocketSending() {
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   Authorization: `Bearer ${this.auth.getToken()}`,
-    // });
-    // this.http
-    //   .get<any>('http://localhost:5135/Websocket/Start/', {
-    //     headers,
-    //   })
-    //   .subscribe(
-    //     (success) => {
-    //       console.log(success);
-    //     },
-    //     (error) => {
-    //       console.log(error);
-    //     }
-    //   );
     this.homeService.startWebSocketSending().subscribe({
       next: (res) => console.log(res),
       error: (err) => console.log(err),
@@ -317,24 +268,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getActiveTraining() {
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   Authorization: `Bearer ${this.auth.getToken()}`,
-    // });
-    // this.http
-    //   .get<any>('http://localhost:5135/Training/GetActiveTraining', {
-    //     headers,
-    //   })
-    //   .subscribe(
-    //     (success) => {
-    //       this.isActiveTraining = true;
-    //       this.trainingId = success.trainingId;
-    //       console.log(success);
-    //     },
-    //     (error) => {
-    //       console.log(error);
-    //     }
-    //   );
     this.homeService.getActiveTraining().subscribe({
       next: (res) => {
         this.isActiveTraining = true;
@@ -349,27 +282,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   stopTraining() {
     this.stopWebSocketSending();
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   Authorization: `Bearer ${this.auth.getToken()}`,
-    // });
-    // this.http
-    //   .put<any>(
-    //     'http://localhost:5135/Training/StopTraining/' + this.trainingId,
-    //     null,
-    //     {
-    //       headers,
-    //     }
-    //   )
-    //   .subscribe(
-    //     (success) => {
-    //       this.isActiveTraining = false;
-    //       console.log(success);
-    //     },
-    //     (error) => {
-    //       console.log(error);
-    //     }
-    //   );
     this.homeService.stopTraining(this.trainingId).subscribe({
       next: (res) => {
         this.isActiveTraining = false;
@@ -380,23 +292,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   stopWebSocketSending() {
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   Authorization: `Bearer ${this.auth.getToken()}`,
-    // });
-    // this.http
-    //   .get<any>('http://localhost:5135/Websocket/Stop/', {
-    //     headers,
-    //   })
-    //   .subscribe(
-    //     (success) => {
-    //       console.log(success);
-    //     },
-    //     (error) => {
-    //       console.log(error);
-    //     }
-    //   );
-
     this.homeService.stopWebSocketSending().subscribe({
       next: (res) => console.log(res),
       error: (err) => console.log(err),
