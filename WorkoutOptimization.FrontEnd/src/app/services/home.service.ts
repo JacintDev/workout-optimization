@@ -24,7 +24,10 @@ export class HomeService {
   }
 
   stopTraining(trainingId: number): Observable<any> {
-    return this.http.post<any>(`${this.link}Training/StopTraining`, trainingId);
+    return this.http.put<any>(
+      `${this.link}Training/StopTraining/${trainingId}`,
+      null
+    );
   }
 
   stopWebSocketSending(): Observable<any> {
