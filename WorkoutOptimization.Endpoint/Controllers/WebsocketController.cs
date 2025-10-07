@@ -76,13 +76,13 @@ namespace WorkoutOptimization.Endpoint.Controllers
         public async Task<IActionResult> Start()
         {
             await WebSocketHandler.BroadCastMessage("start");
-            return Ok();
+            return Ok(new { message= "WebSocket: Training has been started!" });
         }
         [HttpGet("stop")]
         public async Task<IActionResult> Stop()
         {
             await WebSocketHandler.BroadCastMessage("stop");
-            return Ok();
+            return Ok(new { message= "WebSocket: Training has been stopped!"});
         }
 
 
