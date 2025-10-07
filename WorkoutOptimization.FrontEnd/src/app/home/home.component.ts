@@ -179,6 +179,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.weightChartInstance) {
       this.weightChartInstance.destroy();
     }
+    if (this.hubConnection) {
+      this.hubConnection.stop().then(() => console.log('SignalR Disconnected'));
+    }
   }
 
   // === Validator függvények ===
