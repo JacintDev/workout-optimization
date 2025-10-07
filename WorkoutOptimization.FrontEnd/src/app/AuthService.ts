@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { UserModel } from '../models/UserModel';
+import { UserUpdateModel } from '../models/UserUpdateModel';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,6 @@ export class AuthService {
       localStorage.removeItem('token');
       localStorage.removeItem('expiration');
       localStorage.clear();
-      console.log('MŰKÖDJ TE GECI');
 
       this.currentUserSubject.next(null);
 
@@ -57,25 +57,29 @@ export class AuthService {
       return of(false);
     }
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http
-      .get<any>('http://localhost:5135/Auth/IsLoggedIn', { headers })
-      .pipe(
-        map((resp) => {
-          if (resp.isLoggedIn === true) {
-            this.currentUserSubject.next(this.setUser(resp.user));
-            return true;
-          }
-          this.currentUserSubject.next(null);
+    // const headers = new HttpHeaders({
+    //   'Content-Type': 'application/json',
+    //   Authorization: `Bearer ${token}`,
+    // });
+    return this.http.get<any>('http://localhost:5135/Auth/IsLoggedIn').pipe(
+      map((resp) => {
+        if (resp.isLoggedIn === true) {
+          this.currentUserSubject.next(this.setUser(resp.user));
+          return true;
+        }
+        this.currentUserSubject.next(null);
 
-          return false;
-        }),
-        catchError((error) => {
-          return of(false);
-        })
-      );
+        return false;
+      }),
+      catchError((error) => {
+        return of(false);
+      })
+    );
+  }
+  userUpdate(userUpdateModel: UserUpdateModel): Observable<any> {
+    return this.http.put<any>(
+      'http://localhost:5135/Auth/UpdateUser',
+      userUpdateModel
+    );
   }
 }

@@ -19,10 +19,11 @@ namespace WorkoutOptimization.Logic
             _mapper = mapper;
         }
 
-        public void Create(DailyWeightCreateModel entity, string userId)
+        public void Create(DailyWeightCreateModel entity, User user)
         {
             var ent=_mapper.Map<DailyWeight>(entity);
-            ent.UserId = userId;
+            ent.User = user;
+            user.Weight = entity.Weight; // TODO: update weight from int to float 
             _repo.Create(ent);
         }
 
@@ -31,18 +32,18 @@ namespace WorkoutOptimization.Logic
             _repo.Delete(id);
         }
 
-        public DailyWeight Read(int id)
+        public DailyWeightViewModel Read(int id)
         {
-            return _repo.Read(id);
+            return _mapper.Map<DailyWeightViewModel>(_repo.Read(id));
         }
 
-        public IQueryable<DailyWeight> ReadAll(bool role, string UserId)
+        public IQueryable<DailyWeightViewModel> ReadAll(bool role, string UserId)
         {
             if (!role)
             {
-                return _repo.ReadAll().Where(x => x.UserId == UserId);
+                return _mapper.ProjectTo<DailyWeightViewModel>(_repo.ReadAll().Where(x => x.UserId == UserId));
             }
-            return _repo.ReadAll();
+            return _mapper.ProjectTo<DailyWeightViewModel>(_repo.ReadAll());
         }
 
         public void Update(DailyWeightCreateModel entity, int id)

@@ -1,10 +1,10 @@
 <div class="home-container">
-  <div class="home-header" *ngIf="!this.profilePropertiesNeedSetup">
+  <div class="home-header" *ngIf="!(profileNeedSetup$ | async)">
     <div *ngIf="predictionMessage" class="prediction-box">
       {{ predictionMessage }}
     </div>
     <div class="card-1">
-      <h1>Üdvözöllek {{ user?.firstName }}!</h1>
+      <h1>Üdvözöllek {{ (user$ | async)?.firstName }}!</h1>
       <div *ngIf="!isActiveTraining">
         <div class="three-container" #rendererContainer></div>
         <button mat-button>Edzés</button>
@@ -27,7 +27,7 @@
       <canvas #weightChart></canvas>
     </div>
   </div>
-  <div class="stepper" *ngIf="this.profilePropertiesNeedSetup">
+  <div class="stepper" *ngIf="profileNeedSetup$ | async">
     <mat-stepper [linear]="isLinear" #stepper>
       <mat-step [stepControl]="firstFormGroup">
         <form [formGroup]="firstFormGroup">

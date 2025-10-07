@@ -39,7 +39,7 @@ namespace WorkoutOptimization.Models
         {
             get => DateOfBirth.HasValue ? DateTime.Now.Year - DateOfBirth.Value.Year : 0;
         }
-        public int? Weight { get; set; }
+        public float? Weight { get; set; }
         public int? Height { get; set; }
 
         public Level? Level { get; set; }

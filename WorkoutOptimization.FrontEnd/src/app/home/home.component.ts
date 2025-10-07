@@ -21,6 +21,8 @@ import { UserModel } from '../../models/UserModel';
 import { Chart } from 'chart.js/auto';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 import * as signalR from '@microsoft/signalr';
+import { map, Observable } from 'rxjs';
+import { HomeService } from '../services/home.service';
 
 @Component({
   selector: 'app-home',
@@ -32,12 +34,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('weightChart') weightChart!: ElementRef<HTMLCanvasElement>;
 
   private weightChartInstance?: Chart;
-
+  profileNeedSetup$!: Observable<boolean>;
   profilePropertiesNeedSetup = true;
   private hubConnection!: signalR.HubConnection;
   public predictionMessage: string = '';
   userUpdate = new UserUpdateModel();
-  user: UserModel | null = null;
+  user$!: Observable<UserModel | null>;
   isActiveTraining: boolean = false;
   trainingId: number = 0;
   training: StartTrainingModel = new StartTrainingModel();
@@ -52,18 +54,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   today: string = new Date().toISOString().split('T')[0];
 
-  constructor(private auth: AuthService, private http: HttpClient) {}
+  constructor(
+    private auth: AuthService,
+    private http: HttpClient,
+    private homeService: HomeService
+  ) {}
 
   ngOnInit(): void {
-    this.auth.currentUser$.subscribe((user) => {
-      if (user?.height == null || user?.weight == null) {
-        this.profilePropertiesNeedSetup = true;
-      } else {
-        this.profilePropertiesNeedSetup = false;
-        this.user = user;
-        console.log(user);
-      }
-    });
+    this.profileNeedSetup$ = this.auth.currentUser$.pipe(
+      map((user) => !user || !user.height || !user.weight)
+    );
+    this.user$ = this.auth.currentUser$;
+
     //SignalR
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5135/exercisehub')
@@ -177,6 +179,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.weightChartInstance) {
       this.weightChartInstance.destroy();
     }
+    if (this.hubConnection) {
+      this.hubConnection.stop().then(() => console.log('SignalR Disconnected'));
+    }
   }
 
   // === Validator függvények ===
@@ -239,22 +244,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.thirdFormGroup.valid &&
       this.fourthFormGroup.valid
     ) {
-      const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.auth.getToken()}`,
+      this.auth.userUpdate(this.userUpdate).subscribe({
+        next: (res) => console.log(res),
+        error: (err) => console.log(err),
       });
-      this.http
-        .put<any>('http://localhost:5135/Auth/UpdateUser', this.userUpdate, {
-          headers,
-        })
-        .subscribe(
-          (success) => {
-            console.log(success);
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
     }
   }
 
@@ -263,107 +256,48 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.training.start = new Date().toISOString();
     this.training.isActive = true;
     this.training.exerciseId = 1;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.auth.getToken()}`,
+
+    this.homeService.startTraining(this.training).subscribe({
+      next: (res) => this.getActiveTraining(),
+      error: (err) => console.log(err),
     });
-    this.http
-      .post<any>(
-        'http://localhost:5135/Training/CreateTraining',
-        this.training,
-        { headers }
-      )
-      .subscribe(
-        (success) => {
-          this.getActiveTraining();
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
   }
 
   startWebSocketSending() {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.auth.getToken()}`,
+    this.homeService.startWebSocketSending().subscribe({
+      next: (res) => console.log(res),
+      error: (err) => console.log(err),
     });
-    this.http
-      .get<any>('http://localhost:5135/Websocket/Start/', {
-        headers,
-      })
-      .subscribe(
-        (success) => {
-          console.log(success);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
   }
 
   private getActiveTraining() {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.auth.getToken()}`,
+    this.homeService.getActiveTraining().subscribe({
+      next: (res) => {
+        this.isActiveTraining = true;
+        this.trainingId = res.trainingId;
+        console.log(res);
+      },
+      error: (err) => {
+        console.log(err);
+      },
     });
-    this.http
-      .get<any>('http://localhost:5135/Training/GetActiveTraining', {
-        headers,
-      })
-      .subscribe(
-        (success) => {
-          this.isActiveTraining = true;
-          this.trainingId = success.trainingId;
-          console.log(success);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
   }
 
   stopTraining() {
     this.stopWebSocketSending();
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.auth.getToken()}`,
+    this.homeService.stopTraining(this.trainingId).subscribe({
+      next: (res) => {
+        this.isActiveTraining = false;
+        console.log(res);
+      },
+      error: (err) => console.log(err),
     });
-    this.http
-      .put<any>(
-        'http://localhost:5135/Training/StopTraining/' + this.trainingId,
-        null,
-        {
-          headers,
-        }
-      )
-      .subscribe(
-        (success) => {
-          this.isActiveTraining = false;
-          console.log(success);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
   }
 
   stopWebSocketSending() {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.auth.getToken()}`,
+    this.homeService.stopWebSocketSending().subscribe({
+      next: (res) => console.log(res),
+      error: (err) => console.log(err),
     });
-    this.http
-      .get<any>('http://localhost:5135/Websocket/Stop/', {
-        headers,
-      })
-      .subscribe(
-        (success) => {
-          console.log(success);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
   }
 }

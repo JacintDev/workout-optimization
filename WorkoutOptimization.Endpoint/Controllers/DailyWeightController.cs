@@ -22,7 +22,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
             _userManager = userManager;
         }
         [HttpGet]
-        public IEnumerable<DailyWeight> Get()
+        public IEnumerable<DailyWeightViewModel> Get()
         {
             var role = User.IsInRole("Admin");
             var userId= User.FindFirst("UserId")?.Value;
@@ -31,19 +31,19 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         // GET api/<DailyWeightController>/5
         [HttpGet("{id}")]
-        public DailyWeight Get(int id)
+        public DailyWeightViewModel Get(int id)
         {
             return _logic.Read(id);
         }
 
         // POST api/<DailyWeightController>
         [HttpPost]
-        public IActionResult Post([FromBody]DailyWeightCreateModel value)
+        public async Task<IActionResult> Post([FromBody]DailyWeightCreateModel value)
         {
             try
-            { 
-                var userId = User.FindFirst("UserId")?.Value;
-                _logic.Create(value, userId!);
+            {
+                var user = await _userManager.FindByEmailAsync(User.Identity!.Name!);
+                _logic.Create(value, user!);
                 return Ok();
             }
             catch (Exception e)
