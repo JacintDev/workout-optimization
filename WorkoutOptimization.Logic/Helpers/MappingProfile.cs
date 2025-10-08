@@ -23,6 +23,7 @@ namespace WorkoutOptimization.Logic.Helpers
             CreateMap<User, UserUpdateModel>().ReverseMap();
             CreateMap<DailyWeight, DailyWeightCreateModel>().ReverseMap();
             CreateMap<DailyWeight, DailyWeightViewModel>();
+            CreateMap<ExerciseResultCreateModel, ExerciseResult>();
             //TODO: refactor these automapper reversemap
         }
 

@@ -11,6 +11,7 @@ namespace WorkoutOptimization.Repository
         IQueryable<T> ReadAll();
         T Read(int id);
         void Create(T entity);
+        public Task CreateAsync(T entity);
         void Delete(int id);
         void Update(T entity);
     }

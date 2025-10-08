@@ -108,6 +108,8 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddScoped<IPromotionLogic, PromotionLogic>();
             builder.Services.AddScoped<IRepository<DailyWeight>, Repository<DailyWeight>>();
             builder.Services.AddScoped<IDailyWeightLogic, DailyWeightLogic>();
+            builder.Services.AddScoped<IRepository<ExerciseResult>, Repository<ExerciseResult>>();
+            builder.Services.AddScoped<IExerciseResultLogic, ExerciseResultLogic>();
             builder.Services.AddSingleton<IBicepsCurlLogic, BicepsCurlLogic>();
             builder.Services.AddSingleton<ConcurrentQueue<GyroscopeDataDto>>();
             builder.Services.AddHostedService<GyroscopeDataProcessor>();

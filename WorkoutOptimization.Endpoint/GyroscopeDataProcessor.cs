@@ -17,6 +17,7 @@ namespace WorkoutOptimization.Endpoint
         IBicepsCurlLogic _bicepsCurlLogic;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<ExerciseHub> _hubContext;
+        
 
         public GyroscopeDataProcessor(ConcurrentQueue<GyroscopeDataDto> queue,
             IServiceScopeFactory scopeFactory, IBicepsCurlLogic bicepsCurlLogic, IHubContext<ExerciseHub> hubContext)
@@ -25,6 +26,7 @@ namespace WorkoutOptimization.Endpoint
             _scopeFactory = scopeFactory;
             _bicepsCurlLogic= bicepsCurlLogic;
             _hubContext=hubContext;
+           
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -191,7 +193,15 @@ namespace WorkoutOptimization.Endpoint
             }
             var res = _bicepsCurlLogic.DataValidation(converted);
             string message = res ? "Helyes gyakorlat!" : "Hibás végrehajtás!";
+            var trainingId = batch.First().TrainingId;
+            using var scope = _scopeFactory.CreateScope();
+            var exerciseLogic = scope.ServiceProvider.GetRequiredService<IExerciseResultLogic>();
+            var exerciseResult = new ExerciseResultCreateModel();
+            exerciseResult.IsCorrect = res;
+            exerciseResult.TrainingId = trainingId == null ? 0 : (int)trainingId;
             await _hubContext.Clients.All.SendAsync("ReceivePrediction", message);
+            await exerciseLogic.CreateExerciseResult(exerciseResult);
+
 
         }
 

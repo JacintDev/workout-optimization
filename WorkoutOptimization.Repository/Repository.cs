@@ -23,6 +23,13 @@ namespace WorkoutOptimization.Repository
             _db.SaveChanges();
         }
 
+        public async Task CreateAsync(T entity)
+        {
+            _db.Set<T>().Add(entity);
+            await _db.SaveChangesAsync();
+
+        }
+
         public void Delete(int id)
         {
             _db.Set<T>().Remove(Read(id));

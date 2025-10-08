@@ -21,6 +21,8 @@ namespace WorkoutOptimization.Models
         public bool isActive { get; set; }
         public bool? IsCorrect { get; set; }
 
+        public virtual ICollection<ExerciseResult> ExerciseResults { get; set; }
+
         [ForeignKey(nameof(Exercise))]
         public int ExerciseId { get; set; }
         [ForeignKey(nameof(User))]
@@ -37,6 +39,7 @@ namespace WorkoutOptimization.Models
         public Training()
         {
             this.GyroscopeData=new HashSet<GyroscopeData>();
+            this.ExerciseResults = new HashSet<ExerciseResult>();
         }
 
     }
