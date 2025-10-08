@@ -35,7 +35,7 @@ export class TrainingComponent implements OnInit, OnDestroy {
       .catch((err) => console.error('SignalR error:', err));
 
     this.hubConnection.on('ReceivePrediction', (message: string) => {
-      this.predictionMessage = message;
+      this.predictionMessage += message;
     });
   }
   ngOnDestroy(): void {

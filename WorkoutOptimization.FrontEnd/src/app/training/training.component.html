@@ -17,11 +17,17 @@
     </table>
   </div>
   <div class="new-training-container">
-    <button mat-button [routerLink]="['/createtraining']">Új edzés</button>
+    <!-- <button mat-button [routerLink]="['/createtraining']">Új edzés</button> -->
+    <button mat-button (click)="startTraining()" *ngIf="!isActiveTraining">
+      Edzés indítása
+    </button>
     <span class="label">Helyes? </span>
     <input type="checkbox" [(ngModel)]="training.isCorrect" />
     <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
       Megállítás
     </button>
+    <div *ngIf="predictionMessage" class="prediction-box">
+      {{ predictionMessage }}
+    </div>
   </div>
 </div>
