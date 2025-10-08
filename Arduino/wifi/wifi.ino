@@ -12,7 +12,7 @@
 // Wi-Fi AP beállítások
 const char *apSSID = "ESP32_Setup";
 const char *apPassword = "12345678";
-String ip_address="84.3.231.158";
+String ip_address="46.139.216.110";
 
 // Webszerver példány
 WebServer server(80);
