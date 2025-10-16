@@ -30,13 +30,13 @@ export class BicepsCurlAnimateComponent implements AfterViewInit {
   private initThree() {
     // Scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xf0f0f0);
+    this.scene.background = new THREE.Color('#202528');
 
     // Camera
     const width = this.rendererContainer.nativeElement.clientWidth;
     const height = this.rendererContainer.nativeElement.clientHeight;
     this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    this.camera.position.set(0, 1.5, 3);
+    this.camera.position.set(0, 2, 3.5);
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -58,28 +58,58 @@ export class BicepsCurlAnimateComponent implements AfterViewInit {
     this.controls.update();
   }
 
+  // private loadModel() {
+  //   const loader = new GLTFLoader();
+  //   loader.load('BicepsCurl.glb', (gltf) => {
+  //     const model = gltf.scene;
+  //     model.scale.set(2, 2, 2);
+  //     this.scene.add(model);
+
+  //     // Animáció
+  //     if (gltf.animations && gltf.animations.length > 0) {
+  //       this.mixer = new THREE.AnimationMixer(model);
+
+  //       // Az első animáció lejátszása
+  //       const action = this.mixer.clipAction(gltf.animations[0]);
+  //       action.play();
+
+  //       // Ha konkrét animációt akarsz név alapján:
+  //       // const clip = THREE.AnimationClip.findByName(gltf.animations, 'BicepsCurl');
+  //       // if (clip) this.mixer.clipAction(clip).play();
+  //     }
+  //   });
+  // }
   private loadModel() {
     const loader = new GLTFLoader();
     loader.load('BicepsCurl.glb', (gltf) => {
       const model = gltf.scene;
+
+      // Méretezés
       model.scale.set(2, 2, 2);
+
+      // Bounding box
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      // Modell lefelé tolása, hogy az alja y=0-ra kerüljön
+      model.position.y -= box.min.y;
+
+      // Kamera a modell közepére néz, de kicsit lejjebb toljuk, hogy has köré essen
+      const hasY = box.min.y + size.y * 0.5; // 40%-kal a modell alja felett, has környék
+      this.controls.target.set(center.x, hasY, center.z);
+      this.controls.update();
+
       this.scene.add(model);
 
       // Animáció
       if (gltf.animations && gltf.animations.length > 0) {
         this.mixer = new THREE.AnimationMixer(model);
-
-        // Az első animáció lejátszása
         const action = this.mixer.clipAction(gltf.animations[0]);
         action.play();
-
-        // Ha konkrét animációt akarsz név alapján:
-        // const clip = THREE.AnimationClip.findByName(gltf.animations, 'BicepsCurl');
-        // if (clip) this.mixer.clipAction(clip).play();
       }
     });
   }
-
   private animate = () => {
     requestAnimationFrame(this.animate);
 
