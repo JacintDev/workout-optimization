@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
-using WorkoutOptimization.Logic;
-using WorkoutOptimization.Models;
+using WorkoutOptimization.Logic.Interfaces;
+using WorkoutOptimization.Models.Entities;
+using WorkoutOptimization.Models.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

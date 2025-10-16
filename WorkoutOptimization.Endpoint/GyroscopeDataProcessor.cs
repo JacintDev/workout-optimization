@@ -1,13 +1,13 @@
 ﻿
 using System.Collections.Concurrent;
-using WorkoutOptimization.Logic;
-using WorkoutOptimization.Models;
 using WorkoutOptimization.Repository;
 using ScottPlot;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using WorkoutOptimization.Endpoint.Helpers;
 using WorkoutOptimization.Repository.Migrations;
+using WorkoutOptimization.Models.Models;
+using WorkoutOptimization.Logic.Interfaces;
 
 namespace WorkoutOptimization.Endpoint
 {

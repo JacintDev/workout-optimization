@@ -3,8 +3,8 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
-using WorkoutOptimization.Logic;
-using WorkoutOptimization.Models;
+using WorkoutOptimization.Logic.Interfaces;
+using WorkoutOptimization.Models.Models;
 
 namespace WorkoutOptimization.Endpoint.Controllers
 {

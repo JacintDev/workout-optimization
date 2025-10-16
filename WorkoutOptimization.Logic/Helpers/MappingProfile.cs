@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutOptimization.Models;
+using WorkoutOptimization.Models.Entities;
+using WorkoutOptimization.Models.Models;
 
 namespace WorkoutOptimization.Logic.Helpers
 {

@@ -12,9 +12,11 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using WorkoutOptimization.Endpoint.Helpers;
-using WorkoutOptimization.Logic;
+using WorkoutOptimization.Logic.Classes;
 using WorkoutOptimization.Logic.Helpers;
-using WorkoutOptimization.Models;
+using WorkoutOptimization.Logic.Interfaces;
+using WorkoutOptimization.Models.Entities;
+using WorkoutOptimization.Models.Models;
 using WorkoutOptimization.Repository;
 
 namespace WorkoutOptimization.Endpoint

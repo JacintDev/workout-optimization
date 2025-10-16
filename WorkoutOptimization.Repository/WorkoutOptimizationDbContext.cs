@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using WorkoutOptimization.Models;
+using WorkoutOptimization.Models.Entities;
 
 namespace WorkoutOptimization.Repository
 {
