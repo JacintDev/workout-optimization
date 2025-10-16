@@ -191,14 +191,19 @@ namespace WorkoutOptimization.Endpoint
                 converted[0, i, 4] = d.AccelY;
                 converted[0, i, 5] = d.AccelZ;
             }
+            //Send to data validation
             var res = _bicepsCurlLogic.DataValidation(converted);
-            string message = res ? "Helyes gyakorlat!" : "Hibás végrehajtás!";
+
+            string message = res ? "Helyes" : "Helytelen";
             var trainingId = batch.First().TrainingId;
             using var scope = _scopeFactory.CreateScope();
             var exerciseLogic = scope.ServiceProvider.GetRequiredService<IExerciseResultLogic>();
-            var exerciseResult = new ExerciseResultCreateModel();
-            exerciseResult.IsCorrect = res;
-            exerciseResult.TrainingId = trainingId == null ? 0 : (int)trainingId;
+            var exerciseResult = new ExerciseResultCreateModel()
+            {
+                IsCorrect = res,
+                TrainingId = trainingId == null ? 0 : (int)trainingId
+            };
+
             await _hubContext.Clients.All.SendAsync("ReceivePrediction", message);
             await exerciseLogic.CreateExerciseResult(exerciseResult);
 
