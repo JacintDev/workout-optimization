@@ -1,33 +1,83 @@
 <div class="training-container">
   <h2 class="table-title">🏋️‍♂️ Edzés statisztika</h2>
   <div class="table-container">
-    <table mat-table [dataSource]="(workoutSessions$ | async) || []">
+    <table mat-table [dataSource]="(combinedData$ | async) || []">
       <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef>Dátum</th>
-        <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+        <th mat-header-cell *matHeaderCellDef class="wide-column">Dátum</th>
+        <td mat-cell *matCellDef="let element" class="wide-column">
+          {{ element.date }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="count">
-        <th mat-header-cell *matHeaderCellDef>Gyakorlatok száma</th>
-        <td mat-cell *matCellDef="let element">{{ element.count }}</td>
+        <th mat-header-cell *matHeaderCellDef class="medium-column">
+          Gyakorlatok száma
+        </th>
+        <td mat-cell *matCellDef="let element" class="medium-column">
+          {{ element.count }}
+        </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="['date', 'count']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['date', 'count']"></tr>
+      <ng-container matColumnDef="correctness">
+        <th mat-header-cell *matHeaderCellDef class="small-column">
+          Helyes ismétlések
+        </th>
+        <td mat-cell *matCellDef="let element" class="small-column">
+          {{ element.correct ? element.correct : "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="incorrectness">
+        <th mat-header-cell *matHeaderCellDef class="small-column">
+          Helytelen ismétlések
+        </th>
+        <td mat-cell *matCellDef="let element" class="small-column">
+          {{ element.inCorrect ? element.inCorrect : "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="%">
+        <th mat-header-cell *matHeaderCellDef class="small-column">%</th>
+        <td mat-cell *matCellDef="let element" class="small-column">
+          <span
+            class="badge"
+            [ngClass]="badgeColor(element.correct, element.inCorrect)"
+            >{{ calculateAccuracy(element.correct, element.inCorrect) }}</span
+          >
+        </td>
+      </ng-container>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="[
+          'date',
+          'count',
+          'correctness',
+          'incorrectness',
+          '%'
+        ]"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          columns: ['date', 'count', 'correctness', 'incorrectness', '%']
+        "
+      ></tr>
     </table>
   </div>
   <div class="new-training-container">
-    <!-- <button mat-button [routerLink]="['/createtraining']">Új edzés</button> -->
-    <button mat-button (click)="startTraining()" *ngIf="!isActiveTraining">
+    <button mat-button [routerLink]="['/createtraining']">Új edzés</button>
+    <!-- <button mat-button (click)="startTraining()" *ngIf="!isActiveTraining">
       Edzés indítása
-    </button>
-    <span class="label">Helyes? </span>
+    </button> -->
+    <!-- <span class="label">Helyes? </span>
     <input type="checkbox" [(ngModel)]="training.isCorrect" />
     <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
       Megállítás
     </button>
     <div *ngIf="predictionMessage" class="prediction-box">
       {{ predictionMessage }}
-    </div>
+    </div> -->
   </div>
 </div>
