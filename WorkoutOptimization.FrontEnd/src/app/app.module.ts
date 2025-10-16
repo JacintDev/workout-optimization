@@ -41,6 +41,7 @@ import { BicepsCurlAnimateComponent } from './biceps-curl-animate/biceps-curl-an
 import { TrainingComponent } from './training/training.component';
 import { MatTableModule } from '@angular/material/table';
 import { TrainingNewComponent } from './training-new/training-new.component';
+import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { TrainingNewComponent } from './training-new/training-new.component';
     BicepsCurlAnimateComponent,
     TrainingComponent,
     TrainingNewComponent,
+    TrainingNewToggleComponent,
   ],
   imports: [
     BrowserModule,
