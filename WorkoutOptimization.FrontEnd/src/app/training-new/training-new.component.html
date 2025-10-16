@@ -14,6 +14,12 @@
         >
       </mat-select>
     </mat-form-field>
-    <button mat-button [disabled]="!selected">Tovább</button>
+    <button
+      mat-button
+      [disabled]="!selected"
+      (click)="goToCreateTrainingNewToggle(selected!)"
+    >
+      Tovább
+    </button>
   </div>
 </div>

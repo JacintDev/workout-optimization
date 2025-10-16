@@ -1,0 +1,29 @@
+<div class="training-new-toggle-container">
+  <div class="create-new">
+    <h2 class="title">Edzés információk</h2>
+    <div class="animation-container">
+      <app-biceps-curl-animate></app-biceps-curl-animate>
+    </div>
+    <div *ngIf="predictionMessage" class="prediction-box">
+      <div
+        class="prediction-message"
+        [ngClass]="{
+          correct: predictionMessage == 'Helyes',
+          incorrect: predictionMessage == 'Helytelen'
+        }"
+      >
+        {{ predictionMessage }}
+      </div>
+      <div class="prediction-count">
+        Ismétlések száma
+        <p>{{ predictionCount }}</p>
+      </div>
+    </div>
+    <button mat-button *ngIf="!isActiveTraining" (click)="startTraining()">
+      Gyakorlat elkezdése
+    </button>
+    <button mat-button *ngIf="isActiveTraining" (click)="stopTraining()">
+      Gyakorlat befejezése
+    </button>
+  </div>
+</div>

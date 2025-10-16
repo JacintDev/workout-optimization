@@ -15,6 +15,7 @@ import { LogoutComponent } from './logout/logout.component';
 import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar.component';
 import { TrainingComponent } from './training/training.component';
 import { TrainingNewComponent } from './training-new/training-new.component';
+import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -47,6 +48,12 @@ const routes: Routes = [
   {
     path: 'createtraining',
     component: TrainingNewComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
+  {
+    path: 'createtrainingnewtoggle/:id',
+    component: TrainingNewToggleComponent,
     canActivate: [AuthGuard],
     data: { roles: ['User', 'Admin'] },
   },

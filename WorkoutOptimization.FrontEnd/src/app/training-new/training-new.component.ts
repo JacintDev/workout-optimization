@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-training-new',
@@ -25,4 +26,11 @@ export class TrainingNewComponent {
     { name: 'Evezés döntött törzzsel', value: 1 },
   ];
   selected: number | null = null;
+  constructor(private router: Router) {}
+
+  goToCreateTrainingNewToggle(value: number) {
+    if (value) {
+      this.router.navigate(['/createtrainingnewtoggle', value]);
+    }
+  }
 }

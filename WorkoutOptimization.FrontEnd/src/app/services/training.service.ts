@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkoutSessionCount } from '../../models/WorkoutSessionCount';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
+import { ExerciseResultReturnedValueModel } from '../../models/ExerciseResultReturnedValueModel';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,12 @@ export class TrainingService {
   getWorkoutSessions(): Observable<WorkoutSessionCount[]> {
     return this.http.get<WorkoutSessionCount[]>(
       `${this.link}Training/CountWorkoutSessions`
+    );
+  }
+
+  getDailyTrainingResults(): Observable<ExerciseResultReturnedValueModel[]> {
+    return this.http.get<ExerciseResultReturnedValueModel[]>(
+      `${this.link}ExerciseResult/GetAllByUser`
     );
   }
   startWebSocketSending(): Observable<any> {
