@@ -42,6 +42,7 @@ import { TrainingComponent } from './training/training.component';
 import { MatTableModule } from '@angular/material/table';
 import { TrainingNewComponent } from './training-new/training-new.component';
 import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
+import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { TrainingNewToggleComponent } from './training-new-toggle/training-new-t
     TrainingComponent,
     TrainingNewComponent,
     TrainingNewToggleComponent,
+    RecommendedPlanComponent,
   ],
   imports: [
     BrowserModule,

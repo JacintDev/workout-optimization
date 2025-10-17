@@ -16,6 +16,7 @@ import { AuthorizedNavbarComponent } from './authorized-navbar/authorized-navbar
 import { TrainingComponent } from './training/training.component';
 import { TrainingNewComponent } from './training-new/training-new.component';
 import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
+import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -57,6 +58,13 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['User', 'Admin'] },
   },
+  {
+    path: 'recommended-plan',
+    component: RecommendedPlanComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
+
   { path: '**', redirectTo: 'welcome', pathMatch: 'full' }, // Redirect to welcome for any unknown routes
 ];
 
