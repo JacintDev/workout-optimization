@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using ScottPlot.Renderable;
+using WorkoutOptimization.Endpoint.Helpers;
 using WorkoutOptimization.Logic.Interfaces;
 using WorkoutOptimization.Models.Entities;
 using WorkoutOptimization.Models.Models;
@@ -16,18 +19,20 @@ namespace WorkoutOptimization.Endpoint.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IPulseLogic _pulseLogic;
+        private readonly IHubContext<ExerciseHub> _hubContext;
 
-        public PulseController(UserManager<User> userManager, IPulseLogic pulseLogic)
+        public PulseController(UserManager<User> userManager, IPulseLogic pulseLogic, IHubContext<ExerciseHub> hubContext)
         {
             _userManager = userManager;
             _pulseLogic = pulseLogic;
+            _hubContext = hubContext;
         }
 
         // GET: api/<PulseController>
         //[HttpGet]
         //public IActionResult Get()
         //{
-            
+
         //}
 
         // GET api/<PulseController>/5
@@ -43,6 +48,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
         {
             var user = await _userManager.FindByEmailAsync(User.Identity.Name);
             var res = _pulseLogic.CompareToRestPulse(user, (int)pulse.Pulse);
+            await _hubContext.Clients.All.SendAsync("ReceivePulse", res.Item2);
             return Ok(new
             {
                 message = res.Item1,
