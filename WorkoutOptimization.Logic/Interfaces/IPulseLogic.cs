@@ -1,9 +1,10 @@
 ﻿using WorkoutOptimization.Models.Entities;
+using WorkoutOptimization.Models.Models;
 
 namespace WorkoutOptimization.Logic.Interfaces
 {
     public interface IPulseLogic
     {
-        (string, int) CompareToRestPulse(User user, int pulse);
+        PulseViewModel CompareToRestPulse(User user, int pulse);
     }
 }

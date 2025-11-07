@@ -44,16 +44,12 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
         // POST api/<PulseController>
         [HttpPost()]
-        public async Task<IActionResult> Post([FromBody] PulseSendModel pulse)
+        public async Task<PulseViewModel> Post([FromBody] PulseSendModel pulse)
         {
             var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-            var res = _pulseLogic.CompareToRestPulse(user, (int)pulse.Pulse);
-            await _hubContext.Clients.All.SendAsync("ReceivePulse", res.Item2);
-            return Ok(new
-            {
-                message = res.Item1,
-                pulse = res.Item2
-            });
+            PulseViewModel res = _pulseLogic.CompareToRestPulse(user, (int)pulse.Pulse);
+            await _hubContext.Clients.All.SendAsync("ReceivePulse", res);
+            return res;
 
 
         }

@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using WorkoutOptimization.Logic.Interfaces;
 using WorkoutOptimization.Models.Entities;
+using WorkoutOptimization.Models.Models;
 
 namespace WorkoutOptimization.Logic.Classes
 {
     public class PulseLogic : IPulseLogic
     {
-        public (string,int) CompareToRestPulse(User user, int pulse)
+        public PulseViewModel CompareToRestPulse(User user, int pulse)
         {
             if(user.RestPulse==null || user.RestPulse == 0)
             {
@@ -22,11 +23,11 @@ namespace WorkoutOptimization.Logic.Classes
             int res = (int)(user.RestPulse + startTrainingPulsePercentage * (pulseMax - user.RestPulse));
             if (res+14 > pulse)
             {
-                return ("Megfelelő a pulzusod!", pulse);
+                return new PulseViewModel() { Message = "Megfelelő a pulzusod!", Pulse = pulse };
             }
             else
             {
-                return ("A pulzusod magas, pihenj többet!",pulse);
+                return new PulseViewModel() { Message = "A pulzusod magas, pihenj többet!", Pulse = pulse };
             }
         }
     }

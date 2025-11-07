@@ -2,6 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 import { TrainingService } from '../services/training.service';
 import * as signalR from '@microsoft/signalr';
+import { PulsemeasureService } from '../services/pulsemeasure.service';
+import { Observable } from 'rxjs';
+import { PulseViewModel } from '../../models/PulseViewModel';
 
 @Component({
   selector: 'app-training-new-toggle',
@@ -16,7 +19,12 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   trainingId: number = 0;
   training: StartTrainingModel = new StartTrainingModel();
   predictionCount: number = 0;
-  constructor(private trainingService: TrainingService) {}
+  pulse$!: Observable<PulseViewModel>;
+  showPulse = false;
+  constructor(
+    private trainingService: TrainingService,
+    private pulseService: PulsemeasureService
+  ) {}
 
   ngOnInit(): void {
     //SignalR
@@ -34,6 +42,7 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
       this.predictionMessage = message;
       this.predictionCount++;
     });
+    this.pulse$ = this.pulseService.pulse$;
   }
   ngOnDestroy(): void {
     if (this.hubConnection) {
@@ -76,6 +85,8 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
     this.trainingService.stopTraining(this.trainingId).subscribe({
       next: (res) => {
         this.isActiveTraining = false;
+        this.predictionCount = 0;
+        this.predictionMessage = '';
         console.log(res);
       },
       error: (err) => console.log(err),
@@ -84,6 +95,24 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
 
   private stopWebSocketSending() {
     this.trainingService.stopWebSocketSending().subscribe({
+      next: (res) => console.log(res),
+      error: (err) => console.log(err),
+    });
+  }
+
+  startPulseMeasurement() {
+    this.pulseService.startWebSocketPulseMeasurement().subscribe({
+      next: (res) => {
+        this.showPulse = true;
+        setTimeout(() => this.stopPulseMeasurement(), 10000);
+        setTimeout(() => (this.showPulse = false), 12000);
+        console.log(res);
+      },
+      error: (err) => console.log(err),
+    });
+  }
+  private stopPulseMeasurement() {
+    this.pulseService.stopWebSocketPulseMeasurement().subscribe({
       next: (res) => console.log(res),
       error: (err) => console.log(err),
     });

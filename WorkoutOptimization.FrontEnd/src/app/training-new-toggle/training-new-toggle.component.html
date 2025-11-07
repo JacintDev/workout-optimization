@@ -22,6 +22,25 @@
     <button mat-button *ngIf="!isActiveTraining" (click)="startTraining()">
       Gyakorlat elkezdése
     </button>
+    <button
+      mat-button
+      *ngIf="!isActiveTraining"
+      (click)="startPulseMeasurement()"
+    >
+      Pulzus mérése
+    </button>
+    <div *ngIf="showPulse && (pulse$ | async) as pulse">
+      <p class="pulse-container">
+        <span class="pulse">{{ pulse.pulse }} </span>
+        <mat-icon
+          class="pulse-icon"
+          aria-hidden="false"
+          aria-label="Pulse icon"
+          fontIcon="heart_broken"
+        ></mat-icon>
+      </p>
+      <span class="pulse-message">{{ pulse.message }}</span>
+    </div>
     <button mat-button *ngIf="isActiveTraining" (click)="stopTraining()">
       Gyakorlat befejezése
     </button>
