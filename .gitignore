@@ -471,3 +471,29 @@ best_model.h5
 best_model22.h5
 labeled_reps.json
 normalized_reps.json
+
+
+# PlatformIO által generált fájlok
+.pio/
+.pioenvs/
+.piolibdeps/
+.pio/build/
+
+# VSCode helyi beállítások
+.vscode/.browse.c_cpp.db*
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch/
+.vscode/.cmake/
+
+# Általános IDE/OS fájlok
+*.DS_Store
+*.swp
+*.swo
+
+# Python cache (ha használsz extra scriptet)
+__pycache__/
+*.pyc
+
+# Egyéb
+*.log
