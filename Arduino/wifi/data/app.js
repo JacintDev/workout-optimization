@@ -39,6 +39,7 @@ function wifiConnect(event) {
 	passwordInput.setAttribute("type", "password");
 	passwordInput.setAttribute("placeholder", "Jelszó");
 	passwordInput.setAttribute("id", "password");
+	passwordInput.value = "20190918JV";
 	let connectButton = document.createElement("button");
 	connectButton.innerHTML = "Csatlakozás";
 	connectButton.onclick = function () {
@@ -87,10 +88,13 @@ function createLoginHtml() {
 	let emailInput = document.createElement("input");
 	emailInput.setAttribute("type", "email");
 	emailInput.setAttribute("id", "email-input");
+	emailInput.setAttribute("placeholder", "E-mail cím");
+	emailInput.value = "admin@gmail.com";
 	let passwordInput = document.createElement("input");
 	passwordInput.setAttribute("type", "password");
 	passwordInput.setAttribute("placeholder", "Jelszó");
 	passwordInput.setAttribute("id", "password");
+	passwordInput.value = "asd123";
 	let connectButton = document.createElement("button");
 	connectButton.innerHTML = "Bejelentkezés";
 	connectButton.onclick = function () {
