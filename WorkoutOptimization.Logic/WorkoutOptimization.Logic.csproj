@@ -19,13 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="best_model.onnx">
+    <None Update="Onxx\best_model.onnx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Onxx\" />
+    <None Update="Onxx\hr_model_tf2onnx.onnx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
