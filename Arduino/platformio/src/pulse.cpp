@@ -1,111 +1,104 @@
 #include "pulse.h"
-#include <Wire.h>
-#include "MAX30105.h"
+#include <ArduinoJson.h>
+#include <HTTPClient.h>
+#include "config.h"
+#include "state.h"
 
-// ======= EREDETI KÓD BECOMPOSZOLVA =======
+namespace {
 
-// ESP32 I2C pin definíciók
-#define I2C_SDA 6
-#define I2C_SCL 7
+MAX30105 particleSensor;
 
-static MAX30105 particleSensor;
+// ---- Belső állapot ----
+constexpr byte RATE_SIZE = 8;
+byte rates[RATE_SIZE] = {0};
+byte rateSpot = 0;
 
-static const byte RATE_SIZE = 8; // Növelve 4-ről 8-ra a simább átlagért
-static byte rates[RATE_SIZE];
-static byte rateSpot = 0;
-static long lastBeat = 0;
-static float beatsPerMinute = 0;
-static int beatAvg = 0;
+long lastBeatTime = 0;
+float g_bpm = 0.f;
+int   g_avg = 0;
 
-// Szűréshez és beat detektáláshoz
-static const int BUFFER_SIZE = 50;
-static long irBuffer[BUFFER_SIZE];
-static int bufferIndex = 0;
-static bool bufferFull = false;
+constexpr int BUFFER_SIZE = 50;
+long irBuffer[BUFFER_SIZE];
+int  bufferIndex = 0;
+bool bufferFull  = false;
 
-static long lastIRValue = 0;
-static bool risingEdge = false;
-static unsigned long lastBeatTime = 0;
-static const int MIN_BPM = 40;
-static const int MAX_BPM = 180;
-static const unsigned long DEBOUNCE_TIME = 300; // 300ms-re növelve a jobb szűrésért
+byte currentLEDBrightness = 0x1F;
+unsigned long lastAdjustTime = 0;
+constexpr unsigned long ADJUST_INTERVAL = 2000;
 
-// LED fényerő automatikus beállításához
-static byte currentLEDBrightness = 0x1F;
-static unsigned long lastAdjustTime = 0;
-static const unsigned long ADJUST_INTERVAL = 2000;
+long maxDerivative = 0;
+long minDerivative = 0;
+unsigned long lastThresholdUpdate = 0;
+long adaptiveThresholdUp = 100;
+long adaptiveThresholdDown = -100;
 
-// Derivált küszöbök finomhangolása
-static const long DERIVATIVE_THRESHOLD_UP   = 200;   // Növelve 100-ról 200-ra
-static const long DERIVATIVE_THRESHOLD_DOWN = -200;  // Növelve -100-ról -200-ra
+int  validBeatCount = 0;
 
-// Adaptive threshold a jobb peak detektáláshoz
-static long maxDerivative = 0;
-static long minDerivative = 0;
-static unsigned long lastThresholdUpdate = 0;
+constexpr int MIN_BPM = 40;
+constexpr int MAX_BPM = 180;
+constexpr unsigned long DEBOUNCE_TIME = 300;
 
-// ---------- EREDETI FUNKCIÓK STATIKUSKÉNT ----------
+bool debugOn = false;
+int postTimer = 0;
 
-static void adjustLEDBrightness(long irValue) {
+inline void dlog(const String& s){ if (debugOn) Serial.println(s); }
+
+void adjustLEDBrightness(long irValue) {
   if (millis() - lastAdjustTime < ADJUST_INTERVAL) return;
   lastAdjustTime = millis();
 
   bool adjusted = false;
-
   if (irValue > 260000) {
     if (currentLEDBrightness > 0x10) {
       currentLEDBrightness -= 0x08;
       adjusted = true;
-      Serial.println("Telítődés! LED csökkentve.");
+      dlog("Telítődés! LED csökkentve.");
     }
-  }
-  else if (irValue < 100000 && irValue > 50000) {
+  } else if (irValue < 100000 && irValue > 50000) {
     if (currentLEDBrightness < 0x80) {
       currentLEDBrightness += 0x08;
       adjusted = true;
-      Serial.println("Gyenge jel! LED növelve.");
+      dlog("Gyenge jel! LED növelve.");
     }
   }
 
   if (adjusted) {
     particleSensor.setPulseAmplitudeRed(currentLEDBrightness);
-    Serial.print("Új LED fényerő: 0x");
-    Serial.println(currentLEDBrightness, HEX);
-
+    if (debugOn) {
+      Serial.print("Új LED fényerő: 0x");
+      Serial.println(currentLEDBrightness, HEX);
+    }
     bufferFull = false;
     bufferIndex = 0;
-
-    // Reset beat tracking
-    for (int i = 0; i < RATE_SIZE; i++) rates[i] = 0;
+    validBeatCount = 0;
+    memset(rates, 0, sizeof(rates));
     rateSpot = 0;
   }
 }
 
-static long getSmoothedValue() {
-  // EREDETI LOGIKA + apró védelem: ha még túl kevés minta, vegyük az utolsót biztonságosan
+long getSmoothedValue() {
   if (!bufferFull && bufferIndex < 8) {
-    int safeIdx = bufferIndex > 0 ? bufferIndex - 1 : 0;
-    return irBuffer[safeIdx];
+    return bufferIndex > 0 ? irBuffer[bufferIndex - 1] : 0;
   }
-
   long sum = 0;
-  int count = bufferFull ? BUFFER_SIZE : bufferIndex;
-  int start = count > 8 ? count - 8 : 0; // 8 mintás mozgóátlag
+  const int count = bufferFull ? BUFFER_SIZE : bufferIndex;
+  const int windowSize = 8;
+  const int start = count > windowSize ? count - windowSize : 0;
 
-  for (int i = start; i < count; i++) {
-    sum += irBuffer[i];
+  for (int i = start; i < count; ++i) {
+    const int idx = i % BUFFER_SIZE;
+    sum += irBuffer[idx];
   }
-  int denom = (count - start);
-  return denom > 0 ? (sum / denom) : 0;
+  const int samples = count - start;
+  return samples > 0 ? sum / samples : 0;
 }
 
-static long getDerivative() {
-  if (bufferIndex < 3 && !bufferFull) return 0;
+long getDerivative() {
+  if (bufferIndex < 3) return 0;
 
-  // 3 pontos derivált a simább működésért
   int idx1, idx2, idx3;
-
   if (!bufferFull) {
+    if (bufferIndex < 3) return 0;
     idx1 = bufferIndex - 1;
     idx2 = bufferIndex - 2;
     idx3 = bufferIndex - 3;
@@ -115,54 +108,89 @@ static long getDerivative() {
     idx3 = (bufferIndex - 3 + BUFFER_SIZE) % BUFFER_SIZE;
   }
 
-  // Súlyozott derivált
   long der = (irBuffer[idx1] - irBuffer[idx3]) / 2;
 
-  // Adaptív küszöb frissítése
-  if (millis() - lastThresholdUpdate > 1000) {
-    maxDerivative = max((long)(maxDerivative * 0.9), der);
-    minDerivative = min((long)(minDerivative * 0.9), der);
+  // Adaptív küszöb frissítés 5 mp-enként
+  if (millis() - lastThresholdUpdate > 5000) {
+    if (maxDerivative > 50)  adaptiveThresholdUp   = maxDerivative * 0.4;
+    if (minDerivative < -50) adaptiveThresholdDown = minDerivative * 0.4;
+
+    adaptiveThresholdUp   = constrain(adaptiveThresholdUp,   80,  300);
+    adaptiveThresholdDown = constrain(adaptiveThresholdDown, -300, -80);
+
+    if (debugOn) {
+      Serial.print("Új küszöbök: UP=");
+      Serial.print(adaptiveThresholdUp);
+      Serial.print(" DOWN=");
+      Serial.println(adaptiveThresholdDown);
+    }
+
+    maxDerivative = 0;
+    minDerivative = 0;
     lastThresholdUpdate = millis();
   } else {
     maxDerivative = max(maxDerivative, der);
     minDerivative = min(minDerivative, der);
   }
-
   return der;
 }
 
-static bool isValidBPM(float bpm, float previousBPM) {
-  // Ha ez az első mérés
-  if (previousBPM == 0) return (bpm >= MIN_BPM && bpm <= MAX_BPM);
-
-  // Maximum 20% eltérés az előző értéktől
-  float maxChange = previousBPM * 0.20f;
-  return (bpm >= MIN_BPM && bpm <= MAX_BPM && fabs(bpm - previousBPM) < maxChange);
+bool isValidBPM(float bpm) {
+  if (validBeatCount < 3) return (bpm >= MIN_BPM && bpm <= MAX_BPM);
+  if (g_bpm == 0)         return (bpm >= MIN_BPM && bpm <= MAX_BPM);
+  const float maxChange = g_bpm * 0.30f; // megengedőbb
+  return (bpm >= MIN_BPM && bpm <= MAX_BPM && fabs(bpm - g_bpm) < maxChange);
 }
 
-// ---------- NYILVÁNOS FÜGGVÉNYEK (INTERFÉSZ) ----------
+void sendPulseBpm(float bpm, long irValue) {
+  if (postTimer < 10) { postTimer++; return; }  // egyszerű rate limit
+  if (bpm <= 0) return;
+  if (irValue < 50000) return;
+  if (irValue > 260000) return;
 
-void pulseSetup() {
-  Serial.begin(115200);
-  Serial.println("Inicializálás...");
+  StaticJsonDocument<128> doc;
+  doc["pulse"] = bpm;
 
-  // ESP32 I2C inicializálás egyedi pinekkel
-  Wire.begin(I2C_SDA, I2C_SCL);
+  String body;
+  serializeJson(doc, body);
 
-  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
+  if (debugOn) {
+    Serial.print("📤 Pulse JSON küldés előtt: ");
+    Serial.println(body);
+  }
+
+  String url = String("http://") + IP_ADDRESS + "/Pulse/Post";
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  if (authToken.length()) {
+    http.addHeader("Authorization", "Bearer " + authToken);
+  }
+
+  int code = http.POST(body);
+  if (debugOn) {
+    Serial.printf("✅ Pulse POST válaszkód: %d\n", code);
+  }
+  http.end();
+  postTimer = 0;
+}
+
+} // namespace
+
+namespace pulse {
+
+bool begin(TwoWire& wire, uint32_t i2cSpeed) {
+  if (!particleSensor.begin(wire, i2cSpeed)) {
     Serial.println("MAX30105 nem található! Ellenőrizd a bekötést.");
     Serial.println("SDA: pin 6, SCL: pin 7");
-    while (1) { delay(1000); }
+    return false;
   }
 
   Serial.println("Szenzor beállítása...");
-
-  // Konzervatív kezdő beállítások
   byte sampleAverage = 4;
-  byte ledMode = 2;          // Red + IR
-  int  sampleRate = 100;     // 100 Hz
-  int  pulseWidth = 411;     // 411 us
-  int  adcRange = 4096;      // 4096
+  byte ledMode = 2;
+  int sampleRate = 100;
+  int pulseWidth = 411;
+  int adcRange = 4096;
 
   particleSensor.setup(currentLEDBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange);
   particleSensor.setPulseAmplitudeRed(currentLEDBrightness);
@@ -170,11 +198,12 @@ void pulseSetup() {
 
   Serial.println("Tedd az ujjadat a szenzorra egyenletes nyomással!");
   Serial.println("A rendszer automatikusan beállítja a fényerőt...");
-
   delay(1000);
+  return true;
 }
 
-void pulseLoop() {
+void update() {
+  // FIGYELEM: ezt csak akkor hívd, ha shouldSendPulse == true
   long irValue = particleSensor.getIR();
 
   adjustLEDBrightness(irValue);
@@ -186,79 +215,70 @@ void pulseLoop() {
     bufferFull = true;
   }
 
+  static bool risingEdge = false;
+
   if ((bufferFull || bufferIndex > 15) && irValue > 50000 && irValue < 260000) {
-    long smoothed = getSmoothedValue();
-    long derivative = getDerivative();
+    (void)getSmoothedValue(); // jelenleg csak a deriváltat használjuk
+    long derivative  = getDerivative();
+    unsigned long now = millis();
 
-    unsigned long currentTime = millis();
-
-    // Peak detektálás finomított küszöbökkel
-    if (!risingEdge && derivative > DERIVATIVE_THRESHOLD_UP) {
+    if (!risingEdge && derivative > adaptiveThresholdUp) {
       risingEdge = true;
-    } else if (risingEdge && derivative < DERIVATIVE_THRESHOLD_DOWN) {
+      if (debugOn) Serial.print(" [EMELKEDIK]");
+    } else if (risingEdge && derivative < adaptiveThresholdDown) {
       risingEdge = false;
+      if (debugOn) Serial.print(" [CSÖKKEN → BEAT?]");
 
-      if (currentTime - lastBeatTime > DEBOUNCE_TIME) {
-        long delta = currentTime - lastBeatTime;
+      if (now - lastBeatTime > DEBOUNCE_TIME) {
+        long delta = now - lastBeatTime;
 
         if (lastBeatTime > 0 && delta < (60000 / MIN_BPM)) {
-          float newBPM = 60000.0f / delta;
+          float newBPM = 60000.0f / float(delta);
 
-          // Validálás az előző értékkel
-          if (isValidBPM(newBPM, beatsPerMinute)) {
-            beatsPerMinute = newBPM;
+          if (isValidBPM(newBPM)) {
+            g_bpm = newBPM;
+            validBeatCount++;
 
-            rates[rateSpot++] = (byte)beatsPerMinute;
+            rates[rateSpot++] = (byte)g_bpm;
             rateSpot %= RATE_SIZE;
 
-            // Átlag számítás súlyozással (újabbak nagyobb súllyal)
-            beatAvg = 0;
-            int validSamples = 0;
-            float weightSum = 0;
-
-            for (int x = 0; x < RATE_SIZE; x++) {
-              if (rates[x] > 0) {
-                int idx = (rateSpot - 1 - x + RATE_SIZE) % RATE_SIZE;
-                float weight = 1.0f + (x * 0.1f); // Újabb értékek nagyobb súllyal
-                beatAvg += rates[idx] * weight;
-                weightSum += weight;
-                validSamples++;
-              }
+            g_avg = 0;
+            int valid = 0;
+            for (byte x = 0; x < RATE_SIZE; x++) {
+              if (rates[x] > 0) { g_avg += rates[x]; valid++; }
             }
+            if (valid > 0) g_avg /= valid;
 
-            if (validSamples > 0) {
-              beatAvg = (int)(beatAvg / weightSum);
+            if (debugOn) {
+              Serial.print(" 💓 ÉRVÉNYES BEAT! Delta=");
+              Serial.print(delta);
+              Serial.print("ms");
             }
-
-            Serial.print("💓 BEAT! ");
+          } else if (debugOn) {
+            Serial.print(" [INVALID: ");
+            Serial.print(newBPM, 1);
+            Serial.print(" BPM]");
           }
         }
-        lastBeatTime = currentTime;
+        lastBeatTime = now;
+      } else {
+        if (debugOn) Serial.print(" [DEBOUNCE]");
       }
     }
   }
 
-  // Kiírás
-  Serial.print("IR=");
-  Serial.print(irValue);
-  Serial.print(" | Sim=");
-  Serial.print(getSmoothedValue());
-  Serial.print(" | Der=");
-  Serial.print(getDerivative());
-  Serial.print(" | BPM=");
-  Serial.print(beatsPerMinute, 1);
-  Serial.print(" | Átlag=");
-  Serial.print(beatAvg);
-  Serial.print(" | LED=0x");
-  Serial.print(currentLEDBrightness, HEX);
-
-  if (irValue < 50000) {
-    Serial.print(" [NINCS UJJ]");
-  } else if (irValue > 260000) {
-    Serial.print(" [TELÍTETT!]");
-  }
-
-  Serial.println();
-
-  delay(20);
+  // HTTP POST (rate-limitelve)
+  sendPulseBpm(g_bpm, irValue);
 }
+
+float currentBPM() { return g_bpm; }
+int   averageBPM() { return g_avg; }
+
+void setLedBrightness(uint8_t red) {
+  currentLEDBrightness = red;
+  particleSensor.setPulseAmplitudeRed(currentLEDBrightness);
+}
+
+void setDebug(bool on) { debugOn = on; }
+
+} // namespace pulse
