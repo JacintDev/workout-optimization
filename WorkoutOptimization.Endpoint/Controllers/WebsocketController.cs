@@ -78,6 +78,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
             await WebSocketHandler.BroadCastMessage("start");
             return Ok(new { message= "WebSocket: Training has been started!" });
         }
+
         [HttpGet("stop")]
         public async Task<IActionResult> Stop()
         {
@@ -85,6 +86,20 @@ namespace WorkoutOptimization.Endpoint.Controllers
             return Ok(new { message= "WebSocket: Training has been stopped!"});
         }
 
+
+        [HttpGet("startPulseDataSend")]
+        public async Task<IActionResult> StartPulseDataSend()
+        {
+            await WebSocketHandler.BroadCastMessage("startPulseDataSending");
+            return Ok(new { message = "WebSocket: Pulse data sending has been started!" });
+        }
+
+        [HttpGet("stopPulseDataSend")]
+        public async Task<IActionResult> StopPulseDataSend()
+        {
+            await WebSocketHandler.BroadCastMessage("stopPulseDataSending");
+            return Ok(new { message = "WebSocket: Pulse data sending has been stopped!." });
+        }
 
     }
 }

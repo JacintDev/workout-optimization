@@ -29,7 +29,7 @@ namespace WorkoutOptimization.Models.Models
         }
         public float? Weight { get; set; }
         public int? Height { get; set; }
-
+        public int RestPulse { get; set; }
         public Level? Level { get; set; }
         public Sex? Sex { get; set; }
         public string? MacAddress { get; set; }

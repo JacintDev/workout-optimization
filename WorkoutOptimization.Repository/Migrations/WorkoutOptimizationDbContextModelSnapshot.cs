@@ -172,7 +172,7 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.DailyWeight", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.DailyWeight", b =>
                 {
                     b.Property<int>("DailyWeightId")
                         .ValueGeneratedOnAdd()
@@ -197,7 +197,7 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.ToTable("DailyWeights");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.Exercise", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.Exercise", b =>
                 {
                     b.Property<int>("ExerciseId")
                         .ValueGeneratedOnAdd()
@@ -233,7 +233,7 @@ namespace WorkoutOptimization.Repository.Migrations
                         });
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.ExerciseResult", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.ExerciseResult", b =>
                 {
                     b.Property<int>("ExerciseId")
                         .ValueGeneratedOnAdd()
@@ -254,7 +254,7 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.ToTable("ExerciseResults");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.GyroscopeData", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.GyroscopeData", b =>
                 {
                     b.Property<int>("GyroscopeDataId")
                         .ValueGeneratedOnAdd()
@@ -299,7 +299,7 @@ namespace WorkoutOptimization.Repository.Migrations
                             AccelX = 1f,
                             AccelY = 1f,
                             AccelZ = 1f,
-                            Date = new DateTime(2025, 10, 8, 15, 4, 1, 840, DateTimeKind.Local).AddTicks(1662),
+                            Date = new DateTime(2025, 10, 17, 16, 2, 43, 257, DateTimeKind.Local).AddTicks(4406),
                             GyrosX = 1f,
                             GyrosY = 1f,
                             GyrosZ = 1f,
@@ -307,7 +307,7 @@ namespace WorkoutOptimization.Repository.Migrations
                         });
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.Promotion", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.Promotion", b =>
                 {
                     b.Property<int>("PromotionId")
                         .ValueGeneratedOnAdd()
@@ -339,7 +339,7 @@ namespace WorkoutOptimization.Repository.Migrations
                         });
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.Training", b =>
                 {
                     b.Property<int>("TrainingId")
                         .ValueGeneratedOnAdd()
@@ -378,15 +378,15 @@ namespace WorkoutOptimization.Repository.Migrations
                         new
                         {
                             TrainingId = 1,
-                            End = new DateTime(2025, 10, 8, 15, 4, 1, 742, DateTimeKind.Local).AddTicks(9662),
+                            End = new DateTime(2025, 10, 17, 16, 2, 43, 196, DateTimeKind.Local).AddTicks(7127),
                             ExerciseId = 1,
-                            Start = new DateTime(2025, 10, 8, 15, 4, 1, 742, DateTimeKind.Local).AddTicks(9609),
+                            Start = new DateTime(2025, 10, 17, 16, 2, 43, 196, DateTimeKind.Local).AddTicks(7072),
                             UserId = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                             isActive = false
                         });
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.User", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -446,6 +446,9 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("RestPulse")
+                        .HasColumnType("int");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -479,15 +482,15 @@ namespace WorkoutOptimization.Repository.Migrations
                         {
                             Id = "70a9df3f-03b8-4420-a6a5-8f713c3efbb2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9baf3cf2-3b6b-439f-8c18-5a614ab7f408",
+                            ConcurrencyStamp = "2c1821cc-afad-43fa-b66c-efdff0300740",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDB26f9QigSIsH6VJc9lp4ljDSIrXI0qCIwIwgkDJPJHma8GrGmHagzs3iDhM1UjOQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJc2lEU6ogw9HRMMLP6slHd/zl28thz3p2INoZnovzRddlSM5AkazC9HmttaKGHqYg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "762ecf21-ffb6-4fd5-95e8-a2b4339aff64",
+                            SecurityStamp = "b86e26f1-9002-4242-ab16-2fbbfab47df1",
                             TwoFactorEnabled = false,
                             UserName = "admin@gmail.com"
                         });
@@ -504,7 +507,7 @@ namespace WorkoutOptimization.Repository.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.User", null)
+                    b.HasOne("WorkoutOptimization.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -513,7 +516,7 @@ namespace WorkoutOptimization.Repository.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.User", null)
+                    b.HasOne("WorkoutOptimization.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -528,7 +531,7 @@ namespace WorkoutOptimization.Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WorkoutOptimization.Models.User", null)
+                    b.HasOne("WorkoutOptimization.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -537,16 +540,16 @@ namespace WorkoutOptimization.Repository.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.User", null)
+                    b.HasOne("WorkoutOptimization.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.DailyWeight", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.DailyWeight", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.User", "User")
+                    b.HasOne("WorkoutOptimization.Models.Entities.User", "User")
                         .WithMany("DailyWeights")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -555,9 +558,9 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.ExerciseResult", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.ExerciseResult", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.Training", "Training")
+                    b.HasOne("WorkoutOptimization.Models.Entities.Training", "Training")
                         .WithMany("ExerciseResults")
                         .HasForeignKey("TrainingId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -566,9 +569,9 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Navigation("Training");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.GyroscopeData", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.GyroscopeData", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.Training", "Training")
+                    b.HasOne("WorkoutOptimization.Models.Entities.Training", "Training")
                         .WithMany("GyroscopeData")
                         .HasForeignKey("TrainingId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -576,15 +579,15 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Navigation("Training");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.Training", b =>
                 {
-                    b.HasOne("WorkoutOptimization.Models.Exercise", "Exercise")
+                    b.HasOne("WorkoutOptimization.Models.Entities.Exercise", "Exercise")
                         .WithMany()
                         .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WorkoutOptimization.Models.User", "User")
+                    b.HasOne("WorkoutOptimization.Models.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -595,14 +598,14 @@ namespace WorkoutOptimization.Repository.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.Training", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.Training", b =>
                 {
                     b.Navigation("ExerciseResults");
 
                     b.Navigation("GyroscopeData");
                 });
 
-            modelBuilder.Entity("WorkoutOptimization.Models.User", b =>
+            modelBuilder.Entity("WorkoutOptimization.Models.Entities.User", b =>
                 {
                     b.Navigation("DailyWeights");
                 });

@@ -17,5 +17,6 @@ namespace WorkoutOptimization.Models.Models
         public int? Height { get; set; }
         [Required]
         public Level? Level { get; set; }
+        public int? RestPulse { get; set; }
     }
 }

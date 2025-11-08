@@ -1,384 +1,362 @@
+#include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Wire.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
-#include "esp_system.h"
 #include <MPU6050_tockn.h>
 #include <WebSocketsClient.h>
+#include "esp_system.h"
 
+// MAX30105-t most nem használjuk ebben a szétbontásban, de maradhat a projektben
+#include "MAX30105.h"
 
-// Wi-Fi AP beállítások
-const char *apSSID = "ESP32_Setup";
-const char *apPassword = "12345678";
-String ip_address="46.139.216.110";
+#include "config.h"
+#include "state.h"
+#include "wifi_portal.h"
+#include "routes.h"
+#include "ws_handlers.h"
+#include "gyro.h"
+#include "api.h"
 
-// Webszerver példány
-WebServer server(80);
-//Gyroscope
-MPU6050 mpu(Wire);
-float filteredGyroX = 0, filteredGyroY = 0, filteredGyroZ = 0;
-float filteredAccX = 0, filteredAccY = 0, filteredAccZ = 0;
-float alpha = 0.3;  // szűrés mértéke (0.0 - 1.0)
+//----------------------------------- PULSE
+MAX30105 particleSensor;
+const byte RATE_SIZE = 8; // Növelve 4-ről 8-ra a simább átlagért
+byte rates[RATE_SIZE];
+byte rateSpot = 0;
+long lastBeat = 0;
+float beatsPerMinute = 0;
+int beatAvg = 0;
 
-//websocket
+// Szűréshez és beat detektáláshoz
+const int BUFFER_SIZE = 50;
+long irBuffer[BUFFER_SIZE];
+int bufferIndex = 0;
+bool bufferFull = false;
+
+long lastIRValue = 0;
+bool risingEdge = false;
+unsigned long lastBeatTime = 0;
+const int MIN_BPM = 40;
+const int MAX_BPM = 180;
+const unsigned long DEBOUNCE_TIME = 300; // 300ms-re növelve a jobb szűrésért
+
+// LED fényerő automatikus beállításához
+byte currentLEDBrightness = 0x1F;
+unsigned long lastAdjustTime = 0;
+const unsigned long ADJUST_INTERVAL = 2000;
+
+// Derivált küszöbök finomhangolása
+const long DERIVATIVE_THRESHOLD_UP = 200;   // Növelve 100-ról 200-ra
+const long DERIVATIVE_THRESHOLD_DOWN = -200; // Növelve -100-ról -200-ra
+
+// Adaptive threshold a jobb peak detektáláshoz
+long maxDerivative = 0;
+long minDerivative = 0;
+unsigned long lastThresholdUpdate = 0;
+
+//-----------------
+
+// ====== Globális példányok definíciói (state.h-hoz) ======
+WebServer       server(80);
+HTTPClient      http;
 WebSocketsClient webSocket;
-bool shouldSend = false;
-
-
-void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
-  switch(type) {
-    case WStype_CONNECTED:
-      Serial.println("WebSocket connected!");
-      break;
-    case WStype_DISCONNECTED:
-      Serial.println("WebSocket disconnected!");
-      shouldSend = false;
-      break;
-    case WStype_TEXT:
-      Serial.printf("[Server]: %s\n", payload);
-
-      if (strcmp((char*)payload, "start") == 0) {
-        shouldSend = true;
-        mpu.calcGyroOffsets(true);
-        Serial.println(">> Indul az adatküldés");
-      } else if (strcmp((char*)payload, "stop") == 0) {
-        shouldSend = false;
-        Serial.println(">> Leáll az adatküldés");
-      }
-      break;
-  }
-}
-
+MPU6050         mpu(Wire);
 
 String currentSSID, currentPassword;
-bool wifiConnected = false;
-String authToken="";
-bool isLoggedIn = false;
-HTTPClient http;
-int trainingId=0;
-bool isActiveTraining = false;
+bool   wifiConnected = false;
+String authToken = "";
+bool   isLoggedIn = false;
 
-//Hotspot indítás
-void startAP() {
-    WiFi.softAP(apSSID, apPassword);
-    Serial.println("🔹 Hotspot indítva");
-    Serial.println(WiFi.softAPIP());
-}
+int    trainingId = 0;
+bool   isActiveTraining = false;
 
-//Betölt az index.html ha létezik, amint a hotspotra megyünk a böngészőben
-void handleRoot() {
-    if (!LittleFS.exists("/index.html")) {
-        server.send(404, "text/plain", "❌ index.html nem található!");
-        return;
-    }
+bool   shouldSend = false;
+bool   shouldSendPulse = false;
 
-    File file = LittleFS.open("/index.html", "r");
-    server.streamFile(file, "text/html");
-    file.close();
-}
+float  filteredGyroX = 0, filteredGyroY = 0, filteredGyroZ = 0;
+float  filteredAccX  = 0, filteredAccY  = 0, filteredAccZ  = 0;
 
-//Wifi scannelése
-void handleScan(){
-    int networks= WiFi.scanNetworks();
-    DynamicJsonDocument doc(1024);
-    JsonArray wifiList = doc.createNestedArray("networks");
-    for (int i = 0; i < networks; i++) {
-        JsonObject network = wifiList.createNestedObject();
-        network["ssid"] = WiFi.SSID(i);
-    }
-
-    String response;
-    serializeJson(doc, response);
-    server.send(200, "application/json", response);
-}
-
-void handleConnect(){
-    if (server.method() != HTTP_POST) {
-        server.send(405, "text/plain", "❌ Csak POST kérés engedélyezett!");
-        return;
-    }
-
-    //JSONből kiszedés
-    DynamicJsonDocument doc(256);
-    deserializeJson(doc, server.arg("plain"));
-    currentSSID = doc["ssid"].as<String>();
-    currentPassword = doc["password"].as<String>();
-
-    //Csatlakozás próbálása
-    WiFi.begin(currentSSID.c_str(), currentPassword.c_str());
-    //20-s próba
-    int timeout = 20;
-    while (WiFi.status() != WL_CONNECTED && timeout > 0) {
-        delay(500);
-        Serial.print(".");
-        timeout--;
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-        wifiConnected = true;
-        server.send(200, "text/plain", "✅ Sikeres csatlakozás: " + currentSSID);
-    } else {
-        wifiConnected = false;
-        server.send(400, "text/plain", "❌ Sikertelen csatlakozás!");
-    }
-
-}
-
-
-
-//Login API hívás
-//itt küldjük el a json-t a szervernek, és várjuk a választ
-void handleLogin() {
-    if (server.method() != HTTP_POST) {
-        server.send(405, "text/plain", "Csak POST kérés engedélyezett!");
-        return;
-    }
-    //A JSON amit kapunk frontendtől
-    String receivedJson = server.arg("plain");
-    Serial.println("🔹 Megkapott JSON:");
-    Serial.println(receivedJson);
-
-    //Tovább küldjül a távoli API-nak
-    
-    http.begin("http://"+ip_address+"/Auth/Login");  // Cél API cím
-    http.addHeader("Content-Type", "application/json");
-
-    int httpResponseCode = http.POST(receivedJson);  // Továbbküldjük a JSON-t a frontendnek
-
-    if (httpResponseCode > 0) {
-        String apiResponse = http.getString();
-        Serial.println("🔹 API válasz:");
-        Serial.println(apiResponse);
-        if(httpResponseCode == 200) {
-            server.send(200, "text/plain", "Sikeres bejelentkezés!");  // Válasz küldése a kliensnek
-
-            //itt kiszedjük a token-t a válaszból
-            DynamicJsonDocument doc(256);
-            deserializeJson(doc, apiResponse);
-            authToken = doc["token"].as<String>();
-            Serial.println("🔹 Token: " + authToken);
-            isLoggedIn = true;
-              webSocket.begin(ip_address, 80, "/Websocket/connect"); // vagy IP cím
-              webSocket.onEvent(webSocketEvent);
-              webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
-        } else {
-            server.send(httpResponseCode, "text/plain", "Hibás felhasználónév vagy jelszó!");
-        }
-    } else {
-        Serial.println("❌ API hívási hiba!");
-        Serial.println(http.errorToString(httpResponseCode));
-    }
-
-    http.end();
-
-}
-
-
-
-//Setup, amikor indul az esp32
-void setup() {
-    setCpuFrequencyMhz(80);
-    Serial.begin(115200);
-    //littlefs betöltése
-    if (!LittleFS.begin()) {
-        Serial.println("❌ LittleFS indítása sikertelen!");
-        return;
-    }
-    Serial.println("✅ LittleFS indítása sikeres.");
-    //Hotspot indítása
-    startAP();
-
-    //várjuk a kéréseket a /-re
-    server.on("/", handleRoot);
-    //Wifi scannelés
-    server.on("/scan", handleScan);
-
-    //Wifire csatlakozás json adatból
-    server.on("/connect", handleConnect);
-
-    //Login API hívás
-    server.on("/login", handleLogin);
-
-
-    //így tölti be a style.csst, és a js-t
-    server.on("/style.css", []() {
-    File file = LittleFS.open("/style.css", "r");
-    server.streamFile(file, "text/css");
-    file.close();
-    });
-    server.on("/app.js", []() {
-    File file = LittleFS.open("/app.js", "r");
-    server.streamFile(file, "application/javascript");
-    file.close();
-    });
-
-    
-    server.begin();
-    Serial.println("🌍 Webszerver elindult!");
-
-    //Gyroscope init
-    Wire.begin(6, 7);
-    mpu.begin();
-    mpu.calcGyroOffsets(true);
-
-    
-  //webSocket.begin(ip_address, 80, "/Websocket/connect"); // vagy IP cím
-  //webSocket.onEvent(webSocketEvent);
-  //webSocket.setReconnectInterval(5000); // újracsatlakozás, ha kell
-}
-
-void IsActiveRequest(){
-    http.begin("http://"+ip_address+"/Training/GetActiveTraining");  // Cél API cím
-    http.addHeader("Content-Type", "application/json");
-    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
-    int httpResponseCode = http.GET();  // GET kérés küldése
-    if (httpResponseCode > 0) {
-        String apiResponse = http.getString();
-        Serial.println("🔹 API válasz:");
-        Serial.println(apiResponse);
-        if(httpResponseCode == 200) {
-        
-            //itt kiszedjük a token-t a válaszból
-            DynamicJsonDocument doc(256);
-            deserializeJson(doc, apiResponse);
-            trainingId = doc["trainingId"].as<int>();
-            isActiveTraining = true;
-            
-        } else {
-           Serial.println("Nincs aktív training!");
-           isActiveTraining = false;
-        }
-    } else {
-        Serial.println("❌ API hívási hiba!");
-        Serial.println(http.errorToString(httpResponseCode));
-    }
-
-    http.end();
-}
-
-
-String sendGyroscopeData(){
-//    http.begin("http://"+ip_address+"/api/GyroscopeData");  // Cél API cím
-//    http.addHeader("Content-Type", "application/json");
-//    http.addHeader("Authorization", "Bearer " + authToken);  // Token hozzáadása a kéréshez
-
-    // JSON dokumentum létrehozása
-    DynamicJsonDocument doc(512);
-    mpu.update();
-
-//Szűrés
-    float rawGyroX = mpu.getGyroX();
-    float rawGyroY = mpu.getGyroY();
-    float rawGyroZ = mpu.getGyroZ();
-
-    float rawAccX = mpu.getAccX();
-    float rawAccY = mpu.getAccY();
-    float rawAccZ = mpu.getAccZ();
-
-    filteredGyroX = alpha * rawGyroX + (1 - alpha) * filteredGyroX;
-    filteredGyroY = alpha * rawGyroY + (1 - alpha) * filteredGyroY;
-    filteredGyroZ = alpha * rawGyroZ + (1 - alpha) * filteredGyroZ;
-
-    filteredAccX = alpha * rawAccX + (1 - alpha) * filteredAccX;
-    filteredAccY = alpha * rawAccY + (1 - alpha) * filteredAccY;
-    filteredAccZ = alpha * rawAccZ + (1 - alpha) * filteredAccZ;
-
-    // 🔒 Statikus detektálás küszöbérték
-    float gyroThreshold = 0.5;
-    float accThreshold = 0.1;
-
-    // Ha a mozgás kisebb, mint a küszöb – tekintsd nyugalomnak
-    if (abs(filteredGyroX) < gyroThreshold) filteredGyroX = 0;
-    if (abs(filteredGyroY) < gyroThreshold) filteredGyroY = 0;
-    if (abs(filteredGyroZ) < gyroThreshold) filteredGyroZ = 0;
-
-    if (abs(filteredAccX) < accThreshold) filteredAccX = 0;
-    if (abs(filteredAccY) < accThreshold) filteredAccY = 0;
-    if (abs(filteredAccZ) < accThreshold) filteredAccZ = 0;
-
-
-
-    
-    doc["accelX"] = filteredAccX;
-    doc["accelY"] = filteredAccY;
-    doc["accelZ"] = filteredAccZ;
-    doc["gyrosX"] = filteredGyroX;
-    doc["gyrosY"] = filteredGyroY;
-    doc["gyrosZ"] = filteredGyroZ;
-
-
-
-
-//    doc["accelX"] = 0;
-//    doc["accelY"] = 0;
-//    doc["accelZ"] = 0;
-//    doc["gyrosX"] = 0;
-//    doc["gyrosY"] = 0;
-//    doc["gyrosZ"] = 0;
-    doc["trainingId"] = trainingId;
-
-    // JSON string létrehozása
-    String requestBody;
-    serializeJson(doc, requestBody);
-    Serial.println(requestBody);
-    return requestBody;
-
-//    // POST kérés küldése
-//    int httpResponseCode = http.POST(requestBody);
-//
-//    if (httpResponseCode > 0) {
-//        String apiResponse = http.getString();
-//        Serial.println("🔹 API válasz:");
-//        Serial.println(apiResponse);
-//    } else {
-//        Serial.println("❌ API hívási hiba!");
-//        Serial.println(http.errorToString(httpResponseCode));
-//    }
-//
-//    http.end();
-}
-
-
-
-unsigned long lastActiveCheckTime = 0;
-unsigned long lastGyroSendTime = 0;
 unsigned long lastSent = 0;
+// =========================================================
 
-void loop() {
-    server.handleClient();  // klienskérések kezelése
+void setup() {
+Wire.begin(I2C_SDA, I2C_SCL);
+  if (!particleSensor.begin(Wire, I2C_SPEED_FAST))
+  {
+    Serial.println("MAX30105 nem található! Ellenőrizd a bekötést.");
+    Serial.println("SDA: pin 6, SCL: pin 7");
+    while (1);
+  }
+  
+  Serial.println("Szenzor beállítása...");
+  
+  // Konzervatív kezdő beállítások
+  byte sampleAverage = 4;
+  byte ledMode = 2;          // Red + IR
+  int sampleRate = 100;      // 100 Hz
+  int pulseWidth = 411;      // 411 us
+  int adcRange = 4096;       // 4096
+  
+  particleSensor.setup(currentLEDBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange);
+  particleSensor.setPulseAmplitudeRed(currentLEDBrightness);
+  particleSensor.setPulseAmplitudeGreen(0);
+  
+  Serial.println("Tedd az ujjadat a szenzorra egyenletes nyomással!");
+  Serial.println("A rendszer automatikusan beállítja a fényerőt...");
+  
+  delay(1000);
 
-if(isLoggedIn){
- webSocket.loop();
+  
+  setCpuFrequencyMhz(80);
+  Serial.begin(115200);
 
-  if (shouldSend && millis() - lastSent > 100) {
-    IsActiveRequest();
+  if (!LittleFS.begin()) {
+    Serial.println("❌ LittleFS indítása sikertelen!");
+    // Nem térünk vissza, de jelezzük
+  } else {
+    Serial.println("✅ LittleFS indítása sikeres.");
+  }
+
+  startAP();          // Hotspot indul
+  registerRoutes();   // HTTP endpointok
+  server.begin();
+  Serial.println("🌍 Webszerver elindult!");
+
+  initGyro();         // I2C + MPU init
+}
+void adjustLEDBrightness(long irValue) {
+  if (millis() - lastAdjustTime < ADJUST_INTERVAL) return;
+  lastAdjustTime = millis();
+  
+  bool adjusted = false;
+  
+  if (irValue > 260000) {
+    if (currentLEDBrightness > 0x10) {
+      currentLEDBrightness -= 0x08;
+      adjusted = true;
+      Serial.println("Telítődés! LED csökkentve.");
+    }
+  }
+  else if (irValue < 100000 && irValue > 50000) {
+    if (currentLEDBrightness < 0x80) {
+      currentLEDBrightness += 0x08;
+      adjusted = true;
+      Serial.println("Gyenge jel! LED növelve.");
+    }
+  }
+  
+  if (adjusted) {
+    particleSensor.setPulseAmplitudeRed(currentLEDBrightness);
+    Serial.print("Új LED fényerő: 0x");
+    Serial.println(currentLEDBrightness, HEX);
     
-    String msg = sendGyroscopeData();
-    webSocket.sendTXT(msg);
-    Serial.println("Küldve: " + msg);
-    lastSent = millis();
+    bufferFull = false;
+    bufferIndex = 0;
+    
+    // Reset beat tracking
+    for (int i = 0; i < RATE_SIZE; i++) rates[i] = 0;
+    rateSpot = 0;
   }
 }
-delay(10);
 
-//    unsigned long now = millis();
+long getSmoothedValue() {
+  if (!bufferFull && bufferIndex < 8) return irBuffer[bufferIndex - 1];
+  
+  long sum = 0;
+  int count = bufferFull ? BUFFER_SIZE : bufferIndex;
+  int start = count > 8 ? count - 8 : 0; // 8 mintás mozgóátlag
+  
+  for (int i = start; i < count; i++) {
+    sum += irBuffer[i];
+  }
+  return sum / (count - start);
+}
 
-//    if (isLoggedIn) {
-//        // 500 ms-onként aktív tréning lekérdezése
-//        if (now - lastActiveCheckTime >= 1000) {
-//            IsActiveRequest();  // ez állítja be az isActiveTraining változót
-//            lastActiveCheckTime = now;
-//            uint8_t temp_farenheit = temperatureRead();
-//            Serial.println(temp_farenheit);  // kb. 40–70 °C lehet
-//        }
-//
-//        // Ha van aktív tréning, 100 ms-onként küldjön giroszkóp adatokat
-//        if (isActiveTraining && now - lastGyroSendTime >= 100) {
-//            sendGyroscopeData();
-//            lastGyroSendTime = now;
-//        }
-//    }
-//    delay(10);
+long getDerivative() {
+  if (bufferIndex < 3) return 0;
+  
+  // 3 pontos derivált a simább működésért
+  int idx1, idx2, idx3;
+  
+  if (!bufferFull) {
+    idx1 = bufferIndex - 1;
+    idx2 = bufferIndex - 2;
+    idx3 = bufferIndex - 3;
+  } else {
+    idx1 = (bufferIndex - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+    idx2 = (bufferIndex - 2 + BUFFER_SIZE) % BUFFER_SIZE;
+    idx3 = (bufferIndex - 3 + BUFFER_SIZE) % BUFFER_SIZE;
+  }
+  
+  // Súlyozott derivált
+  long der = (irBuffer[idx1] - irBuffer[idx3]) / 2;
+  
+  // Adaptív küszöb frissítése
+  if (millis() - lastThresholdUpdate > 1000) {
+    maxDerivative = max((long)(maxDerivative * 0.9), der);
+    minDerivative = min((long)(minDerivative * 0.9), der);
+    lastThresholdUpdate = millis();
+  } else {
+    maxDerivative = max(maxDerivative, der);
+    minDerivative = min(minDerivative, der);
+  }
+  
+  return der;
+}
+
+bool isValidBPM(float bpm, float previousBPM) {
+  // Ha ez az első mérés
+  if (previousBPM == 0) return (bpm >= MIN_BPM && bpm <= MAX_BPM);
+  
+  // Maximum 20% eltérés az előző értéktől
+  float maxChange = previousBPM * 0.20;
+  return (bpm >= MIN_BPM && bpm <= MAX_BPM && 
+          abs(bpm - previousBPM) < maxChange);
+}
+
+
+void BpmCalculate(){
+  
+  long irValue = particleSensor.getIR();
+  
+  adjustLEDBrightness(irValue);
+  
+  irBuffer[bufferIndex] = irValue;
+  bufferIndex++;
+  if (bufferIndex >= BUFFER_SIZE) {
+    bufferIndex = 0;
+    bufferFull = true;
+  }
+  
+  if ((bufferFull || bufferIndex > 15) && irValue > 50000 && irValue < 260000) {
+    long smoothed = getSmoothedValue();
+    long derivative = getDerivative();
+    
+    unsigned long currentTime = millis();
+    
+    // Peak detektálás finomított küszöbökkel
+    if (!risingEdge && derivative > DERIVATIVE_THRESHOLD_UP) {
+      risingEdge = true;
+    }
+    else if (risingEdge && derivative < DERIVATIVE_THRESHOLD_DOWN) {
+      risingEdge = false;
+      
+      if (currentTime - lastBeatTime > DEBOUNCE_TIME) {
+        long delta = currentTime - lastBeatTime;
+        
+        if (lastBeatTime > 0 && delta < (60000 / MIN_BPM)) {
+          float newBPM = 60000.0 / delta;
+          
+          // Validálás az előző értékkel
+          if (isValidBPM(newBPM, beatsPerMinute)) {
+            beatsPerMinute = newBPM;
+            
+            rates[rateSpot++] = (byte)beatsPerMinute;
+            rateSpot %= RATE_SIZE;
+            
+            // Átlag számítás súlyozással (újabbak nagyobb súllyal)
+            beatAvg = 0;
+            int validSamples = 0;
+            float weightSum = 0;
+            
+            for (int x = 0; x < RATE_SIZE; x++) {
+              if (rates[x] > 0) {
+                int idx = (rateSpot - 1 - x + RATE_SIZE) % RATE_SIZE;
+                float weight = 1.0 + (x * 0.1); // Újabb értékek nagyobb súllyal
+                beatAvg += rates[idx] * weight;
+                weightSum += weight;
+                validSamples++;
+              }
+            }
+            
+            if (validSamples > 0) {
+              beatAvg = (int)(beatAvg / weightSum);
+            }
+            
+            
+          }
+        }
+        lastBeatTime = currentTime;
+      }
+    }
+  }
+ //sendPulseBpm(beatsPerMinute);
+ Serial.println(beatsPerMinute,0);
+//  // Kiírás
+  Serial.print("IR=");
+  Serial.print(irValue);
+  Serial.print(" | Sim=");
+  Serial.print(getSmoothedValue());
+  Serial.print(" | Der=");
+  Serial.print(getDerivative());
+  Serial.print(" | BPM=");
+  Serial.print(beatsPerMinute, 1);
+  Serial.print(" | Átlag=");
+  Serial.print(beatAvg);
+  Serial.print(" | LED=0x");
+  Serial.print(currentLEDBrightness, HEX);
+  Serial.println();
+//  
+//  if (irValue < 50000) {
+//    Serial.print(" [NINCS UJJ]");
+//  } else if (irValue > 260000) {
+//    Serial.print(" [TELÍTETT!]");
+//  }
+//  
+//  Serial.println();
+//  }
+}
+static void sendPulseBpm(float bpm) {
+  if (bpm <= 0) return; // csak értelmes értéket küldjünk
+
+  StaticJsonDocument<128> doc;
+  doc["pulse"] = bpm;  // amit küldesz (ha kell, ide jöhet trainingId is)
+
+  String body;
+  serializeJson(doc, body);
+
+  // Serial log → hogy pontosan lásd, mit küldünk a szervernek
+  Serial.print("📤 Pulse JSON küldés előtt: ");
+  Serial.println(body);
+
+  // Végpont: ha a te API-d pl. /Pulse/Post akkor ez jó
+  String url = "http://" + IP_ADDRESS + "/Pulse/Post";
+
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  if (authToken.length()) {
+    http.addHeader("Authorization", "Bearer " + authToken);
+  }
+
+  int code = http.POST(body);
+  Serial.printf("✅ Pulse POST válaszkód: %d\n", code);
+
+  http.end();
+}
+
+void loop() {
+  server.handleClient();
+
+  if (isLoggedIn) {
+    webSocketLoop();
+
+    // Gyro adat küldése 100ms-enként, ha engedélyezett
+    if (shouldSend && (millis() - lastSent > GYRO_SEND_MS)) {
+      checkActiveTraining();           // frissítjük trainingId-t
+      String msg = buildGyroscopeJson();
+      webSocket.sendTXT(msg);
+      Serial.println("Küldve: " + msg);
+      lastSent = millis();
+    }
+
+    if (shouldSendPulse) {
+      // Itt jönne a pulzus adatgyűjtés / küldés
+     BpmCalculate();
+      delay(10);
+    }
+  }
+
+  delay(10);
 }

@@ -151,7 +151,7 @@ namespace WorkoutOptimization.Endpoint
             plt.YLabel("Value");
 
             string path = $"plot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-            plt.SaveFig(path);
+            //plt.SaveFig(path);
             Console.WriteLine($"[✓] Grafikon elmentve: {path}");
 
             // Normalizált batch létrehozása (ahogy eddig)

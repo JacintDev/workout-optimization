@@ -44,6 +44,8 @@ namespace WorkoutOptimization.Models.Entities
 
         public Level? Level { get; set; }
         public Sex? Sex { get; set; }
+        //User need to set it up at home
+        public int? RestPulse { get; set; }
         public string? MacAddress { get; set; }
         [JsonIgnore]
         

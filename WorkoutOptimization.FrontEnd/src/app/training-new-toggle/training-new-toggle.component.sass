@@ -96,3 +96,37 @@ app-biceps-curl-animate
     margin-top: 10px
     font-size: 24px
     font-weight: bold
+
+
+.pulse, .pulse-icon
+    color: red
+    font-size: 20px
+
+.pulse-icon
+    animation: heartbeat 1s infinite ease-in-out
+    
+
+    display: flex
+    align-items: center
+.pulse-container
+    margin-top:10px
+    align-items: center
+    justify-content: center
+    display: flex
+    gap: 10px
+    padding: 10px
+
+@keyframes heartbeat
+    0%, 100%
+        transform: scale(1)
+    25%
+        transform: scale(1.4)
+    50%
+        transform: scale(1)
+    75%
+        transform: scale(1.4)
+
+
+.pulse-message
+    color: white
+    font-size: 17px

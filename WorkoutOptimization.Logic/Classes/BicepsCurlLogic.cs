@@ -56,7 +56,7 @@ namespace WorkoutOptimization.Logic.Classes
 
             // Készíts DenseTensor-t az inputból
             var inputTensor = new DenseTensor<float>(inputFlat, new int[] { 1, 13, 6 });
-            string modelPath = @"C:\Users\kovac\source\repos\WorkoutOptimization\WorkoutOptimization.Data\best_model.onnx";
+            string modelPath = @"C:\Users\kovac\source\repos\WorkoutOptimization\WorkoutOptimization.Logic\Onxx\best_model.onnx";
 
             using var session = new InferenceSession(modelPath);
             string inputName = session.InputMetadata.Keys.First();
