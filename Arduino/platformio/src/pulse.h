@@ -13,6 +13,7 @@ namespace pulse {
 // Inicializálás (I2C már fusson: Wire.begin(...))
 bool begin(TwoWire& wire, uint32_t i2cSpeed = I2C_SPEED_FAST);
 
+void setUpDefaultVariables();
 // Hívd minden loop-ban, amikor shouldSendPulse == true
 void update();
 

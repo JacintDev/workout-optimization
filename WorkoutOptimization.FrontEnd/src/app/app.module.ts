@@ -19,6 +19,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 //FORM
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -43,6 +45,8 @@ import { MatTableModule } from '@angular/material/table';
 import { TrainingNewComponent } from './training-new/training-new.component';
 import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
 import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.component';
+import { FeedbackComponent } from './feedback/feedback.component';
+import { SummaryComponent } from './summary/summary.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +69,8 @@ import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.co
     TrainingNewComponent,
     TrainingNewToggleComponent,
     RecommendedPlanComponent,
+    FeedbackComponent,
+    SummaryComponent,
   ],
   imports: [
     BrowserModule,
@@ -83,6 +89,8 @@ import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.co
     MatDialogModule,
     MatStepperModule,
     MatTableModule,
+    MatDividerModule,
+    MatProgressSpinnerModule,
   ],
   providers: [provideHttpClient(withInterceptors([authInterceptor]))],
   bootstrap: [AppComponent],

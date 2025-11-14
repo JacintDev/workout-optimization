@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>Összefoglalás</h2>
+<mat-dialog-content class="mat-dialog-content">
+  <mat-divider class="divider"></mat-divider>
+  <div class="main-information-container">
+    <div class="id-container">
+      <span class="information-first">Training ID</span>
+      <span>ID</span>
+    </div>
+    <div class="exercise-container">
+      <span class="information-first">Gyakorlat</span>
+      <span>{{ data.selectionValue }}</span>
+    </div>
+    <div class="successful-container">
+      <span class="information-first">Helyesség</span>
+      <span>{{
+        (data.correctExercise /
+          (data.correctExercise + data.incorrectExercise)) *
+          100
+      }}</span>
+    </div>
+  </div>
+  <mat-divider class="divider"></mat-divider>
+  <div class="datas-container">
+    <span>Adatok</span>
+    <table>
+      <tr>
+        <td class="left">Helyes ismétlés</td>
+        <td class="right">{{ data.correctExercise }}</td>
+      </tr>
+      <tr>
+        <td class="left">Helytelen ismétlés</td>
+        <td class="right">{{ data.incorrectExercise }}</td>
+      </tr>
+      <tr>
+        <td class="left">Pulzus</td>
+        <td class="right">{{ data.averagePulse }}</td>
+      </tr>
+      <tr>
+        <td class="left">Pulzus tartomány</td>
+        <td class="right">{{ data.pulseMessage }}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="result-container">
+    <mat-spinner *ngIf="spinnerEnabled" class="spinner"></mat-spinner>
+    <span>{{ displayLoadingText }}</span>
+    <span *ngIf="displayResult">Javaslat: -.-</span>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Bezárás</button>
+</mat-dialog-actions>
