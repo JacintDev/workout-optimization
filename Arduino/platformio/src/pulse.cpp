@@ -38,7 +38,7 @@ constexpr int MIN_BPM = 40;
 constexpr int MAX_BPM = 180;
 constexpr unsigned long DEBOUNCE_TIME = 300;
 
-bool debugOn = false;
+bool debugOn = true;
 int postTimer = 0;
 
 inline void dlog(const String& s){ if (debugOn) Serial.println(s); }
@@ -153,7 +153,7 @@ void sendPulseBpm(float bpm, long irValue) {
 
   String body;
   serializeJson(doc, body);
-
+debugOn=true;
   if (debugOn) {
     Serial.print("📤 Pulse JSON küldés előtt: ");
     Serial.println(body);
@@ -192,7 +192,11 @@ bool begin(TwoWire& wire, uint32_t i2cSpeed) {
   int pulseWidth = 411;
   int adcRange = 4096;
 
+
+
   particleSensor.setup(currentLEDBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange);
+
+  
   particleSensor.setPulseAmplitudeRed(currentLEDBrightness);
   particleSensor.setPulseAmplitudeGreen(0);
 
@@ -201,6 +205,15 @@ bool begin(TwoWire& wire, uint32_t i2cSpeed) {
   delay(1000);
   return true;
 }
+
+void setUpDefaultVariables(){
+    byte sampleAverageFix = 4;
+    byte ledModeFix = 2;
+    int sampleRateFix = 100;
+    int pulseWidthFix = 411;
+    int adcRangeFix = 4096;
+    particleSensor.setup(currentLEDBrightness, sampleAverageFix, ledModeFix, sampleRateFix, pulseWidthFix, adcRangeFix);
+  };
 
 void update() {
   // FIGYELEM: ezt csak akkor hívd, ha shouldSendPulse == true

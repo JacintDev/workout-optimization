@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Visszajelzés</h2>
+
+<mat-dialog-content>
+  <mat-form-field class="feedback-container">
+    <mat-label>Gyakorlat értékelése</mat-label>
+    <mat-select [(value)]="selected">
+      <mat-option *ngFor="let result of results" [value]="result.value"
+        >{{ result.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ShowSummary()">Tovább</button>
+</mat-dialog-actions>

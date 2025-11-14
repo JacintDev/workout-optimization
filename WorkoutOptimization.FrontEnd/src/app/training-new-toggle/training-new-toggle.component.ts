@@ -3,8 +3,12 @@ import { StartTrainingModel } from '../../models/StartTrainingModel';
 import { TrainingService } from '../services/training.service';
 import * as signalR from '@microsoft/signalr';
 import { PulsemeasureService } from '../services/pulsemeasure.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { PulseViewModel } from '../../models/PulseViewModel';
+import { MatDialog } from '@angular/material/dialog';
+import { FeedbackComponent } from '../feedback/feedback.component';
+import { FeedBack } from '../../models/FeedBack';
+import { log } from 'three/src/nodes/TSL.js';
 
 @Component({
   selector: 'app-training-new-toggle',
@@ -19,12 +23,18 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   trainingId: number = 0;
   training: StartTrainingModel = new StartTrainingModel();
   predictionCount: number = 0;
+  correctExercise: number = 0;
+  incorrectExercise: number = 0;
   pulse$!: Observable<PulseViewModel>;
+  lastPulseObj: PulseViewModel = new PulseViewModel();
   showPulse = false;
   constructor(
     private trainingService: TrainingService,
-    private pulseService: PulsemeasureService
-  ) {}
+    private pulseService: PulsemeasureService,
+    private dialog: MatDialog
+  ) {
+    this.pulseLastSave();
+  }
 
   ngOnInit(): void {
     //SignalR
@@ -41,6 +51,11 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
     this.hubConnection.on('ReceivePrediction', (message: string) => {
       this.predictionMessage = message;
       this.predictionCount++;
+      if (this.predictionMessage == 'Helyes') {
+        this.correctExercise++;
+      } else {
+        this.incorrectExercise++;
+      }
     });
     this.pulse$ = this.pulseService.pulse$;
   }
@@ -115,6 +130,30 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
     this.pulseService.stopWebSocketPulseMeasurement().subscribe({
       next: (res) => console.log(res),
       error: (err) => console.log(err),
+    });
+  }
+
+  private pulseLastSave() {
+    this.pulseService.pulse$.subscribe({
+      next: (res) => {
+        this.lastPulseObj = res;
+        console.log(this.lastPulseObj.pulse);
+      },
+    });
+  }
+
+  feedback(): void {
+    let data: FeedBack = new FeedBack();
+    data.correctExercise = this.correctExercise;
+    data.incorrectExercise = this.incorrectExercise;
+    data.averagePulse = this.lastPulseObj.pulse;
+    data.pulseMessage = this.lastPulseObj.message;
+    data.selectionValue = 'unselected';
+
+    this.dialog.open(FeedbackComponent, {
+      width: '400px',
+      panelClass: 'custom-dialog',
+      data,
     });
   }
 }

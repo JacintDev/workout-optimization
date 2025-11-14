@@ -17,6 +17,7 @@ import { TrainingComponent } from './training/training.component';
 import { TrainingNewComponent } from './training-new/training-new.component';
 import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
 import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.component';
+import { FeedbackComponent } from './feedback/feedback.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -55,6 +56,12 @@ const routes: Routes = [
   {
     path: 'createtrainingnewtoggle/:id',
     component: TrainingNewToggleComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
+  {
+    path: 'feedback/',
+    component: FeedbackComponent,
     canActivate: [AuthGuard],
     data: { roles: ['User', 'Admin'] },
   },

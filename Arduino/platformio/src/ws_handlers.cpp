@@ -3,6 +3,7 @@
 #include "config.h"
 #include "wifi_portal.h"
 #include <Arduino.h>
+#include "pulse.h"
 
 static void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
   switch (type) {
@@ -24,6 +25,7 @@ static void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
         Serial.println(">> Leáll az adatküldés");
       } else if (strcmp((char*)payload, "startPulseDataSending") == 0) {
         shouldSendPulse = true;
+        pulse::setUpDefaultVariables();
         Serial.println(">> Indul a pulzus adatküldés");
       } else if (strcmp((char*)payload, "stopPulseDataSending") == 0) {
         shouldSendPulse = false;
