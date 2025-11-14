@@ -9,6 +9,16 @@ using System.Threading.Tasks;
 
 namespace WorkoutOptimization.Models.Entities
 {
+
+    public enum Axis
+    {
+        GyrosX,
+        GyrosY,
+        GyrosZ,
+        AccelX,
+        AccelY,
+        AccelZ
+    }
     public class Training
     {
         [Key]
@@ -20,6 +30,7 @@ namespace WorkoutOptimization.Models.Entities
         [Required]
         public bool isActive { get; set; }
         public bool? IsCorrect { get; set; }
+        public Axis Axis { get; set; }
 
         public virtual ICollection<ExerciseResult> ExerciseResults { get; set; }
 
@@ -27,7 +38,7 @@ namespace WorkoutOptimization.Models.Entities
         public int ExerciseId { get; set; }
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }
-
+        
         [JsonIgnore]
         public virtual Exercise Exercise { get; set; }
         [JsonIgnore]

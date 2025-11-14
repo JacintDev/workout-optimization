@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkoutOptimization.Models.Entities;
 
 namespace WorkoutOptimization.Models.Models
 {
@@ -20,6 +21,7 @@ namespace WorkoutOptimization.Models.Models
         public bool isActive { get; set; }
         public bool? isCorrect { get; set; }
         public int ExerciseId { get; set; }
+        public Axis Axis { get; set; }
 
 
     }
