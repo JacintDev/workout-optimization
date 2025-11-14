@@ -8,32 +8,65 @@ using WorkoutOptimization.Endpoint.Helpers;
 using WorkoutOptimization.Repository.Migrations;
 using WorkoutOptimization.Models.Models;
 using WorkoutOptimization.Logic.Interfaces;
+using WorkoutOptimization.Models.Entities;
 
 namespace WorkoutOptimization.Endpoint
 {
+   
+
     public class GyroscopeDataProcessor : BackgroundService
     {
         private readonly ConcurrentQueue<GyroscopeDataDto> _queue;
-        IBicepsCurlLogic _bicepsCurlLogic;
+        private readonly IBicepsCurlLogic _bicepsCurlLogic;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<ExerciseHub> _hubContext;
-        
 
-        public GyroscopeDataProcessor(ConcurrentQueue<GyroscopeDataDto> queue,
-            IServiceScopeFactory scopeFactory, IBicepsCurlLogic bicepsCurlLogic, IHubContext<ExerciseHub> hubContext)
+        // Tengelyválasztáshoz:
+        private volatile Axis _repAxis;
+        private Func<GyroscopeDataDto, double> _getAxis;
+        private int? _lastTrainingId = null;
+
+        public GyroscopeDataProcessor(
+            ConcurrentQueue<GyroscopeDataDto> queue,
+            IServiceScopeFactory scopeFactory,
+            IBicepsCurlLogic bicepsCurlLogic,
+            IHubContext<ExerciseHub> hubContext,
+            Axis repAxis = Axis.GyrosZ // alapból a régi viselkedés
+        )
         {
             _queue = queue;
             _scopeFactory = scopeFactory;
-            _bicepsCurlLogic= bicepsCurlLogic;
-            _hubContext=hubContext;
-           
+            _bicepsCurlLogic = bicepsCurlLogic;
+            _hubContext = hubContext;
+
+            SetAxis(repAxis);
+        }
+
+        /// <summary>
+        /// Futás közben is átállíthatod a detektálás tengelyét.
+        /// </summary>
+        public void SetAxis(Axis axis)
+        {
+            _repAxis = axis;
+            _getAxis = axis switch
+            {
+                Axis.GyrosX => d => d.GyrosX,
+                Axis.GyrosY => d => d.GyrosY,
+                Axis.GyrosZ => d => d.GyrosZ,
+                Axis.AccelX => d => d.AccelX,
+                Axis.AccelY => d => d.AccelY,
+                Axis.AccelZ => d => d.AccelZ,
+                _ => d => d.GyrosZ
+            };
+
+            Console.WriteLine($"[i] Ismétlés detektálás tengelye: {_repAxis}");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             List<GyroscopeDataDto> repBuffer = new();
-            Queue<double> slidingWindow = new(); // csak a GyrosZ értékek
-            Queue<GyroscopeDataDto> rawWindow = new(); // a teljes objektumok, feldolgozáshoz
+            Queue<double> slidingWindow = new(); // kiválasztott tengely értékei
+            Queue<GyroscopeDataDto> rawWindow = new(); // teljes objektumok
 
             const int windowSize = 7;
 
@@ -41,18 +74,36 @@ namespace WorkoutOptimization.Endpoint
             {
                 while (_queue.TryDequeue(out var data))
                 {
+
+                    if (data.TrainingId != null)
+                    {
+                        int currentId= (int)data.TrainingId;
+                        if(currentId!=_lastTrainingId)
+                        {
+                            _lastTrainingId= currentId;
+                            using var scope = _scopeFactory.CreateScope();
+                            var trainingRepo = scope.ServiceProvider.GetRequiredService<IRepository<Training>>();
+                            var training = trainingRepo.Read((int)data.TrainingId);
+                            SetAxis(training.Axis);
+
+                        }
+
+                        
+     
+                    }
+
                     repBuffer.Add(data);
                     rawWindow.Enqueue(data);
-                    slidingWindow.Enqueue(data.GyrosZ);
+                    slidingWindow.Enqueue(_getAxis(data)); // <<< ITT már a választott tengely megy
 
-                    // Csak akkor vizsgáljuk, ha megvan a teljes ablak
+                    // csak akkor vizsgáljuk, ha megvan a teljes ablak
                     if (slidingWindow.Count == windowSize)
                     {
                         var values = slidingWindow.ToArray();
-
                         int middleIndex = windowSize / 2;
                         double middle = values[middleIndex];
 
+                        // Minimum detektálás (ha maximum kellene, elég a relációt megfordítani)
                         bool isMinimum = true;
                         for (int i = 0; i < windowSize; i++)
                         {
@@ -66,20 +117,20 @@ namespace WorkoutOptimization.Endpoint
 
                         if (isMinimum)
                         {
-                            Console.WriteLine($"[✓] Ismétlés detektálva (GyrosZ peak: {middle:F2})");
+                            Console.WriteLine($"[✓] Ismétlés detektálva ({_repAxis} peak: {middle:F2})");
 
                             // A repBuffer tartalmazza az eddigi adatokat, de ne adjuk át a peak utáni 3-at
                             int cutIndex = repBuffer.Count - (windowSize - 3);
-                            var repetition = repBuffer.Take(cutIndex).ToList(); // Csak a peak-ig
+                            var repetition = repBuffer.Take(cutIndex).ToList(); // csak a peak-ig
                             await ProcessBatchAsync(repetition);
 
-                            // A repBuffer-be csak a peak utáni adatokat tesszük vissza
+                            // Maradék visszatöltése
                             repBuffer = repBuffer.Skip(cutIndex).ToList();
 
-                            // Sliding window újratöltése az utolsó 3 értékkel
-                            var lastZs = repBuffer.Select(x => x.GyrosZ).ToList();
+                            // Sliding window újratöltése a megmaradt elemek tengely-értékeivel
+                            var remainingAxisVals = repBuffer.Select(x => _getAxis(x)).ToList();
                             slidingWindow.Clear();
-                            foreach (var val in lastZs)
+                            foreach (var val in remainingAxisVals)
                                 slidingWindow.Enqueue(val);
 
                             rawWindow.Clear();
@@ -88,7 +139,7 @@ namespace WorkoutOptimization.Endpoint
                         }
                         else
                         {
-                            // Csúsztatjuk az ablakot
+                            // csúsztatjuk az ablakot
                             slidingWindow.Dequeue();
                             rawWindow.Dequeue();
                         }
@@ -100,9 +151,10 @@ namespace WorkoutOptimization.Endpoint
         }
 
 
+
         private async Task ProcessBatchAsync(List<GyroscopeDataDto> batch)
         {
-            int targetLength = 13; // fix hosszúság
+            int targetLength = 13; // fix hossz
 
             double[] gyrosX = batch.Select(d => (double)d.GyrosX).ToArray();
             double[] gyrosY = batch.Select(d => (double)d.GyrosY).ToArray();
@@ -151,7 +203,7 @@ namespace WorkoutOptimization.Endpoint
             plt.YLabel("Value");
 
             string path = $"plot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-            //plt.SaveFig(path);
+            plt.SaveFig(path);
             Console.WriteLine($"[✓] Grafikon elmentve: {path}");
 
             // Normalizált batch létrehozása (ahogy eddig)
@@ -170,8 +222,28 @@ namespace WorkoutOptimization.Endpoint
                 });
             }
 
-            var json = JsonSerializer.Serialize(normalizedBatch);
-            File.WriteAllText("json_normalized.json", json);
+            //var json = JsonSerializer.Serialize(normalizedBatch);
+            //File.WriteAllText("json_normalized.json", json);
+
+            var filePath = "json_normalized.json";
+            List<GyroscopeDataDto> newItem = normalizedBatch; // ez az új objektumlista
+
+            List<GyroscopeDataDto> items = new();
+
+            // Ha már létezik a fájl, beolvassuk a meglévő listát
+            if (File.Exists(filePath))
+            {
+                var existingJson = File.ReadAllText(filePath);
+                if (!string.IsNullOrWhiteSpace(existingJson))
+                    items = JsonSerializer.Deserialize<List<GyroscopeDataDto>>(existingJson) ?? new List<GyroscopeDataDto>();
+            }
+
+            // Hozzáadjuk az új elemeket a meglévőkhöz
+            items.AddRange(newItem);
+
+            // Visszaírjuk a fájlt
+            var newJson = JsonSerializer.Serialize(items, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, newJson);
 
             //using var scope = _scopeFactory.CreateScope();
             //var logic = scope.ServiceProvider.GetRequiredService<IGyroscopeDataLogic>();
@@ -249,6 +321,7 @@ namespace WorkoutOptimization.Endpoint
 
             return result;
         }
+
         public static double[] LinearInterpolate(double[] originalValues, int targetLength)
         {
             int originalLength = originalValues.Length;
@@ -271,3 +344,4 @@ namespace WorkoutOptimization.Endpoint
         }
     }
 }
+
