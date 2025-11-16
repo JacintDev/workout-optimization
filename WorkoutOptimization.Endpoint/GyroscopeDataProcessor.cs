@@ -17,7 +17,6 @@ namespace WorkoutOptimization.Endpoint
     public class GyroscopeDataProcessor : BackgroundService
     {
         private readonly ConcurrentQueue<GyroscopeDataDto> _queue;
-        private readonly IBicepsCurlLogic _bicepsCurlLogic;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<ExerciseHub> _hubContext;
 
@@ -29,14 +28,12 @@ namespace WorkoutOptimization.Endpoint
         public GyroscopeDataProcessor(
             ConcurrentQueue<GyroscopeDataDto> queue,
             IServiceScopeFactory scopeFactory,
-            IBicepsCurlLogic bicepsCurlLogic,
             IHubContext<ExerciseHub> hubContext,
             Axis repAxis = Axis.GyrosZ // alapból a régi viselkedés
         )
         {
             _queue = queue;
             _scopeFactory = scopeFactory;
-            _bicepsCurlLogic = bicepsCurlLogic;
             _hubContext = hubContext;
 
             SetAxis(repAxis);
@@ -264,20 +261,25 @@ namespace WorkoutOptimization.Endpoint
                 converted[0, i, 5] = d.AccelZ;
             }
             //Send to data validation
-            var res = _bicepsCurlLogic.DataValidation(converted);
-
-            string message = res ? "Helyes" : "Helytelen";
-            var trainingId = batch.First().TrainingId;
-            using var scope = _scopeFactory.CreateScope();
-            var exerciseLogic = scope.ServiceProvider.GetRequiredService<IExerciseResultLogic>();
-            var exerciseResult = new ExerciseResultCreateModel()
+            using (var scope = _scopeFactory.CreateScope())
             {
-                IsCorrect = res,
-                TrainingId = trainingId == null ? 0 : (int)trainingId
-            };
+                var bicepsLogic = scope.ServiceProvider.GetRequiredService<IBicepsCurlLogic>();
+                var exerciseLogic = scope.ServiceProvider.GetRequiredService<IExerciseResultLogic>();
 
-            await _hubContext.Clients.All.SendAsync("ReceivePrediction", message);
-            await exerciseLogic.CreateExerciseResult(exerciseResult);
+                var res = bicepsLogic.DataValidation(converted);
+                AppendLabeledSequenceToJson(normalizedBatch, true);
+                string message = res ? "Helyes" : "Helytelen";
+                var trainingId = batch.First().TrainingId;
+
+                var exerciseResult = new ExerciseResultCreateModel()
+                {
+                    IsCorrect = res,
+                    TrainingId = trainingId == null ? 0 : (int)trainingId
+                };
+
+                await _hubContext.Clients.All.SendAsync("ReceivePrediction", message);
+                await exerciseLogic.CreateExerciseResult(exerciseResult);
+            }
 
 
         }
@@ -342,6 +344,66 @@ namespace WorkoutOptimization.Endpoint
 
             return result;
         }
+
+        private void AppendLabeledSequenceToJson(List<GyroscopeDataDto> normalizedBatch, bool isCorrect)
+        {
+            var filePath = "json_labeled_sequences.json";
+
+            // 1. Felépítjük az aktuális ismétlés JSON tömbjét:
+            //    [ {GyrosX..AccelZ}, ..., {IsCorrect: true/false} ]
+
+            var currentSequence = new List<object>();
+
+            // 13 db szenzor sor (normált adatokkal)
+            for (int i = 0; i < normalizedBatch.Count; i++)
+            {
+                var d = normalizedBatch[i];
+
+                currentSequence.Add(new
+                {
+                    GyrosX = d.GyrosX,
+                    GyrosY = d.GyrosY,
+                    GyrosZ = d.GyrosZ,
+                    AccelX = d.AccelX,
+                    AccelY = d.AccelY,
+                    AccelZ = d.AccelZ
+                });
+            }
+
+            // 14. elem: az IsCorrect jelölés
+            currentSequence.Add(new
+            {
+                IsCorrect = isCorrect   // true vagy false az ML eredménye alapján
+            });
+
+            // 2. Betöltjük a teljes eddigi listát (ha létezik a fájl)
+
+            List<List<object>> allSequences = new();
+
+            if (File.Exists(filePath))
+            {
+                var existingJson = File.ReadAllText(filePath);
+                if (!string.IsNullOrWhiteSpace(existingJson))
+                {
+                    allSequences = JsonSerializer.Deserialize<List<List<object>>>(existingJson)
+                                   ?? new List<List<object>>();
+                }
+            }
+
+            // 3. Hozzáadjuk az aktuális ismétlést
+
+            allSequences.Add(currentSequence);
+
+            // 4. Szépen formázva visszaírjuk a fájlba
+
+            var newJson = JsonSerializer.Serialize(allSequences, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            File.WriteAllText(filePath, newJson);
+        }
+
     }
 }
 
