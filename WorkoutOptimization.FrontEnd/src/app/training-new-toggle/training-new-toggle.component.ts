@@ -70,6 +70,7 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
     this.training.start = new Date().toISOString();
     this.training.isActive = true;
     this.training.exerciseId = 1;
+    this.training.axis = 2;
 
     this.trainingService.startTraining(this.training).subscribe({
       next: (res) => this.getActiveTraining(),

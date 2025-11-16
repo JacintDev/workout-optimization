@@ -3,4 +3,5 @@ export class StartTrainingModel {
   isActive: boolean = false;
   exerciseId: number = 0;
   isCorrect: boolean = false;
+  axis: number = 0;
 }
