@@ -13,6 +13,7 @@ namespace WorkoutOptimization.Repository
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<DailyWeight> DailyWeights { get; set; }
         public DbSet<ExerciseResult> ExerciseResults { get; set; }
+        public DbSet<MlModel> MlModels { get; set; }
 
         public WorkoutOptimizationDbContext(DbContextOptions<WorkoutOptimizationDbContext> opt) : base(opt)
         {
