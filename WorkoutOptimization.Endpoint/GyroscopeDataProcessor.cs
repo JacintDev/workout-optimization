@@ -305,45 +305,6 @@ namespace WorkoutOptimization.Endpoint
 
             return result;
         }
-        public static double[] DownsampleWithFixedEnds(double[] originalValues, int targetLength)
-        {
-            int originalLength = originalValues.Length;
-            if (targetLength >= originalLength) return (double[])originalValues.Clone();
-
-            double[] result = new double[targetLength];
-            result[0] = originalValues[0];
-            result[targetLength - 1] = originalValues[originalLength - 1];
-
-            double step = (originalLength - 2) / (double)(targetLength - 2);
-            for (int i = 1; i < targetLength - 1; i++)
-            {
-                int idx = (int)Math.Round(1 + step * (i - 1));
-                result[i] = originalValues[idx];
-            }
-
-            return result;
-        }
-
-        public static double[] LinearInterpolate(double[] originalValues, int targetLength)
-        {
-            int originalLength = originalValues.Length;
-            double[] result = new double[targetLength];
-
-            if (targetLength == originalLength)
-                return (double[])originalValues.Clone();
-
-            for (int i = 0; i < targetLength; i++)
-            {
-                double pos = (originalLength - 1) * i / (double)(targetLength - 1);
-                int leftIndex = (int)Math.Floor(pos);
-                int rightIndex = Math.Min(leftIndex + 1, originalLength - 1);
-                double fraction = pos - leftIndex;
-
-                result[i] = originalValues[leftIndex] * (1 - fraction) + originalValues[rightIndex] * fraction;
-            }
-
-            return result;
-        }
 
         private void AppendLabeledSequenceToJson(List<GyroscopeDataDto> normalizedBatch, bool isCorrect)
         {
