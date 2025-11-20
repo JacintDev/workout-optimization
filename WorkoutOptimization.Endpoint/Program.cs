@@ -116,8 +116,18 @@ namespace WorkoutOptimization.Endpoint
             builder.Services.AddScoped<IPulseLogic, PulseLogic>();
             builder.Services.AddScoped<IRepository<MlModel>, Repository<MlModel>>();
             builder.Services.AddScoped<IBicepsCurlLogic, BicepsCurlLogic>();
-            builder.Services.AddSingleton<ConcurrentQueue<GyroscopeDataDto>>();
-            builder.Services.AddHostedService<GyroscopeDataProcessor>();
+            builder.Services.AddSingleton<IShoulderDetector, ShoulderPressRepDetector>();
+            builder.Services.AddSingleton<IBicepsRepDetector, BicepsRepDetector>();
+            builder.Services.AddScoped<IShoulderPressLogic, ShoulderPressLogic>();
+            builder.Services.AddScoped<IRepPreProcessor, RepPreProcessor>();
+
+
+            builder.Services.AddSingleton<ShoulderQueue>();
+            builder.Services.AddSingleton<BicepsQueue>();
+         
+            builder.Services.AddHostedService<ShoulderPressDataProcessor>();
+            builder.Services.AddHostedService<BicepsCurlDataProcessor>();
+            //builder.Services.AddHostedService<UniversalGyroscopeDataProcessor>();
 
             builder.Services.AddSignalR();
 
