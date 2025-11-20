@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FeedbackComponent } from '../feedback/feedback.component';
 import { FeedBack } from '../../models/FeedBack';
 import { log } from 'three/src/nodes/TSL.js';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-training-new-toggle',
@@ -27,13 +28,17 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   incorrectExercise: number = 0;
   pulse$!: Observable<PulseViewModel>;
   lastPulseObj: PulseViewModel = new PulseViewModel();
+  exerciseId: number = 0;
   showPulse = false;
   constructor(
     private trainingService: TrainingService,
     private pulseService: PulsemeasureService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private route: ActivatedRoute
   ) {
     this.pulseLastSave();
+    this.exerciseId = Number(this.route.snapshot.paramMap.get('id'));
+    console.log(this.exerciseId);
   }
 
   ngOnInit(): void {
@@ -69,7 +74,7 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
     this.startWebSocketSending();
     this.training.start = new Date().toISOString();
     this.training.isActive = true;
-    this.training.exerciseId = 1;
+    this.training.exerciseId = this.exerciseId;
     this.training.axis = 2;
 
     this.trainingService.startTraining(this.training).subscribe({

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { ExerciseService } from '../services/exercise.service';
 
 @Component({
   selector: 'app-training-new',
@@ -8,29 +9,35 @@ import { Router } from '@angular/router';
   styleUrl: './training-new.component.sass',
 })
 export class TrainingNewComponent {
-  exercises = [
-    { name: 'Kalapács bicepsz', value: 1 },
-    { name: 'Bicepsz állva rúddal', value: 1 },
-    { name: 'Bicepsz állva egykezes súlyzóval', value: 1 },
-    { name: 'Bicepsz ülve egykezes súlyzóval', value: 1 },
-    { name: 'Bicepsz koncentrált egykezes súlyzóval', value: 1 },
-    { name: 'Tricepsz letolás csigán', value: 1 },
-    { name: 'Tricepsz nyújtás egykezes súlyzóval fej fölött', value: 1 },
-    { name: 'Tricepsz fekvőtámasz', value: 1 },
-    { name: 'Tricepsz tolódzkodás', value: 1 },
-    { name: 'Fekvenyomás', value: 1 },
-    { name: 'Tárogatás', value: 1 },
-    { name: 'Mellről nyomás', value: 1 },
-    { name: 'Tárogatás ferde padon', value: 1 },
-    { name: 'Tárogatás negatív padon', value: 1 },
-    { name: 'Evezés döntött törzzsel', value: 1 },
-  ];
+  exercises = [{ name: '', value: 0 }];
   selected: number | null = null;
-  constructor(private router: Router) {}
-
-  goToCreateTrainingNewToggle(value: number) {
-    if (value) {
-      this.router.navigate(['/createtrainingnewtoggle', value]);
+  exerciseTranslations: Record<string, string> = {
+    BicepsCurl: 'Kalapács bicepsz',
+    ShoulderPress: 'Vállból nyomás',
+    HammerCurl: 'Kalapács bicepsz',
+  };
+  constructor(
+    private router: Router,
+    private exerciseService: ExerciseService
+  ) {
+    exerciseService.getExerciseList().subscribe({
+      next: (data) => {
+        this.exercises = data.map((x: any) => {
+          return {
+            name: this.exerciseTranslations[x.name] || x.name,
+            value: x.exerciseId,
+          };
+        });
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
+  goToCreateTrainingNewToggle() {
+    if (this.selected) {
+      console.log('!!!!!!!!!!!!!!!!!!' + this.selected);
+      this.router.navigate(['/createtrainingnewtoggle', this.selected]);
     }
   }
 }
