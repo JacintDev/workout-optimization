@@ -21,6 +21,7 @@ namespace WorkoutOptimization.Logic.Classes
         private static InferenceSession _session;
         private static float[] _dataMin;
         private static float[] _dataRange;
+        private string ModelName { get; } = "BicepsCurl_LSTM";
 
         public BicepsCurlLogic(IRepository<MlModel> repository)
         {
@@ -42,29 +43,27 @@ namespace WorkoutOptimization.Logic.Classes
                 if (_initialized)
                     return;
 
-                // --- Normalizáló vektorok – jelenleg a te hardcode-olt értékeid ---
-                // Ha később DB-ből akarod olvasni, itt tudod megtenni az _repository-val.
+                
                 //_dataMin = new float[]
                 //{
                 //    -162.8546f, -346.2087f, -199.0442f, -0.1812390f, -0.26209f, -0.8285080f
                 //}
                 //;
-                _dataMin = _repository.Read(2).DataMin.Split(' ').Select(x=> float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
-
+                //_dataMin = _repository.Read(1004).DataMin.Split(' ').Select(x=> float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                _dataMin= _repository.ReadAll().Where(x=>x.Name.Trim()== ModelName).FirstOrDefault()
+                    .DataMin.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
                 //_dataRange = new float[]
                 //{
                 //    283.8906f, 561.3296f, 411.5715f, 1.225877f, 1.336848f, 1.501098f
                 //};
-                _dataRange = _repository.Read(2).DataRange.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                //_dataRange = _repository.Read(1004).DataRange.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                _dataRange = _repository.ReadAll().Where(x => x.Name.Trim() == ModelName).FirstOrDefault()
+                   .DataRange.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                
 
-                // --- ONNX modell betöltése (jelenleg fix path) ---
-                // Ha a DB-ben tárolod (pl. MlModel-ben), itt kiolvashatod:
-                // var mlEntity = _repository.Read(1);
-                // string modelPath = mlEntity.Path; vagy fájlbyte -> temp file stb.
-
-                string modelPath =
-                    @"C:\Users\kovac\source\repos\WorkoutOptimization\WorkoutOptimization.Logic\Onxx\best_model.onnx";
-                byte[] model = _repository.Read(2).ModelData;
+               
+                byte[] model = _repository.ReadAll().Where(x => x.Name.Trim() == ModelName).FirstOrDefault()
+                    .ModelData;
                 _session = new InferenceSession(model);
 
                 _initialized = true;
@@ -73,7 +72,6 @@ namespace WorkoutOptimization.Logic.Classes
 
         public bool DataValidation(float[,,] inputData)
         {
-            // Biztonság kedvéért – ha valahonnan úgy hívnád, hogy még nincs inicializálva
             EnsureModelLoaded();
 
             // 1) Normalizálás
