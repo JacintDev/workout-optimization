@@ -9,7 +9,7 @@ using WorkoutOptimization.Models.Models;
 
 namespace WorkoutOptimization.Endpoint.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ExerciseController : ControllerBase
     {
