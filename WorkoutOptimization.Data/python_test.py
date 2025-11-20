@@ -2,7 +2,7 @@ import json
 import matplotlib.pyplot as plt
 
 # JSON fájl betöltése
-with open("json_labeled_sequences.json", "r") as f:
+with open("labeled_reps.json", "r") as f:
     sequences = json.load(f)
 
 # Üres listák az adatokhoz
@@ -32,8 +32,8 @@ plt.figure(figsize=(14, 8))
 
 # 1. subplot: Gyro értékek
 plt.subplot(2, 1, 1)
-plt.plot(time_steps, gyro_x_all, label="GyrosX")
-plt.plot(time_steps, gyro_y_all, label="GyrosY")
+plt.plot(time_steps, gyro_x_all, label="GyrosX", alpha=1)
+plt.plot(time_steps, gyro_y_all, label="GyrosY", alpha=1)
 plt.plot(time_steps, gyro_z_all, label="GyrosZ")
 plt.title("Gyroscope Data (All Sequences)")
 plt.ylabel("Value")
@@ -42,13 +42,13 @@ plt.grid(True)
 
 # Függőleges vonalak minden ismétlés határnál
 for i in range(1, len(sequences)):
-    plt.axvline(x=i * 13, color='red', linestyle='--', alpha=1)
+    plt.axvline(x=i * 13, color='red', linestyle='--', alpha=.4)
 
 # 2. subplot: Accel értékek
 plt.subplot(2, 1, 2)
 plt.plot(time_steps, accel_x_all, '--', label="AccelX")
-plt.plot(time_steps, accel_y_all, '--', label="AccelY")
-plt.plot(time_steps, accel_z_all, '--', label="AccelZ")
+plt.plot(time_steps, accel_y_all, '--', label="AccelY", alpha=1)
+plt.plot(time_steps, accel_z_all, '--', label="AccelZ", alpha=1)
 plt.title("Accelerometer Data (All Sequences)")
 plt.xlabel("Time Steps")
 plt.ylabel("Value")
@@ -57,7 +57,7 @@ plt.grid(True)
 
 # Függőleges vonalak az accelerometer subploton is
 for i in range(1, len(sequences)):
-    plt.axvline(x=i * 13, color='red', linestyle='--', alpha=1)
+    plt.axvline(x=i * 13, color='red', linestyle='--', alpha=0.4)
 
 plt.tight_layout()
 plt.show()

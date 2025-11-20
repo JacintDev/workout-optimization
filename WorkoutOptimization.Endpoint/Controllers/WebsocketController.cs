@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
+using WorkoutOptimization.Endpoint.Helpers;
 using WorkoutOptimization.Logic.Interfaces;
 using WorkoutOptimization.Models.Models;
 
@@ -12,13 +13,18 @@ namespace WorkoutOptimization.Endpoint.Controllers
     [ApiController]
     public class WebsocketController : ControllerBase
     {
-
+        private readonly ITrainingLogic _trainingLogic;
         private readonly IGyroscopeDataLogic _gyroscopeDataLogic;
-        private readonly ConcurrentQueue<GyroscopeDataDto> _queue;
-        public WebsocketController(IGyroscopeDataLogic gyroscopeDataLogic, ConcurrentQueue<GyroscopeDataDto> queue)
+        private readonly BicepsQueue _bicepsQueue;
+        private readonly ShoulderQueue _shoulderQueue;
+        private readonly IExerciseLogic _exerciseLogic;
+        public WebsocketController(ITrainingLogic trainingLogic, IGyroscopeDataLogic gyroscopeDataLogic, BicepsQueue bicepsQueue, ShoulderQueue shoulderQueue, IExerciseLogic exerciseLogic)
         {
+            this._trainingLogic = trainingLogic;
             this._gyroscopeDataLogic = gyroscopeDataLogic;
-            this._queue = queue;
+            this._bicepsQueue = bicepsQueue;
+            this._shoulderQueue = shoulderQueue;
+            this._exerciseLogic = exerciseLogic;
         }
         [HttpGet("connect")]
         public async Task<IActionResult> Connect()
@@ -55,7 +61,22 @@ namespace WorkoutOptimization.Endpoint.Controllers
                     GyroscopeDataDto gyD = JsonConvert.DeserializeObject<GyroscopeDataDto>(msg)!;
 
                     //_gyroscopeDataLogic.Create(gyD);
-                    _queue.Enqueue(gyD);
+
+                    if (gyD.TrainingId is int id)
+                    {
+                    var training= _trainingLogic.Read(id);
+                    var exercise= _exerciseLogic.Read(training.ExerciseId);
+                       if(exercise.Name=="BicepsCurl".Trim())
+                        {
+                            _bicepsQueue.Enqueue(gyD);
+                        }
+                       else if(exercise.Name=="ShoulderPress".Trim())
+                        {
+                            _shoulderQueue.Enqueue(gyD);
+                        }
+                    }
+
+
                 }
             }
             catch (WebSocketException ex)

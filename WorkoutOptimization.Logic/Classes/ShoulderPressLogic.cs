@@ -1,4 +1,5 @@
-﻿using Microsoft.ML.OnnxRuntime;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,19 @@ using WorkoutOptimization.Repository;
 
 namespace WorkoutOptimization.Logic.Classes
 {
-    public class BicepsCurlLogic : IBicepsCurlLogic
+    public class ShoulderPressLogic : IShoulderPressLogic
     {
         private readonly IRepository<MlModel> _repository;
 
-        // STATIKUS CACHE – a modell és a normalizáló vektorok
         private static readonly object _initLock = new();
         private static bool _initialized = false;
 
         private static InferenceSession _session;
         private static float[] _dataMin;
         private static float[] _dataRange;
-        private string ModelName { get; } = "BicepsCurl_LSTM";
+        private string ModelName { get; } = "ShoulderPress_LSTM";
 
-        public BicepsCurlLogic(IRepository<MlModel> repository)
+        public ShoulderPressLogic(IRepository<MlModel> repository)
         {
             _repository = repository;
             EnsureModelLoaded();
@@ -50,7 +50,7 @@ namespace WorkoutOptimization.Logic.Classes
                 //}
                 //;
                 //_dataMin = _repository.Read(1004).DataMin.Split(' ').Select(x=> float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
-                _dataMin= _repository.ReadAll().Where(x=>x.Name.Trim()== ModelName).FirstOrDefault()
+                _dataMin= _repository.ReadAll().Where(x=>x.Name.Trim() == ModelName).FirstOrDefault()
                     .DataMin.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
                 //_dataRange = new float[]
                 //{
@@ -59,11 +59,10 @@ namespace WorkoutOptimization.Logic.Classes
                 //_dataRange = _repository.Read(1004).DataRange.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
                 _dataRange = _repository.ReadAll().Where(x => x.Name.Trim() == ModelName).FirstOrDefault()
                    .DataRange.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
-                
 
-               
-                byte[] model = _repository.ReadAll().Where(x => x.Name.Trim() == ModelName).FirstOrDefault()
-                    .ModelData;
+
+
+                byte[] model = _repository.ReadAll().Where(x => x.Name.Trim() == ModelName).FirstOrDefault().ModelData;
                 _session = new InferenceSession(model);
 
                 _initialized = true;
@@ -72,6 +71,7 @@ namespace WorkoutOptimization.Logic.Classes
 
         public bool DataValidation(float[,,] inputData)
         {
+            // Biztonság kedvéért – ha valahonnan úgy hívnád, hogy még nincs inicializálva
             EnsureModelLoaded();
 
             // 1) Normalizálás
