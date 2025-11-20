@@ -13,12 +13,12 @@ import pyodbc
 # ========================
 # Debug mód
 # ========================
-DEBUG_MODE = False  # True: részletes log, False: minimális output
+DEBUG_MODE = True  # True: részletes log, False: minimális output
 
 # ========================
 # 1) Adat betöltése
 # ========================
-with open('normalized_save.json', 'r') as f:
+with open('shoulder.json', 'r') as f:
     data = json.load(f)  # Lista ismétlésekből, mind 14 elem (13 adat + 1 IsCorrect)
 
 X = []
@@ -273,7 +273,7 @@ conn = pyodbc.connect(conn_str)
 cursor = conn.cursor()
 
 # Modell meta
-model_name = "BenchPress_LSTM"
+model_name = "ShoulderPress_LSTM"
 model_version = 1  # ha módosítod a modellt, ezt tudod növelni
 
 insert_sql = """
