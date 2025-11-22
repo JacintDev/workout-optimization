@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 
 @Injectable({
@@ -21,6 +21,15 @@ export class HomeService {
         this.currentUserTrainingCountSubject.next(count);
       })
     );
+  }
+  getUserActiveDaysCount(): Observable<any> {
+    return this.http
+      .get<any>(`${this.link}Training/CountWorkoutSessions`)
+      .pipe(map((arr) => arr.length));
+  }
+
+  getUserMonthlyWeights(): Observable<any> {
+    return this.http.get<any>(`${this.link}DailyWeight/GetUserMonthlyWeights`);
   }
 
   startWebSocketSending(): Observable<any> {
