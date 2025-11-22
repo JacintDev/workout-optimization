@@ -10,6 +10,7 @@ import { FeedbackComponent } from '../feedback/feedback.component';
 import { FeedBack } from '../../models/FeedBack';
 import { log } from 'three/src/nodes/TSL.js';
 import { ActivatedRoute } from '@angular/router';
+import { ExerciseService } from '../services/exercise.service';
 
 @Component({
   selector: 'app-training-new-toggle',
@@ -33,11 +34,18 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   sub!: Subscription;
   showPulseButton: boolean = false;
   clicked: boolean = false;
+  exerciseTranslations: Record<string, string> = {
+    BicepsCurl: 'Kalapács bicepsz',
+    ShoulderPress: 'Vállból nyomás',
+    HammerCurl: 'Kalapács bicepsz',
+  };
+
   constructor(
     private trainingService: TrainingService,
     private pulseService: PulsemeasureService,
     private dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private exerciseService: ExerciseService
   ) {
     this.pulseLastSave();
     this.exerciseId = Number(this.route.snapshot.paramMap.get('id'));
@@ -159,12 +167,17 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
     data.incorrectExercise = this.incorrectExercise;
     data.averagePulse = this.lastPulseObj.pulse;
     data.pulseMessage = this.lastPulseObj.message;
-    data.selectionValue = 'unselected';
-
-    this.dialog.open(FeedbackComponent, {
-      width: '400px',
-      panelClass: 'custom-dialog',
-      data,
+    this.exerciseService.getExerciseList().subscribe((x: any[]) => {
+      const found = x
+        .find((l: any) => l.exerciseId == this.exerciseId)
+        ?.name.toString();
+      data.selectionValue =
+        this.exerciseTranslations[found] || 'Ismeretlen gyakorlat';
+      this.dialog.open(FeedbackComponent, {
+        width: '400px',
+        panelClass: 'custom-dialog',
+        data,
+      });
     });
   }
   userClicked(): void {

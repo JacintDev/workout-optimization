@@ -4,4 +4,5 @@ export class FeedBack {
   averagePulse?: number = 0;
   pulseMessage?: string = '';
   selectionValue: string = '';
+  difficultyValue?: string = '';
 }

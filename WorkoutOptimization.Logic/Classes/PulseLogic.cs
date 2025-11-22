@@ -27,7 +27,7 @@ namespace WorkoutOptimization.Logic.Classes
             }
             else
             {
-                return new PulseViewModel() { Message = "A pulzusod magas, pihenj többet!", Pulse = pulse };
+                return new PulseViewModel() { Message = "A pulzusod magas!", Pulse = pulse };
             }
         }
     }

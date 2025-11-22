@@ -44,7 +44,7 @@
   <div class="result-container">
     <mat-spinner *ngIf="spinnerEnabled" class="spinner"></mat-spinner>
     <span>{{ displayLoadingText }}</span>
-    <span *ngIf="displayResult">Javaslat: -.-</span>
+    <span *ngIf="displayResult">{{ summaryTranslation[Calculate()] }}</span>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
