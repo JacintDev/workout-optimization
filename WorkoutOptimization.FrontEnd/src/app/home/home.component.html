@@ -5,26 +5,14 @@
     </div>
     <div class="card-1">
       <h1>Üdvözöllek {{ (user$ | async)?.firstName }}!</h1>
-      <div *ngIf="!isActiveTraining">
-        <div class="three-container" #rendererContainer></div>
-        <button mat-button>Edzés</button>
-        <span class="label">Helyes? </span>
-        <input type="checkbox" [(ngModel)]="training.isCorrect" />
-        <button mat-button (click)="startTraining()">Indítás</button>
-      </div>
-      <p>
-        <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
-          Megállítás
-        </button>
-      </p>
     </div>
     <div class="card-2">Edzések száma</div>
-    <div class="card-3">Aktív napok</div>
+    <div class="card-3">Edzések: {{ currentUserActiveDaysCount$ | async }}</div>
     <div class="card-4">
-      <p>Gyakorlatok száma:</p>
+      <p>Gyakorlatok:</p>
       <p>{{ currentUserTrainingCount$ | async }}</p>
     </div>
-    <div class="card-5">Átlag pulzus</div>
+    <div class="card-5">Nyugalmi pulzus: {{ (user$ | async)?.restPulse }}</div>
     <div class="card-6">6</div>
     <div class="card-7" style="position: relative; height: 300px; width: 100%">
       <canvas #weightChart></canvas>
