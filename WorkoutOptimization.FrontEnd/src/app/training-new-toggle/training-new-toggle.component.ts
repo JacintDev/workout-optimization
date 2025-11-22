@@ -3,7 +3,7 @@ import { StartTrainingModel } from '../../models/StartTrainingModel';
 import { TrainingService } from '../services/training.service';
 import * as signalR from '@microsoft/signalr';
 import { PulsemeasureService } from '../services/pulsemeasure.service';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subscription, timer } from 'rxjs';
 import { PulseViewModel } from '../../models/PulseViewModel';
 import { MatDialog } from '@angular/material/dialog';
 import { FeedbackComponent } from '../feedback/feedback.component';
@@ -30,6 +30,9 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   lastPulseObj: PulseViewModel = new PulseViewModel();
   exerciseId: number = 0;
   showPulse = false;
+  sub!: Subscription;
+  showPulseButton: boolean = false;
+  clicked: boolean = false;
   constructor(
     private trainingService: TrainingService,
     private pulseService: PulsemeasureService,
@@ -116,7 +119,9 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
 
   private stopWebSocketSending() {
     this.trainingService.stopWebSocketSending().subscribe({
-      next: (res) => console.log(res),
+      next: (res) => {
+        this.HidePulseButton();
+      },
       error: (err) => console.log(err),
     });
   }
@@ -134,7 +139,7 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   }
   private stopPulseMeasurement() {
     this.pulseService.stopWebSocketPulseMeasurement().subscribe({
-      next: (res) => console.log(res),
+      next: (res) => this.feedback(),
       error: (err) => console.log(err),
     });
   }
@@ -160,6 +165,21 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
       width: '400px',
       panelClass: 'custom-dialog',
       data,
+    });
+  }
+  userClicked(): void {
+    this.clicked = true;
+  }
+  HidePulseButton(): void {
+    this.showPulseButton = true;
+    this.sub = timer(5000).subscribe(() => {
+      if (this.clicked) {
+        this.showPulseButton = false;
+        this.clicked = false;
+        return;
+      }
+      this.showPulseButton = false;
+      this.feedback();
     });
   }
 }
