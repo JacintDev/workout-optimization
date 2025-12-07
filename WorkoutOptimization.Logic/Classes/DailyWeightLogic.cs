@@ -63,5 +63,11 @@ namespace WorkoutOptimization.Logic.Classes
         {
             return _mapper.ProjectTo<DailyWeightViewModel>(_repo.ReadAll().Where(x => x.UserId == userId && x.Date.Month == DateTime.Now.Month)).ToList();
         }
+
+        public bool IsSettedUpDailyWeight(string userId)
+        {
+            var weights= _repo.ReadAll().Where(x=> x.UserId== userId && x.Date.Day == DateTime.Now.Day);
+            return weights.Any();
+        }
     }
 }

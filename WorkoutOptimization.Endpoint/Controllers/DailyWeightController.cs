@@ -67,6 +67,15 @@ namespace WorkoutOptimization.Endpoint.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> IsSettedUpDailyWeight()
+        {
+            var user = await _userManager.FindByEmailAsync(User.Identity!.Name!);
+            var res = _logic.IsSettedUpDailyWeight(user!.Id);
+            return Ok(res);
+        }
+
+
         // PUT api/<DailyWeightController>/5
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody]DailyWeightCreateModel value)
