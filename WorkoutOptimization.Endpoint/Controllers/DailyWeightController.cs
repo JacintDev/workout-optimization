@@ -11,7 +11,7 @@ using WorkoutOptimization.Models.Models;
 namespace WorkoutOptimization.Endpoint.Controllers
 {
     [Authorize]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class DailyWeightController : ControllerBase
     {
@@ -36,6 +36,20 @@ namespace WorkoutOptimization.Endpoint.Controllers
         {
             return _logic.Read(id);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetUserWeights()
+        {
+            var user = await _userManager.FindByEmailAsync(User.Identity!.Name!);
+            var weights = _logic.GetUserWeights(user!.Id);
+            return Ok(weights);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetUserMonthlyWeights()
+        {
+            var user = await _userManager.FindByEmailAsync(User.Identity!.Name!);
+            var weights = _logic.GetUserWeightsMonthly(user!.Id);
+            return Ok(weights);
+        }
 
         // POST api/<DailyWeightController>
         [HttpPost]
@@ -52,6 +66,15 @@ namespace WorkoutOptimization.Endpoint.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> IsSettedUpDailyWeight()
+        {
+            var user = await _userManager.FindByEmailAsync(User.Identity!.Name!);
+            var res = _logic.IsSettedUpDailyWeight(user!.Id);
+            return Ok(res);
+        }
+
 
         // PUT api/<DailyWeightController>/5
         [HttpPut("{id}")]

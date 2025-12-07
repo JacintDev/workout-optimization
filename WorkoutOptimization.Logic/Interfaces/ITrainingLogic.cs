@@ -14,5 +14,6 @@ namespace WorkoutOptimization.Logic.Interfaces
         void Update(TrainingDto entity, int id, User user);
         int CountTrainings(User user);
         IQueryable<CountWorkoutSessionModel> CountWorkoutSessions(User user);
+        DateTime? GetLastTrainingDate(User user);
     }
 }

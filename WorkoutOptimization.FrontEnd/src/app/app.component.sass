@@ -24,3 +24,30 @@
 .content
     grid-area: a3
     margin-top: 60px
+
+@media (max-width: 768px)
+    .logged-site
+        display: grid
+        grid-template-columns: 1fr
+        grid-template-areas: 'a1' 'a2' 'a3'
+        height: auto
+        overflow: visible
+
+    .header
+        grid-area: a1
+        position: sticky  
+        top: 0
+        left: 0
+        right: 0
+        z-index: 1000
+
+    .navbar
+        grid-area: a2
+        position: sticky
+        top: 56px          
+        z-index: 999
+
+    .content
+        grid-area: a3
+        margin-top: 0
+        padding-top: 0.5rem

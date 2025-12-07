@@ -15,7 +15,7 @@ namespace WorkoutOptimization.Logic.Classes
         {
             if(user.RestPulse==null || user.RestPulse == 0)
             {
-                throw new Exception("User need to setup the restpulse");
+                return new PulseViewModel() { Message = "Pulzus sikeresen beállítva!", Pulse = pulse };
             }
             int hrMax = 220;
             int pulseMax = hrMax - user.GetAge;
@@ -27,8 +27,10 @@ namespace WorkoutOptimization.Logic.Classes
             }
             else
             {
-                return new PulseViewModel() { Message = "A pulzusod magas, pihenj többet!", Pulse = pulse };
+                return new PulseViewModel() { Message = "A pulzusod magas!", Pulse = pulse };
             }
         }
+
+
     }
 }

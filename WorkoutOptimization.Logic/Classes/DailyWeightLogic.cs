@@ -25,7 +25,7 @@ namespace WorkoutOptimization.Logic.Classes
         {
             var ent=_mapper.Map<DailyWeight>(entity);
             ent.User = user;
-            user.Weight = entity.Weight; // TODO: update weight from int to float 
+            user.Weight = entity.Weight;
             _repo.Create(ent);
         }
 
@@ -53,6 +53,21 @@ namespace WorkoutOptimization.Logic.Classes
             var mapped = _mapper.Map<DailyWeight>(entity);
             mapped.DailyWeightId = id;
             _repo.Update(mapped);
+        }
+
+        public List<DailyWeightViewModel> GetUserWeights(string userId)
+        {
+            return _mapper.ProjectTo<DailyWeightViewModel>(_repo.ReadAll().Where(x => x.UserId == userId)).ToList();
+        }
+        public List<DailyWeightViewModel> GetUserWeightsMonthly(string userId)
+        {
+            return _mapper.ProjectTo<DailyWeightViewModel>(_repo.ReadAll().Where(x => x.UserId == userId && x.Date.Month == DateTime.Now.Month)).ToList();
+        }
+
+        public bool IsSettedUpDailyWeight(string userId)
+        {
+            var weights= _repo.ReadAll().Where(x=> x.UserId== userId && x.Date.Day == DateTime.Now.Day);
+            return weights.Any();
         }
     }
 }

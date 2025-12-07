@@ -10,5 +10,8 @@ namespace WorkoutOptimization.Logic.Interfaces
         DailyWeightViewModel Read(int id);
         IQueryable<DailyWeightViewModel> ReadAll(bool role, string userId);
         void Update(DailyWeightCreateModel entity, int id);
+        List<DailyWeightViewModel> GetUserWeights(string userId);
+        List<DailyWeightViewModel> GetUserWeightsMonthly(string userId);
+        bool IsSettedUpDailyWeight(string userId);
     }
 }

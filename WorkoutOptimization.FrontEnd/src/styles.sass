@@ -9,12 +9,17 @@
 
 .custom-dialog
     --mat-sys-surface: #272727f7
-    margin-left: 311.5px
     
 .cdk-overlay-pane.custom-dialog2 
   left: calc(311.5px + (50%)) !important
   top: 50% !important
   transform: translate(-50%, -50%) !important
+
+
+@media (min-width: 1024px) 
+  .custom-dialog 
+    margin-left: 311.5px
+  
 
     
     

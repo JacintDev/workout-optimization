@@ -36,7 +36,6 @@ export class TrainingNewComponent {
   }
   goToCreateTrainingNewToggle() {
     if (this.selected) {
-      console.log('!!!!!!!!!!!!!!!!!!' + this.selected);
       this.router.navigate(['/createtrainingnewtoggle', this.selected]);
     }
   }

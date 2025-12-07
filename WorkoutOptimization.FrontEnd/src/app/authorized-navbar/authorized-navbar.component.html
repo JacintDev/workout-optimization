@@ -1,34 +1,51 @@
-<nav>
-  <div class="nav-header">
-    <span>Workout<br />Optimization</span>
+<nav class="auth-nav">
+  <!-- FELSŐ SÁV -->
+  <div class="nav-inner">
+    <div class="nav-header">
+      <span class="brand-line1">Workout</span>
+      <span class="brand-line2">Optimization</span>
+    </div>
+
+    <!-- HAMBURGER – csak mobilon látszik -->
+    <button
+      class="hamburger"
+      type="button"
+      aria-label="Menü"
+      (click)="toggleMenu()"
+    >
+      <mat-icon [fontIcon]="isMenuOpen ? 'close' : 'menu'"></mat-icon>
+    </button>
   </div>
 
-  <ul>
-    <a routerLink="/home">
-      <li>
-        <mat-icon fontIcon="dashboard"></mat-icon><span>Irányítópult</span>
+  <!-- MENÜLISTÁK -->
+  <div class="nav-menu-wrapper" [class.open]="isMenuOpen">
+    <ul>
+      <li
+        routerLink="/home"
+        routerLinkActive="active-link"
+        (click)="closeMenu()"
+      >
+        <mat-icon fontIcon="dashboard"></mat-icon>
+        <span>Irányítópult</span>
       </li>
-    </a>
-    <a routerLink="/training">
-      <li>
+
+      <li
+        routerLink="/training"
+        routerLinkActive="active-link"
+        (click)="closeMenu()"
+      >
         <mat-icon fontIcon="fitness_center"></mat-icon>
         <span>Edzések</span>
       </li>
-    </a>
-    <a routerLink="/recommended-plan">
-      <li>
-        <mat-icon fontIcon="assignment_turned_in"></mat-icon>Ajánlott edzésterv
+    </ul>
+
+    <span class="separator">STATISZTIKA</span>
+
+    <ul>
+      <li (click)="closeMenu()">
+        <mat-icon fontIcon="poll"></mat-icon>
+        <span>Statisztika</span>
       </li>
-    </a>
-  </ul>
-  <span class="separator">STATISZTIKA</span>
-  <ul>
-    <li><mat-icon fontIcon="favorite"></mat-icon>Pulzus és mozgásadatok</li>
-    <li><mat-icon fontIcon="poll"></mat-icon>Statisztika</li>
-  </ul>
+    </ul>
+  </div>
 </nav>
-<mat-sidenav-container>
-  <mat-sidenav>Start</mat-sidenav>
-  <mat-sidenav position="end">End</mat-sidenav>
-  <section>Main</section>
-</mat-sidenav-container>

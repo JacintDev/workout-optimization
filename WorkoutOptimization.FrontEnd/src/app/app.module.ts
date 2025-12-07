@@ -47,6 +47,7 @@ import { TrainingNewToggleComponent } from './training-new-toggle/training-new-t
 import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.component';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { SummaryComponent } from './summary/summary.component';
+import { CountUpComponent } from './count-up/count-up.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { SummaryComponent } from './summary/summary.component';
     RecommendedPlanComponent,
     FeedbackComponent,
     SummaryComponent,
+    CountUpComponent,
   ],
   imports: [
     BrowserModule,

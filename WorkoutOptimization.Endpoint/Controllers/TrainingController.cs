@@ -148,6 +148,20 @@ namespace WorkoutOptimization.Endpoint.Controllers
         }
 
 
+        [HttpGet]
+        [Authorize]
+        public async Task<string> GetLastTrainingDate()
+        {
+            var user = await _userManager.FindByEmailAsync(this.User.Identity!.Name!);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Unathorized!");
+            }
+            string res = _logic.GetLastTrainingDate(user).Value.ToShortDateString();
+            return res;
+        }
+
+
 
         [Authorize]
         [HttpDelete("{id}")]

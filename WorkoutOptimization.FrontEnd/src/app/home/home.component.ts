@@ -23,6 +23,10 @@ import { StartTrainingModel } from '../../models/StartTrainingModel';
 import * as signalR from '@microsoft/signalr';
 import { map, Observable } from 'rxjs';
 import { HomeService } from '../services/home.service';
+import { DailyWeight } from '../../models/DailyWeight';
+import { PulsemeasureService } from '../services/pulsemeasure.service';
+import { PulseViewModel } from '../../models/PulseViewModel';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -32,10 +36,14 @@ import { HomeService } from '../services/home.service';
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('weightChart') weightChart!: ElementRef<HTMLCanvasElement>;
+  viewReady = false;
 
   private weightChartInstance?: Chart;
+  showPulse = false;
+  pulse$!: Observable<PulseViewModel>;
   profileNeedSetup$!: Observable<boolean>;
   profilePropertiesNeedSetup = true;
+  isSettedUpDailyWeight: boolean = false;
   private hubConnection!: signalR.HubConnection;
   public predictionMessage: string = '';
   userUpdate = new UserUpdateModel();
@@ -44,6 +52,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   isActiveTraining: boolean = false;
   trainingId: number = 0;
   training: StartTrainingModel = new StartTrainingModel();
+  currentUserActiveDaysCount$!: Observable<any>;
+  currentUserMonthlyWeights: Array<DailyWeight> = [];
+  getUserLastTrainingDate$!: Observable<string>;
 
   fitnessLevel: any = [
     { value: 1, viewValue: 'Kezdő' },
@@ -58,126 +69,161 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private http: HttpClient,
-    private homeService: HomeService
+    private homeService: HomeService,
+    private pulseService: PulsemeasureService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.profileNeedSetup$ = this.auth.currentUser$.pipe(
-      map((user) => !user || !user.height || !user.weight)
+      map((user) => !user || !user.height || !user.weight || !user.restPulse)
     );
+    this.pulse$ = this.pulseService.pulse$;
     this.user$ = this.auth.currentUser$;
     this.homeService.getUserTrainingCount().subscribe();
     this.currentUserTrainingCount$ = this.homeService.currentUserTrainingCount$;
+    this.getUserLastTrainingDate$ = this.homeService.getUserLastTrainingDate();
+    this.currentUserActiveDaysCount$ =
+      this.homeService.getUserActiveDaysCount();
+    this.homeService.isSettedUpDailyWeight().subscribe((data) => {
+      this.isSettedUpDailyWeight = data;
+    });
 
-    //SignalR
-    // this.hubConnection = new signalR.HubConnectionBuilder()
-    //   .withUrl('http://localhost:5135/exercisehub')
-    //   .build();
-
-    // this.hubConnection
-    //   .start()
-    //   .then(() => {
-    //     console.log('SignalR connection started');
-    //   })
-    //   .catch((err) => console.error('SignalR error:', err));
-
-    // this.hubConnection.on('ReceivePrediction', (message: string) => {
-    //   this.predictionMessage = message;
-    // });
+    this.homeService.getUserMonthlyWeights().subscribe((data) => {
+      data.map((item: any) => {
+        const dw = new DailyWeight();
+        dw.date = item.date.split('T')[0];
+        dw.weight = item.weight;
+        this.currentUserMonthlyWeights.push(dw);
+      });
+      this.tryCreateChart();
+    });
+    this.pulseLastSave();
   }
 
   ngAfterViewInit(): void {
-    this.createWeightChart();
+    this.viewReady = true;
   }
 
   createWeightChart(): void {
     const ctx = this.weightChart.nativeElement.getContext('2d');
-    if (ctx) {
-      this.weightChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: [
-            'Jan',
-            'Feb',
-            'Már',
-            'Ápr',
-            'Máj',
-            'Jún',
-            'Júl',
-            'Aug',
-            'Szep',
-            'Okt',
-            'Nov',
-            'Dec',
-          ],
-          datasets: [
-            {
-              label: 'Testsúly (kg)',
-              data: [85, 87, 89, 91, 93, 95, 96, 98, 99, 100, 102, 105],
-              borderColor: 'rgb(255, 99, 132)',
-              backgroundColor: 'rgba(255, 99, 132, 0.1)',
-              tension: 0.4,
-              fill: true,
-              borderWidth: 3,
-              pointRadius: 5,
-              pointBackgroundColor: 'rgb(255, 99, 132)',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointHoverRadius: 7,
-            },
-            {
-              label: 'Célsúly',
-              data: [80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
-              borderColor: 'rgb(75, 192, 192)',
-              borderDash: [10, 5],
-              borderWidth: 2,
-              pointRadius: 0,
-              fill: false,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: 'top',
-            },
-            title: {
-              display: true,
-              text: 'Súlyváltozás - A dagadék útja 🍔📈',
-              font: {
-                size: 16,
-              },
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  return (
-                    context.dataset.label + ': ' + context.parsed.y + ' kg'
-                  );
-                },
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              min: 75,
-              max: 110,
-              ticks: {
-                callback: function (value) {
-                  return value + ' kg';
-                },
-              },
-            },
-          },
-        },
-      });
+    if (!ctx || this.currentUserMonthlyWeights.length === 0) return;
+
+    // hónap + év az első rekordból
+    const firstDate = new Date(this.currentUserMonthlyWeights[0].date);
+    const year = firstDate.getFullYear();
+    const monthIndex = firstDate.getMonth(); // 0..11
+
+    // hány napos ez a hónap?
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+    // X tengely: "1", "2", ..., "31"
+    const labels = Array.from({ length: daysInMonth }, (_, i) =>
+      (i + 1).toString()
+    );
+
+    // alap: minden napra nincs adat
+    const dailyWeights: (number | null)[] = new Array(daysInMonth).fill(null);
+
+    // ahol van adat, oda beírjuk a súlyt
+    this.currentUserMonthlyWeights.forEach((w) => {
+      const d = new Date(w.date);
+      const day = d.getDate(); // 1..31
+      if (day >= 1 && day <= daysInMonth) {
+        dailyWeights[day - 1] = w.weight;
+      }
+    });
+
+    // ha már van chart, töröljük
+    if (this.weightChartInstance) {
+      this.weightChartInstance.destroy();
     }
+
+    this.weightChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Testsúly (kg)',
+            data: dailyWeights,
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 5,
+            pointBackgroundColor: 'rgb(255, 99, 132)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+            spanGaps: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Súlyváltozás (havi)',
+            font: {
+              size: 16,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return context.dataset.label + ': ' + context.parsed.y + ' kg';
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+
+            min: this.currentUserMonthlyWeights[0].weight - 10,
+            max: this.currentUserMonthlyWeights[0].weight + 10,
+            ticks: {
+              callback: function (value) {
+                return value + ' kg';
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
+  private tryCreateChart(): void {
+    console.log('tryCreateChart hívva');
+    console.log('viewReady:', this.viewReady);
+    console.log('weightChart elem:', this.weightChart);
+    console.log('súlyok száma:', this.currentUserMonthlyWeights.length);
+    console.log('súlyok:', this.currentUserMonthlyWeights);
+
+    if (!this.viewReady) {
+      console.log('View még nem ready');
+      return;
+    }
+    if (!this.weightChart) {
+      console.log('weightChart elem nem található');
+      return;
+    }
+    if (!this.currentUserMonthlyWeights.length) {
+      console.log('Nincs súly adat');
+      return;
+    }
+
+    console.log('Chart létrehozása...');
+    this.createWeightChart();
+  }
   ngOnDestroy(): void {
     if (this.weightChartInstance) {
       this.weightChartInstance.destroy();
@@ -248,58 +294,55 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.fourthFormGroup.valid
     ) {
       this.auth.userUpdate(this.userUpdate).subscribe({
-        next: (res) => console.log(res),
+        next: (res) => {
+          const currentUrl = this.router.url;
+          this.router
+            .navigateByUrl('/', { skipLocationChange: true })
+            .then(() => {
+              this.router.navigateByUrl(currentUrl);
+            });
+        },
         error: (err) => console.log(err),
       });
     }
   }
 
-  startTraining() {
-    this.startWebSocketSending();
-    this.training.start = new Date().toISOString();
-    this.training.isActive = true;
-    this.training.exerciseId = 1;
-
-    this.homeService.startTraining(this.training).subscribe({
-      next: (res) => this.getActiveTraining(),
-      error: (err) => console.log(err),
-    });
-  }
-
-  startWebSocketSending() {
-    this.homeService.startWebSocketSending().subscribe({
-      next: (res) => console.log(res),
-      error: (err) => console.log(err),
-    });
-  }
-
-  private getActiveTraining() {
-    this.homeService.getActiveTraining().subscribe({
+  startPulseMeasurement() {
+    this.pulseService.startWebSocketPulseMeasurement().subscribe({
       next: (res) => {
-        this.isActiveTraining = true;
-        this.trainingId = res.trainingId;
-        console.log(res);
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
-  }
+        this.showPulse = true;
+        this.pulseLastSave();
 
-  stopTraining() {
-    this.stopWebSocketSending();
-    this.homeService.stopTraining(this.trainingId).subscribe({
-      next: (res) => {
-        this.isActiveTraining = false;
+        setTimeout(() => this.stopPulseMeasurement(), 10000);
+        setTimeout(() => (this.showPulse = false), 10000);
         console.log(res);
       },
       error: (err) => console.log(err),
     });
   }
-
-  stopWebSocketSending() {
-    this.homeService.stopWebSocketSending().subscribe({
+  private stopPulseMeasurement() {
+    this.pulseService.stopWebSocketPulseMeasurement().subscribe({
       next: (res) => console.log(res),
+      error: (err) => console.log(err),
+    });
+  }
+
+  private pulseLastSave() {
+    console.log('ELINDUL A METÓDUS!');
+
+    this.pulseService.pulse$.subscribe({
+      next: (res) => {
+        this.userUpdate.restPulse = res.pulse;
+        console.log(res.pulse);
+      },
+    });
+  }
+
+  onSubmitDailyWeight() {
+    this.homeService.submitDailyWeight(this.userUpdate.weight!).subscribe({
+      next: (res) => {
+        this.isSettedUpDailyWeight = true;
+      },
       error: (err) => console.log(err),
     });
   }

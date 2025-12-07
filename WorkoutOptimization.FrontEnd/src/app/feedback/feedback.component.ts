@@ -29,7 +29,7 @@ export class FeedbackComponent {
   ) {}
   ShowSummary() {
     this.dialogRef.close();
-    this.data.selectionValue = this.results[this.selected].name;
+    this.data.difficultyValue = this.results[this.selected].name;
     setTimeout(() => {
       this.dialog.open(SummaryComponent, {
         width: '600px',

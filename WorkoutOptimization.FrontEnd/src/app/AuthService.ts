@@ -46,7 +46,7 @@ export class AuthService {
     }
   }
 
-  setUser(user: any): UserModel {
+  private setUser(user: any): UserModel {
     let u = user as UserModel;
     return u;
   }

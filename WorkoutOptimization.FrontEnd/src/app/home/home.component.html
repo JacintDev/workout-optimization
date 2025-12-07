@@ -1,31 +1,57 @@
 <div class="home-container">
   <div class="home-header" *ngIf="!(profileNeedSetup$ | async)">
-    <div *ngIf="predictionMessage" class="prediction-box">
-      {{ predictionMessage }}
-    </div>
     <div class="card-1">
-      <h1>Üdvözöllek {{ (user$ | async)?.firstName }}!</h1>
-      <div *ngIf="!isActiveTraining">
-        <div class="three-container" #rendererContainer></div>
-        <button mat-button>Edzés</button>
-        <span class="label">Helyes? </span>
-        <input type="checkbox" [(ngModel)]="training.isCorrect" />
-        <button mat-button (click)="startTraining()">Indítás</button>
-      </div>
-      <p>
-        <button mat-button (click)="stopTraining()" *ngIf="isActiveTraining">
-          Megállítás
-        </button>
-      </p>
+      <p>👋Üdvözöllek</p>
+      <span>{{ (user$ | async)?.firstName }}</span>
     </div>
-    <div class="card-2">Edzések száma</div>
-    <div class="card-3">Aktív napok</div>
+    <div class="card-2">
+      <p>🕒 Utolsó edzés</p>
+      <span>{{ getUserLastTrainingDate$ | async }}</span>
+    </div>
+    <div class="card-3">
+      <p>🏆 Edzések</p>
+      <span>
+        <app-count-up [end]="currentUserActiveDaysCount$ | async"></app-count-up
+      ></span>
+    </div>
     <div class="card-4">
-      <p>Gyakorlatok száma:</p>
-      <p>{{ currentUserTrainingCount$ | async }}</p>
+      <p>🏋️ Gyakorlatok</p>
+      <span>
+        <app-count-up
+          [end]="(currentUserTrainingCount$ | async) ?? 0"
+        ></app-count-up
+      ></span>
     </div>
-    <div class="card-5">Átlag pulzus</div>
-    <div class="card-6">6</div>
+    <div class="card-5">
+      <p>❤️ Nyugalmi pulzus</p>
+      <span pulse>
+        <app-count-up [end]="(user$ | async)?.restPulse ?? 0"></app-count-up
+      ></span>
+    </div>
+    <div class="card-6">
+      <span *ngIf="isSettedUpDailyWeight">⚖️ A napi súlyodat rögzítetted</span>
+      <span *ngIf="!isSettedUpDailyWeight"
+        ><mat-form-field appearance="outline">
+          <mat-label>⚖️ Testsúly</mat-label>
+          <input
+            matInput
+            placeholder=" "
+            required
+            type="number"
+            min="30"
+            max="200"
+            [(ngModel)]="userUpdate.weight"
+          /> </mat-form-field
+        ><button
+          mat-button
+          (click)="onSubmitDailyWeight()"
+          [disabled]="!userUpdate.weight"
+        >
+          Mentés
+        </button>
+      </span>
+    </div>
+
     <div class="card-7" style="position: relative; height: 300px; width: 100%">
       <canvas #weightChart></canvas>
     </div>
@@ -90,7 +116,6 @@
             />
           </mat-form-field>
           <div>
-            <button mat-button matStepperPrevious>Vissza</button>
             <button
               mat-button
               matStepperNext
@@ -98,6 +123,7 @@
             >
               Következő
             </button>
+            <button mat-button matStepperPrevious>Vissza</button>
           </div>
         </form>
       </mat-step>
@@ -117,7 +143,6 @@
             />
           </mat-form-field>
           <div>
-            <button mat-button matStepperPrevious>Vissza</button>
             <button
               mat-button
               matStepperNext
@@ -125,6 +150,7 @@
             >
               Következő
             </button>
+            <button mat-button matStepperPrevious>Vissza</button>
           </div>
         </form>
       </mat-step>
@@ -146,24 +172,39 @@
             </mat-select>
           </mat-form-field>
           <div>
-            <button mat-button matStepperPrevious>Vissza</button>
             <button
               mat-button
               matStepperNext
               [disabled]="!fourthFormGroup.valid"
-              (click)="onSubmit()"
             >
-              Befejezés
+              Következő
             </button>
+            <button mat-button matStepperPrevious>Vissza</button>
           </div>
         </form>
       </mat-step>
       <mat-step>
-        <ng-template matStepLabel>Done</ng-template>
-        <p>You are now done.</p>
+        <ng-template matStepLabel>Nyugalmi pulzus mérése</ng-template>
+        <p class="rest-pulse-p">
+          Kattints a gombra, és tedd az ujjad a pulzus érzékelőre
+        </p>
+        <button class="btn-margin" mat-button (click)="startPulseMeasurement()">
+          Pulzus mérés indítása
+        </button>
+        <div *ngIf="showPulse && (pulse$ | async) as pulse">
+          <p class="pulse-container">
+            <span class="pulse">{{ pulse.pulse }} </span>
+            <mat-icon
+              class="pulse-icon"
+              aria-hidden="false"
+              aria-label="Pulse icon"
+              fontIcon="favorite"
+            ></mat-icon>
+          </p>
+        </div>
         <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button (click)="stepper.reset()">Reset</button>
+          <button mat-button matStepperPrevious>Vissza</button>
+          <button mat-button (click)="onSubmit()">Befejezés</button>
         </div>
       </mat-step>
     </mat-stepper>

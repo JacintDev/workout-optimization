@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 
 @Injectable({
@@ -21,6 +21,31 @@ export class HomeService {
         this.currentUserTrainingCountSubject.next(count);
       })
     );
+  }
+  getUserActiveDaysCount(): Observable<any> {
+    return this.http
+      .get<any>(`${this.link}Training/CountWorkoutSessions`)
+      .pipe(map((arr) => arr.length));
+  }
+
+  submitDailyWeight(weight: number): Observable<any> {
+    return this.http.post<any>(`${this.link}DailyWeight/Post`, {
+      weight: weight,
+    });
+  }
+
+  getUserLastTrainingDate(): Observable<string> {
+    return this.http.get<string>(`${this.link}Training/GetLastTrainingDate`, {
+      responseType: 'text' as 'json',
+    });
+  }
+
+  getUserMonthlyWeights(): Observable<any> {
+    return this.http.get<any>(`${this.link}DailyWeight/GetUserMonthlyWeights`);
+  }
+
+  isSettedUpDailyWeight(): Observable<any> {
+    return this.http.get<any>(`${this.link}DailyWeight/IsSettedUpDailyWeight`);
   }
 
   startWebSocketSending(): Observable<any> {
