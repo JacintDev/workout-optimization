@@ -8,6 +8,8 @@ namespace WorkoutOptimization.Logic.Interfaces
         Task CreateExerciseResult(ExerciseResultCreateModel model);
         Task<IEnumerable<ExerciseResultReturnedValueModel>> ReadAllById(int trainingid);
         Task<IEnumerable<ExerciseResultReturnedValueModel>> ReadAllByUser(User user);
+        Task<int> GetUserIncorrectRepetitions(User user);
+        Task<int> GetUserCorrectRepetitions(User user);
 
 
     }

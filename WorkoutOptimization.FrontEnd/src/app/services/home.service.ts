@@ -44,6 +44,18 @@ export class HomeService {
     return this.http.get<any>(`${this.link}DailyWeight/GetUserMonthlyWeights`);
   }
 
+  getUserCorrectRepetitionsCount(): Observable<any> {
+    return this.http.get<any>(
+      `${this.link}ExerciseResult/GetUserCorrectRepetitions`
+    );
+  }
+
+  getUserIncorrectRepetitionsCount(): Observable<any> {
+    return this.http.get<any>(
+      `${this.link}ExerciseResult/GetUserIncorrectRepetitions`
+    );
+  }
+
   isSettedUpDailyWeight(): Observable<any> {
     return this.http.get<any>(`${this.link}DailyWeight/IsSettedUpDailyWeight`);
   }

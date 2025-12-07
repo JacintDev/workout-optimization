@@ -48,6 +48,7 @@ import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.co
 import { FeedbackComponent } from './feedback/feedback.component';
 import { SummaryComponent } from './summary/summary.component';
 import { CountUpComponent } from './count-up/count-up.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { CountUpComponent } from './count-up/count-up.component';
     FeedbackComponent,
     SummaryComponent,
     CountUpComponent,
+    StatisticsComponent,
   ],
   imports: [
     BrowserModule,

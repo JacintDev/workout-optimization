@@ -64,5 +64,21 @@ namespace WorkoutOptimization.Logic.Classes
                 });
             return groupby;
         }
+
+        public async Task<int> GetUserIncorrectRepetitions(User user)
+        {
+            var res = await _repo.ReadAll()
+                .Where(x => x.Training.UserId == user.Id && x.IsCorrect == false)
+                .ToListAsync();
+            return res.Count();
+        }
+
+        public async Task<int> GetUserCorrectRepetitions(User user)
+        {
+            var res = await _repo.ReadAll()
+                .Where(x => x.Training.UserId == user.Id && x.IsCorrect == true)
+                .ToListAsync();
+            return res.Count();
+        }
     }
 }

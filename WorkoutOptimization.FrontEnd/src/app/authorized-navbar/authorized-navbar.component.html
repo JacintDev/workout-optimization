@@ -6,7 +6,6 @@
       <span class="brand-line2">Optimization</span>
     </div>
 
-    <!-- HAMBURGER – csak mobilon látszik -->
     <button
       class="hamburger"
       type="button"
@@ -17,7 +16,6 @@
     </button>
   </div>
 
-  <!-- MENÜLISTÁK -->
   <div class="nav-menu-wrapper" [class.open]="isMenuOpen">
     <ul>
       <li
@@ -42,7 +40,11 @@
     <span class="separator">STATISZTIKA</span>
 
     <ul>
-      <li (click)="closeMenu()">
+      <li
+        (click)="closeMenu()"
+        routerLink="/statistics"
+        routerLinkActive="active-link"
+      >
         <mat-icon fontIcon="poll"></mat-icon>
         <span>Statisztika</span>
       </li>
