@@ -13,6 +13,7 @@ import { UserModel } from '../../models/UserModel';
 })
 export class UnathorizedNavComponent implements OnInit {
   isLoggedIn: boolean = false;
+  isMenuOpen = false;
   constructor(
     private scrollToService: ScrollToService,
     private router: Router,
@@ -46,4 +47,8 @@ export class UnathorizedNavComponent implements OnInit {
   //     })
   //   );
   // }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
 }

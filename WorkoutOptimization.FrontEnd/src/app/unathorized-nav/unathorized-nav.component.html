@@ -1,59 +1,64 @@
 <nav>
-  <ul>
+  <!-- FELSŐ SÁV (logo + hamburger) -->
+  <div class="nav-inner">
     <div class="logo">
       <div class="logo-container">
         <div class="workout">Workout</div>
         <div class="optimization">Optimization</div>
       </div>
     </div>
-    <li (click)="scrollTo('welcome')">
-      <mat-icon
-        aria-hidden="false"
-        aria-label="Kezdőlap"
-        fontIcon="home"
-      ></mat-icon
-      >KEZDŐLAP
-    </li>
-    <li (click)="scrollTo('application')">
-      <mat-icon
-        aria-hidden="false"
-        aria-label="Alkalmazás"
-        fontIcon="apps"
-      ></mat-icon
-      >ALKALMAZÁS
-    </li>
-    <li (click)="scrollTo('working')">
-      <mat-icon
-        aria-hidden="false"
-        aria-label="Működés"
-        fontIcon="layers"
-      ></mat-icon
-      >MŰKÖDÉS
-    </li>
-    <li (click)="scrollTo('contact')">
-      <mat-icon
-        aria-hidden="false"
-        aria-label="Elérhetőség"
-        fontIcon="perm_contact_calendar"
-      ></mat-icon
-      >ELÉRHETŐSÉG
-    </li>
-    <li class="join" routerLink="/register" *ngIf="!this.isLoggedIn">
-      CSATLAKOZZ
-      <mat-icon
-        aria-hidden="false"
-        aria-label="join"
-        fontIcon="arrow_right_alt"
-      ></mat-icon>
-    </li>
-    <li class="join" routerLink="/logout" *ngIf="this.isLoggedIn">
-      KILÉPÉS
 
-      <mat-icon
-        aria-hidden="false"
-        aria-label="logout"
-        fontIcon="arrow_right_alt"
-      ></mat-icon>
+    <!-- HAMBURGER -->
+    <button
+      class="hamburger"
+      type="button"
+      aria-label="Menü"
+      (click)="toggleMenu()"
+    >
+      <mat-icon [fontIcon]="isMenuOpen ? 'close' : 'menu'"></mat-icon>
+    </button>
+  </div>
+
+  <!-- LENYÍLÓ MENÜ -->
+  <ul [class.open]="isMenuOpen">
+    <li (click)="scrollTo('welcome'); toggleMenu()">
+      <mat-icon fontIcon="home"></mat-icon>
+      KEZDŐLAP
+    </li>
+
+    <li (click)="scrollTo('application'); toggleMenu()">
+      <mat-icon fontIcon="apps"></mat-icon>
+      ALKALMAZÁS
+    </li>
+
+    <li (click)="scrollTo('working'); toggleMenu()">
+      <mat-icon fontIcon="layers"></mat-icon>
+      MŰKÖDÉS
+    </li>
+
+    <li (click)="scrollTo('contact'); toggleMenu()">
+      <mat-icon fontIcon="perm_contact_calendar"></mat-icon>
+      ELÉRHETŐSÉG
+    </li>
+
+    <li
+      class="join"
+      routerLink="/register"
+      *ngIf="!isLoggedIn"
+      (click)="toggleMenu()"
+    >
+      CSATLAKOZZ
+      <mat-icon fontIcon="arrow_right_alt"></mat-icon>
+    </li>
+
+    <li
+      class="join"
+      routerLink="/logout"
+      *ngIf="isLoggedIn"
+      (click)="toggleMenu()"
+    >
+      KILÉPÉS
+      <mat-icon fontIcon="arrow_right_alt"></mat-icon>
     </li>
   </ul>
 </nav>
