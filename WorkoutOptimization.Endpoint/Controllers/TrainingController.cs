@@ -163,6 +163,7 @@ namespace WorkoutOptimization.Endpoint.Controllers
 
 
 
+
         [Authorize]
         [HttpDelete("{id}")]
         public void DeleteTraining(int id)

@@ -41,6 +41,31 @@ namespace WorkoutOptimization.Endpoint.Controllers
             return await _exerciseResultLogic.ReadAllByUser(user);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUserCorrectRepetitions()
+        {
+            
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Invalid user");
+            }
+            var res = await _exerciseResultLogic.GetUserCorrectRepetitions(user!);
+            return Ok(res);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetUserIncorrectRepetitions()
+        {
+
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Invalid user");
+            }
+            var res = await _exerciseResultLogic.GetUserIncorrectRepetitions(user!);
+            return Ok(res);
+        }
+
 
 
 
