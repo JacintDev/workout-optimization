@@ -18,6 +18,7 @@ import { TrainingNewComponent } from './training-new/training-new.component';
 import { TrainingNewToggleComponent } from './training-new-toggle/training-new-toggle.component';
 import { RecommendedPlanComponent } from './recommended-plan/recommended-plan.component';
 import { FeedbackComponent } from './feedback/feedback.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 
 const routes: Routes = [
   { path: 'welcome', component: WelcomeComponent },
@@ -68,6 +69,12 @@ const routes: Routes = [
   {
     path: 'recommended-plan',
     component: RecommendedPlanComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['User', 'Admin'] },
+  },
+  {
+    path: 'statistics',
+    component: StatisticsComponent,
     canActivate: [AuthGuard],
     data: { roles: ['User', 'Admin'] },
   },
