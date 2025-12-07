@@ -1,1 +1,75 @@
-<p>statistics works!</p>
+<div class="statistics-container">
+  <h2 class="table-title">📊 Statisztika</h2>
+
+  <!-- Felső stat kártyák -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-title">Összes edzés</p>
+      <p class="stat-value">{{ $userActiveDaysCount | async }}</p>
+    </div>
+
+    <div class="stat-card">
+      <p class="stat-title">Összes gyakorlat</p>
+      <p class="stat-value">{{ currentUserTrainingCount$ | async }}</p>
+    </div>
+
+    <div class="stat-card">
+      <p class="stat-title">✅ Helyes ismétlések</p>
+      <p class="stat-value success">
+        {{ currentUserCorrectRepetitionsCount$ | async }}
+      </p>
+    </div>
+
+    <div class="stat-card">
+      <p class="stat-title">Helytelen ismétlések</p>
+      <p class="stat-value unsuccess">
+        {{ currentUserIncorrectRepetitionsCount$ | async }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Alsó tartalom: KÉT EGYFORMA GRAFIKONOS KÁRTYA -->
+  <div class="stats-content">
+    <!-- Bal: súly grafikon -->
+    <div class="stats-box">
+      <h3>⚖️ Súly változás</h3>
+      <p class="stats-sub">Elmúlt 30 nap</p>
+
+      <div class="chart-card">
+        <canvas #weightChart></canvas>
+      </div>
+    </div>
+
+    <!-- Jobb: pontosság grafikon -->
+    <div class="stats-box">
+      <h3>🎯 Gyakorlat pontosság (elmúlt 30 nap)</h3>
+      <p class="stats-sub">Helyes vs helytelen végrehajtások naponta</p>
+
+      <div class="chart-card">
+        <canvas #accuracyChart></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-title">Összes edzés</p>
+      <p class="stat-value">20</p>
+    </div>
+
+    <div class="stat-card">
+      <p class="stat-title">Heti átlag</p>
+      <p class="stat-value">3</p>
+    </div>
+
+    <div class="stat-card">
+      <p class="stat-title">Aktív napok</p>
+      <p class="stat-value">14</p>
+    </div>
+
+    <div class="stat-card">
+      <p class="stat-title">Aktív időszak</p>
+      <p class="stat-value success">Stabil ✅</p>
+    </div>
+  </div> -->
+</div>
