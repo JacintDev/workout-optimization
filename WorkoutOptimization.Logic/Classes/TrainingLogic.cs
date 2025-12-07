@@ -102,5 +102,14 @@ namespace WorkoutOptimization.Logic.Classes
                 });
             return res;
         }
+
+        public DateTime? GetLastTrainingDate(User user)
+        {
+            var training = _repo.ReadAll()
+                .Where(x => x.UserId == user.Id)
+                .OrderByDescending(x => x.Start)
+                .FirstOrDefault();
+            return training?.Start;
+        }
     }
 }
