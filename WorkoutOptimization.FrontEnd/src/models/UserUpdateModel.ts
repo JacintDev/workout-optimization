@@ -3,4 +3,5 @@ export class UserUpdateModel {
   height: number = 0;
   weight: number = 0;
   level: number = 0;
+  restPulse: number = 0;
 }
