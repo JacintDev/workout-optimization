@@ -24,6 +24,9 @@ import * as signalR from '@microsoft/signalr';
 import { map, Observable } from 'rxjs';
 import { HomeService } from '../services/home.service';
 import { DailyWeight } from '../../models/DailyWeight';
+import { PulsemeasureService } from '../services/pulsemeasure.service';
+import { PulseViewModel } from '../../models/PulseViewModel';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -36,8 +39,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   viewReady = false;
 
   private weightChartInstance?: Chart;
+  showPulse = false;
+  pulse$!: Observable<PulseViewModel>;
   profileNeedSetup$!: Observable<boolean>;
   profilePropertiesNeedSetup = true;
+  isSettedUpDailyWeight: boolean = false;
   private hubConnection!: signalR.HubConnection;
   public predictionMessage: string = '';
   userUpdate = new UserUpdateModel();
@@ -48,6 +54,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   training: StartTrainingModel = new StartTrainingModel();
   currentUserActiveDaysCount$!: Observable<any>;
   currentUserMonthlyWeights: Array<DailyWeight> = [];
+  getUserLastTrainingDate$!: Observable<string>;
 
   fitnessLevel: any = [
     { value: 1, viewValue: 'Kezdő' },
@@ -62,18 +69,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private http: HttpClient,
-    private homeService: HomeService
+    private homeService: HomeService,
+    private pulseService: PulsemeasureService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.profileNeedSetup$ = this.auth.currentUser$.pipe(
-      map((user) => !user || !user.height || !user.weight)
+      map((user) => !user || !user.height || !user.weight || !user.restPulse)
     );
+    this.pulse$ = this.pulseService.pulse$;
     this.user$ = this.auth.currentUser$;
     this.homeService.getUserTrainingCount().subscribe();
     this.currentUserTrainingCount$ = this.homeService.currentUserTrainingCount$;
+    this.getUserLastTrainingDate$ = this.homeService.getUserLastTrainingDate();
     this.currentUserActiveDaysCount$ =
       this.homeService.getUserActiveDaysCount();
+    this.homeService.isSettedUpDailyWeight().subscribe((data) => {
+      this.isSettedUpDailyWeight = data;
+    });
 
     this.homeService.getUserMonthlyWeights().subscribe((data) => {
       data.map((item: any) => {
@@ -84,6 +98,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.tryCreateChart();
     });
+    this.pulseLastSave();
   }
 
   ngAfterViewInit(): void {
@@ -279,58 +294,55 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.fourthFormGroup.valid
     ) {
       this.auth.userUpdate(this.userUpdate).subscribe({
-        next: (res) => console.log(res),
+        next: (res) => {
+          const currentUrl = this.router.url;
+          this.router
+            .navigateByUrl('/', { skipLocationChange: true })
+            .then(() => {
+              this.router.navigateByUrl(currentUrl);
+            });
+        },
         error: (err) => console.log(err),
       });
     }
   }
 
-  startTraining() {
-    this.startWebSocketSending();
-    this.training.start = new Date().toISOString();
-    this.training.isActive = true;
-    this.training.exerciseId = 1;
-
-    this.homeService.startTraining(this.training).subscribe({
-      next: (res) => this.getActiveTraining(),
-      error: (err) => console.log(err),
-    });
-  }
-
-  startWebSocketSending() {
-    this.homeService.startWebSocketSending().subscribe({
-      next: (res) => console.log(res),
-      error: (err) => console.log(err),
-    });
-  }
-
-  private getActiveTraining() {
-    this.homeService.getActiveTraining().subscribe({
+  startPulseMeasurement() {
+    this.pulseService.startWebSocketPulseMeasurement().subscribe({
       next: (res) => {
-        this.isActiveTraining = true;
-        this.trainingId = res.trainingId;
-        console.log(res);
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
-  }
+        this.showPulse = true;
+        this.pulseLastSave();
 
-  stopTraining() {
-    this.stopWebSocketSending();
-    this.homeService.stopTraining(this.trainingId).subscribe({
-      next: (res) => {
-        this.isActiveTraining = false;
+        setTimeout(() => this.stopPulseMeasurement(), 10000);
+        setTimeout(() => (this.showPulse = false), 10000);
         console.log(res);
       },
       error: (err) => console.log(err),
     });
   }
-
-  stopWebSocketSending() {
-    this.homeService.stopWebSocketSending().subscribe({
+  private stopPulseMeasurement() {
+    this.pulseService.stopWebSocketPulseMeasurement().subscribe({
       next: (res) => console.log(res),
+      error: (err) => console.log(err),
+    });
+  }
+
+  private pulseLastSave() {
+    console.log('ELINDUL A METÓDUS!');
+
+    this.pulseService.pulse$.subscribe({
+      next: (res) => {
+        this.userUpdate.restPulse = res.pulse;
+        console.log(res.pulse);
+      },
+    });
+  }
+
+  onSubmitDailyWeight() {
+    this.homeService.submitDailyWeight(this.userUpdate.weight!).subscribe({
+      next: (res) => {
+        this.isSettedUpDailyWeight = true;
+      },
       error: (err) => console.log(err),
     });
   }
