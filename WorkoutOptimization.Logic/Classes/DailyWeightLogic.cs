@@ -66,7 +66,7 @@ namespace WorkoutOptimization.Logic.Classes
 
         public bool IsSettedUpDailyWeight(string userId)
         {
-            var weights= _repo.ReadAll().Where(x=> x.UserId== userId && x.Date.Day == DateTime.Now.Day);
+            var weights= _repo.ReadAll().Where(x=> x.UserId== userId && x.Date.Day == DateTime.Now.Day && x.Date.Month == DateTime.Now.Month && x.Date.Year == DateTime.Now.Year);
             return weights.Any();
         }
     }
