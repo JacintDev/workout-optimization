@@ -178,7 +178,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           tooltip: {
             callbacks: {
-              label: function (context) {
+              label: function (context: any) {
                 return context.dataset.label + ': ' + context.parsed.y + ' kg';
               },
             },
@@ -191,7 +191,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             min: this.currentUserMonthlyWeights[0].weight - 10,
             max: this.currentUserMonthlyWeights[0].weight + 10,
             ticks: {
-              callback: function (value) {
+              callback: function (value: any) {
                 return value + ' kg';
               },
             },

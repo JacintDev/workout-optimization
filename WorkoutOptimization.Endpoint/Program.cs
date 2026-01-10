@@ -79,7 +79,7 @@ namespace WorkoutOptimization.Endpoint
             //mysql connection string create
             SqlConnectionStringBuilder conn = new SqlConnectionStringBuilder()
             {
-                DataSource = "localhost",
+                DataSource = "mssql",
                 InitialCatalog = "workoutoptimization",
                 UserID = "sa",
                 Password = "Horthy2000?",
