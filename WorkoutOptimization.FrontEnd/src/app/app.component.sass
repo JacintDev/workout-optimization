@@ -1,3 +1,10 @@
+$bg-dark: #0f172a
+$bg-sidebar: rgba(15, 23, 42, 0.95)
+$border-light: rgba(255, 255, 255, 0.05)
+$text-main: #f1f5f9
+$sidebar-width: 260px
+$header-height: 30px
+    
 *
     box-sizing: border-box
     margin: 0
@@ -5,25 +12,27 @@
 
 .logged-site
     display: grid
-    grid-template-columns: 1fr 5fr
-    grid-template-areas: 'a1 a1' 'a2 a3'
+    grid-template-columns: $sidebar-width 1fr
+    grid-template-rows: $header-height 1fr
+    grid-template-areas: 'nav header' 'nav content'
     overflow: hidden
     height: 100vh
+    font-family: 'Inter', sans-serif
+    background: $bg-dark
 
 .header
-    grid-area: a1
+    grid-area: header
     position: fixed   
     top: 0
     left: 0
 
 .navbar
-    grid-area: a2
+    grid-area: nav
     z-index: 0
   
 
 .content
-    grid-area: a3
-    margin-top: 60px
+    grid-area: content
 
 @media (max-width: 768px)
     .logged-site

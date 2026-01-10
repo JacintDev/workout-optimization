@@ -30,7 +30,7 @@ export class BicepsCurlAnimateComponent implements AfterViewInit {
   private initThree() {
     // Scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#202528');
+    this.scene.background = null;
 
     // Camera
     const width = this.rendererContainer.nativeElement.clientWidth;
@@ -39,7 +39,8 @@ export class BicepsCurlAnimateComponent implements AfterViewInit {
     this.camera.position.set(0, 2, 3.5);
 
     // Renderer
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer.setClearColor(0x000000, 0);
     this.renderer.setSize(width, height);
     this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
 
