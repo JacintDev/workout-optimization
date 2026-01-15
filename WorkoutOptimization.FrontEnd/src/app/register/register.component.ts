@@ -4,6 +4,7 @@ import { RegisterModel } from '../../models/RegisterModel';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Route, Router } from '@angular/router';
+import { environment } from '../../environment/environment.prod';
 
 @Component({
   selector: 'app-register',
@@ -88,7 +89,7 @@ export class RegisterComponent {
   sendRegister(): void {
     if (this.btnCheck()) {
       this.http
-        .post('http://localhost:5135/Auth/Register', this.RegisterModel)
+        .post(`${environment.apiUrl}/Auth/Register`, this.RegisterModel)
         .subscribe(
           (success) => {
             this.snackbar

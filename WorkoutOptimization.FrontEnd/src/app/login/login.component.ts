@@ -6,6 +6,7 @@ import { TokenModel } from '../../models/TokenModel';
 import { Route, Router } from '@angular/router';
 import { AuthService } from '../AuthService';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../environment/environment';
 
 @Component({
   selector: 'app-login',
@@ -67,7 +68,7 @@ export class LoginComponent {
   sendLogin(): void {
     if (this.btnCheck()) {
       this.http
-        .post<TokenModel>('http://localhost:5135/Auth/Login', this.LoginModel)
+        .post<TokenModel>(`${environment.apiUrl}/Auth/Login`, this.LoginModel)
         .subscribe(
           (resp) => {
             localStorage.setItem('token', resp.token);

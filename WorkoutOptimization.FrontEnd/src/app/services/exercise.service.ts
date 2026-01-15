@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environment/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExerciseService {
-  private link: string = 'http://localhost:5135/';
+  private link: string = environment.apiUrl;
   constructor(private httpClient: HttpClient) {}
 
   getExerciseList(): Observable<any> {

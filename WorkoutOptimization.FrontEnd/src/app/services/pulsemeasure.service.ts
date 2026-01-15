@@ -8,12 +8,13 @@ import {
 } from '@microsoft/signalr';
 import { Observable, Subject } from 'rxjs';
 import { PulseViewModel } from '../../models/PulseViewModel';
+import { environment } from '../../environment/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PulsemeasureService {
-  private link: string = 'http://localhost:5135';
+  private link: string = environment.apiUrl;
   private hub!: HubConnection;
   private pulseSub = new Subject<PulseViewModel>();
   pulse$ = this.pulseSub.asObservable();

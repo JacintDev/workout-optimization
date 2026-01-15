@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
+import { environment } from '../../environment/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HomeService {
-  private link: string = 'http://localhost:5135/';
+  private link: string = environment.apiUrl;
 
   private currentUserTrainingCountSubject = new BehaviorSubject<number>(0);
   public currentUserTrainingCount$ =

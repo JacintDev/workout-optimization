@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { WorkoutSessionCount } from '../../models/WorkoutSessionCount';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 import { ExerciseResultReturnedValueModel } from '../../models/ExerciseResultReturnedValueModel';
+import { environment } from '../../environment/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TrainingService {
-  private link: string = 'http://localhost:5135/';
+  private link: string = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
