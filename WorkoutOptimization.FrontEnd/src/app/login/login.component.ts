@@ -68,7 +68,7 @@ export class LoginComponent {
   sendLogin(): void {
     if (this.btnCheck()) {
       this.http
-        .post<TokenModel>(`${environment.apiUrl}/Auth/Login`, this.LoginModel)
+        .post<TokenModel>(`${environment.apiUrl}Auth/Login`, this.LoginModel)
         .subscribe(
           (resp) => {
             localStorage.setItem('token', resp.token);

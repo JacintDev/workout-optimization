@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { UserModel } from '../models/UserModel';
 import { UserUpdateModel } from '../models/UserUpdateModel';
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -61,7 +62,7 @@ export class AuthService {
     //   'Content-Type': 'application/json',
     //   Authorization: `Bearer ${token}`,
     // });
-    return this.http.get<any>('http://localhost:5135/Auth/IsLoggedIn').pipe(
+    return this.http.get<any>(`${environment.apiUrl}Auth/IsLoggedIn`).pipe(
       map((resp) => {
         if (resp.isLoggedIn === true) {
           this.currentUserSubject.next(this.setUser(resp.user));
@@ -78,7 +79,7 @@ export class AuthService {
   }
   userUpdate(userUpdateModel: UserUpdateModel): Observable<any> {
     return this.http.put<any>(
-      'http://localhost:5135/Auth/UpdateUser',
+      `${environment.apiUrl}Auth/UpdateUser`,
       userUpdateModel
     );
   }

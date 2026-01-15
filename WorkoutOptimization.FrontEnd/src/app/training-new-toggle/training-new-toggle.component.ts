@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StartTrainingModel } from '../../models/StartTrainingModel';
 import { TrainingService } from '../services/training.service';
 import * as signalR from '@microsoft/signalr';
+import { environment } from '../../environment/environment';
 import { PulsemeasureService } from '../services/pulsemeasure.service';
 import { map, Observable, Subscription, timer } from 'rxjs';
 import { PulseViewModel } from '../../models/PulseViewModel';
@@ -55,7 +56,7 @@ export class TrainingNewToggleComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     //SignalR
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5135/exercisehub')
+      .withUrl(`${environment.apiUrl}exercisehub`)
       .build();
     this.hubConnection
       .start()

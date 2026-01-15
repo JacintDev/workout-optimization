@@ -21,7 +21,7 @@ export class PulsemeasureService {
 
   constructor(private http: HttpClient, private zone: NgZone) {
     this.hub = new HubConnectionBuilder()
-      .withUrl('http://localhost:5135/exercisehub')
+      .withUrl(`${this.link}exercisehub`)
       .withAutomaticReconnect()
       .build();
 

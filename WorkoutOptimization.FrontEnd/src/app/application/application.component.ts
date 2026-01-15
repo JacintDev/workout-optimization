@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Promotion } from '../../models/Promotion';
+import { environment } from '../../environment/environment';
 
 @Component({
   selector: 'app-application',
@@ -18,7 +19,7 @@ export class ApplicationComponent implements OnInit {
   }
   ngOnInit(): void {
     this.http
-      .get<Array<Promotion>>('http://localhost:5135/api/Promotion')
+      .get<Array<Promotion>>(`${environment.apiUrl}api/Promotion`)
       .subscribe((success) => {
         success.map((x: Promotion) => {
           let promo = new Promotion();
