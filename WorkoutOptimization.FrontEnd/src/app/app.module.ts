@@ -49,6 +49,7 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { SummaryComponent } from './summary/summary.component';
 import { CountUpComponent } from './count-up/count-up.component';
 import { StatisticsComponent } from './statistics/statistics.component';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { StatisticsComponent } from './statistics/statistics.component';
     SummaryComponent,
     CountUpComponent,
     StatisticsComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,
