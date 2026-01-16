@@ -4,7 +4,8 @@ import { RegisterModel } from '../../models/RegisterModel';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Route, Router } from '@angular/router';
-import { environment } from '../../environment/environment.prod';
+import { environment } from '../../environment/environment';
+import { AuthService } from '../AuthService';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +23,12 @@ export class RegisterComponent {
   http: HttpClient;
   snackbar: MatSnackBar;
 
-  constructor(http: HttpClient, snackbar: MatSnackBar, private router: Router) {
+  constructor(
+    http: HttpClient,
+    snackbar: MatSnackBar,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.formControl = new Array<FormControl>();
     this.formControl.push(
       new FormControl('', [Validators.required, Validators.email])
@@ -88,21 +94,19 @@ export class RegisterComponent {
   }
   sendRegister(): void {
     if (this.btnCheck()) {
-      this.http
-        .post(`${environment.apiUrl}/Auth/Register`, this.RegisterModel)
-        .subscribe(
-          (success) => {
-            this.snackbar
-              .open('Sikeres regisztráckió', 'OK', { duration: 2000 })
-              .afterDismissed()
-              .subscribe(() => {
-                this.router.navigate(['/login']);
-              });
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
+      this.authService.register(this.RegisterModel).subscribe(
+        (success) => {
+          this.snackbar
+            .open('Sikeres regisztráció', 'OK', { duration: 1000 })
+            .afterDismissed()
+            .subscribe(() => {
+              this.router.navigate(['/login']);
+            });
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
     }
   }
 }

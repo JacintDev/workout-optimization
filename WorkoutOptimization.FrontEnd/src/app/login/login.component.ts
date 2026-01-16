@@ -27,7 +27,8 @@ export class LoginComponent {
     http: HttpClient,
     private router: Router,
     private authService: AuthService,
-    private snackbar: MatSnackBar
+    private snackbar: MatSnackBar,
+    private AuthService: AuthService
   ) {
     this.formControl = new Array<FormControl>();
     this.formControl.push(
@@ -67,20 +68,18 @@ export class LoginComponent {
 
   sendLogin(): void {
     if (this.btnCheck()) {
-      this.http
-        .post<TokenModel>(`${environment.apiUrl}Auth/Login`, this.LoginModel)
-        .subscribe(
-          (resp) => {
-            localStorage.setItem('token', resp.token);
-            localStorage.setItem('expiration', resp.expiration.toString());
-            this.router.navigate(['/home']);
-          },
-          (error) => {
-            this.snackbar.open('Sikertelen bejelentkezés!', 'OK', {
-              duration: 2000,
-            });
-          }
-        );
+      this.authService.login(this.LoginModel).subscribe(
+        (resp) => {
+          localStorage.setItem('token', resp.token);
+          localStorage.setItem('expiration', resp.expiration.toString());
+          this.router.navigate(['/home']);
+        },
+        (error) => {
+          this.snackbar.open('Sikertelen bejelentkezés!', 'OK', {
+            duration: 2000,
+          });
+        }
+      );
     }
   }
 }
