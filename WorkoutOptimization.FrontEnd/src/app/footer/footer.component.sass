@@ -1,0 +1,130 @@
+$accent-color: #f1c40f
+$bg-dark: #000
+$bg-darker: #262626
+$text-muted: #a3a3a3
+$text-white: #fff
+$border-color: #404040
+
+.footer
+    background-color: $bg-dark
+    padding: 50px
+    font-family: "Russo One", sans-serif
+
+.footer-content
+    max-width: 1152px
+    margin: 0 auto
+    padding: 2rem 1rem
+
+.footer-main
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 1.5rem
+
+    @media (min-width: 768px)
+        flex-direction: row
+        justify-content: space-between
+
+.logo
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 0.5rem
+
+.logo-text
+    font-size: 1.25rem
+    font-weight: 600
+    letter-spacing: -0.025em
+    display: flex
+    flex-direction: column
+    align-items: center
+
+
+    .accent
+        color: $accent-color
+
+    .name
+        color: $text-white
+
+.subtitle
+    color: $text-muted
+    font-size: 0.875rem
+    margin: 0
+
+.links
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 1.5rem
+
+    a
+        color: $text-muted
+        text-decoration: none
+        cursor: pointer
+        transition: color 0.2s ease
+
+        &:hover
+            color: #d4d4d4
+
+.social-links
+    display: flex
+    align-items: center
+    gap: 1rem
+
+.social-btn
+    width: 40px
+    height: 40px
+    background-color: $bg-darker
+    border-radius: 6px
+    display: flex
+    align-items: center
+    justify-content: center
+    color: $text-white
+    text-decoration: none
+    transition: background-color 0.2s ease
+
+    svg
+        width: 20px
+        height: 20px
+
+    &:hover
+        background-color: $accent-color
+
+.divider
+    border-top: 1px solid $border-color
+    margin-top: 2rem
+
+.footer-bottom
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: space-between
+    padding: 2rem 0
+    gap: 1.5rem
+
+    @media (min-width: 768px)
+        flex-direction: row
+
+.copyright
+    color: $text-muted
+
+.scroll-top-btn
+    width: 40px
+    height: 40px
+    background-color: $bg-darker
+    border: none
+    border-radius: 6px
+    display: flex
+    align-items: center
+    justify-content: center
+    color: $text-white
+    cursor: pointer
+    transition: background-color 0.2s ease, transform 0.2s ease
+
+    svg
+        width: 20px
+        height: 20px
+
+    &:hover
+        background-color: $accent-color
+        transform: translateY(-4px)
