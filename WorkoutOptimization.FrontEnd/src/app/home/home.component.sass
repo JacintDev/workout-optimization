@@ -1,3 +1,29 @@
+
+:host ::ng-deep
+    mat-stepper
+        background: rgba(255, 255, 255, 0.03)
+        backdrop-filter: blur(10px)
+        border: 1px solid #ffffff1a
+        border-radius: 16px
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5)
+        width: 100% !important
+        margin: 0 auto
+        overflow: hidden
+
+    .mat-horizontal-stepper-header-container
+        overflow: hidden
+        border-radius: 16px 16px 0 0
+
+    .mat-step-header:hover
+        background: rgba(255, 255, 255, 0.05) !important
+
+    .mat-step-header:first-child
+        border-radius: 16px 0 0 0
+
+    .mat-step-header:last-child
+        border-radius: 0 16px 0 0
+
+    
 *
     box-sizing: border-box
     margin: 0
@@ -14,25 +40,11 @@
     display: grid
     place-items: center
 
-mat-stepper
-    --mat-sys-surface: #fff
-    width: 1200px
-    margin: 0 auto
-    --mat-stepper-header-selected-state-label-text-color: black
-    --mat-stepper-header-done-state-label-text-color: black
-    --mat-stepper-header-edit-state-label-text-color: black
-    --mat-stepper-header-error-state-label-text-color: black
-    --mat-stepper-header-selected-icon-foreground-color: black
-    --mat-stepper-header-selected-icon-container-color: white
-    --mat-stepper-header-icon-foreground-color: black
-    --mat-stepper-header-icon-container-color: white
-
-
 mat-form-field
     
-    --mat-sys-primary: #000 
-    --mat-sys-on-surface:rgb(0, 0, 0)
-    --mat-sys-on-surface-variant:rgb(2, 2, 2)
+    --mat-sys-primary: white
+    --mat-sys-on-surface: white
+    --mat-sys-on-surface-variant:white
     --mat-sys-on-error-container: rgba(230, 42, 42, 0.87)
     --mat-sys-error: rgba(230, 42, 42, 0.87)
     margin: 20px auto !important
@@ -50,6 +62,7 @@ button[mat-button]
     border-radius: 5px !important
     padding: 10px 10px !important
     font-size: 16px !important
+    cursor:  !important
 
 .home-header
     padding: 2rem
@@ -129,5 +142,39 @@ p.rest-pulse-p
     [class^="card-"]
         width: 90%
         margin: 10px 0
+
+    .stepper
+        width: 95%
+        padding: 10px
+
+    mat-form-field
+        max-width: 100% !important
+        width: 100% !important
+
+:host ::ng-deep
+    @media (max-width: 768px)
+        .mat-horizontal-stepper-header-container
+            flex-direction: column !important
+            align-items: flex-start !important
+
+        .mat-horizontal-stepper-header
+            padding: 10px 15px !important
+            width: 100% !important
+
+        .mat-stepper-horizontal-line
+            display: none !important
+
+        .mat-horizontal-content-container
+            padding: 15px !important
+
+        mat-stepper
+            padding: 15px !important
+            width: 95% !important
+
+        .mat-step-label
+            font-size: 14px !important
+
+        .mat-step-icon
+            margin-right: 10px !important
 
 

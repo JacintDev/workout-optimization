@@ -293,6 +293,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.thirdFormGroup.valid &&
       this.fourthFormGroup.valid
     ) {
+      if (
+        this.userUpdate.restPulse == 0 ||
+        this.userUpdate.restPulse == undefined
+      ) {
+        this.userUpdate.restPulse = 70;
+      }
+
       this.auth.userUpdate(this.userUpdate).subscribe({
         next: (res) => {
           const currentUrl = this.router.url;
@@ -328,8 +335,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private pulseLastSave() {
-    console.log('ELINDUL A METÓDUS!');
-
     this.pulseService.pulse$.subscribe({
       next: (res) => {
         this.userUpdate.restPulse = res.pulse;
