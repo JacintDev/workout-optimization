@@ -8,7 +8,7 @@ import {
 } from '@microsoft/signalr';
 import { Observable, Subject } from 'rxjs';
 import { PulseViewModel } from '../../models/PulseViewModel';
-import { environment } from '../../environment/environment.prod';
+import { environment } from '../../environment/environment';
 
 @Injectable({
   providedIn: 'root',

@@ -4,6 +4,9 @@ import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { UserModel } from '../models/UserModel';
 import { UserUpdateModel } from '../models/UserUpdateModel';
 import { environment } from '../environment/environment';
+import { TokenModel } from '../models/TokenModel';
+import { LoginModel } from '../models/LoginModel';
+import { RegisterModel } from '../models/RegisterModel';
 
 @Injectable({
   providedIn: 'root',
@@ -50,6 +53,20 @@ export class AuthService {
   private setUser(user: any): UserModel {
     let u = user as UserModel;
     return u;
+  }
+
+  login(loginModel: LoginModel): Observable<TokenModel> {
+    return this.http.post<TokenModel>(
+      `${environment.apiUrl}Auth/Login`,
+      loginModel
+    );
+  }
+
+  register(registerModel: RegisterModel): Observable<any> {
+    return this.http.post<any>(
+      `${environment.apiUrl}Auth/Register`,
+      registerModel
+    );
   }
 
   isLoggedIn(): Observable<boolean> {
