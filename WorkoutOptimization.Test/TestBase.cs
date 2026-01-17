@@ -18,7 +18,7 @@ namespace WorkoutOptimization.Test
             //Chrome blokkolta a tesztet popuppal, a jelszó gyengesége, és netre kijutása miatt
             chromeOptions.AddUserProfilePreference("credentials_enable_service", false);
             chromeOptions.AddUserProfilePreference("profile.password_manager_enabled", false);
-            chromeOptions.AddArgument("--incognito");
+            //chromeOptions.AddArgument("--incognito");
 
             Driver = new ChromeDriver(chromeOptions);
             Driver.Manage().Window.Maximize();
