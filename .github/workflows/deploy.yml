@@ -1,0 +1,46 @@
+name: Deploy Angular, and .NET to VPS
+
+on:
+    push:
+        branches: ["develop"]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: SSH Remote Commands
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USER }}
+                  key: ${{ secrets.VPS_SSH_KEY }}
+                  script: |
+                      cd /home/ubuntu/workout-optimization
+
+                      git pull origin develop
+
+                      docker build -t jacintdev:workout-backend .
+
+                      docker stop workout-backend || true
+                      docker rm workout-backend || true
+
+                      docker run -d \
+                        --name workout-backend \
+                        --restart always \
+                        -p 5135:5135 \
+                        -e ASPNETCORE_ENVIRONMENT=Development \
+                        --network workout-et \
+                        jacintdev:workout-backend
+
+                      cd WorkoutOptimization.FrontEnd
+
+                      docker build -t jacintdev:workout-frontend .
+
+                      docker stop workout-frontend || true
+                      docker rm workout-frontend || true
+
+                      docker run -d \
+                        --name workout-frontend \
+                        --restart always \
+                        -p 4200:80 \
+                        jacintdev:workout-frontend
