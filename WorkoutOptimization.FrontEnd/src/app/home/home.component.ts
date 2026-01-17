@@ -71,12 +71,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private http: HttpClient,
     private homeService: HomeService,
     private pulseService: PulsemeasureService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.profileNeedSetup$ = this.auth.currentUser$.pipe(
-      map((user) => !user || !user.height || !user.weight || !user.restPulse)
+      map((user) => !user || !user.height || !user.weight || !user.restPulse),
     );
     this.pulse$ = this.pulseService.pulse$;
     this.user$ = this.auth.currentUser$;
@@ -119,7 +119,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // X tengely: "1", "2", ..., "31"
     const labels = Array.from({ length: daysInMonth }, (_, i) =>
-      (i + 1).toString()
+      (i + 1).toString(),
     );
 
     // alap: minden napra nincs adat
@@ -347,6 +347,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.homeService.submitDailyWeight(this.userUpdate.weight!).subscribe({
       next: (res) => {
         this.isSettedUpDailyWeight = true;
+        const currentUrl = this.router.url;
+        this.router
+          .navigateByUrl('/', { skipLocationChange: true })
+          .then(() => {
+            this.router.navigateByUrl(currentUrl);
+          });
       },
       error: (err) => console.log(err),
     });
