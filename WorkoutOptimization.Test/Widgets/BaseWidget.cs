@@ -6,24 +6,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Widgets
 {
-    public abstract class BasePage
+    public abstract class BaseWidget
     {
         protected IWebDriver Driver;
         protected WebDriverWait Wait;
 
-        protected BasePage(IWebDriver driver)
+        protected BaseWidget(IWebDriver driver, WebDriverWait wait)
         {
-            Driver = driver ?? throw new ArgumentNullException(nameof(driver));
-            Wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
+            Driver = driver;
+            Wait = wait;
         }
 
         protected IWebElement WaitAndFind(By locator)
         {
             return Wait.Until(d => d.FindElement(locator));
         }
-
         protected IReadOnlyCollection<IWebElement> WaitAndFindAll(By locator)
         {
             return Wait.Until(d =>
@@ -32,8 +31,6 @@ namespace WorkoutOptimization.Test
                 return elements.Any() ? elements : null;
             });
         }
-
-        public abstract bool IsLoaded();
 
     }
 }

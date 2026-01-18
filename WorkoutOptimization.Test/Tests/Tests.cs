@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkoutOptimization.Test.Pages;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Tests
 {
-    public class Tests:TestBase
+    public class Tests: TestBase
     {
 
         [Test]
-        public void Test()
+        public void Login_Entering_PageIsLoaded()
         {
             var loginPage = new LoginPage(Driver).Open();
 
@@ -19,7 +20,7 @@ namespace WorkoutOptimization.Test
         }
 
         [Test]
-        public void Test2()
+        public void Login_ShouldWork_WithValidCredentials()
         {
             var loginPage= new LoginPage(Driver).Open();
             var homePage=loginPage.Login("admin@gmail.com", "asd123");
@@ -30,7 +31,7 @@ namespace WorkoutOptimization.Test
         [TestCase("Dashboard")]
         [TestCase("Traning")]
         [TestCase("Statistics")]
-        public void Test3(string target)
+        public void Home_SideBarNavigation_PageIsLoaded(string target)
         {
             var loginPage = new LoginPage(Driver).Open();
             var homePage = loginPage.Login("admin@gmail.com", "asd123");

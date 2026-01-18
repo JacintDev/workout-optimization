@@ -5,13 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Pages
 {
-    public class StatisticsPage : BasePage
+    public class TrainingPage : BasePage
     {
-        public StatisticsPage(IWebDriver driver) : base(driver)
-        {
-        }
+        public TrainingPage(IWebDriver driver) : base(driver) { }
 
         private IWebElement WelcomeText => WaitAndFind(By.ClassName("table-title"));
 

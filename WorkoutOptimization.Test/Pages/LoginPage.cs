@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Pages
 {
     public class LoginPage: BasePage
     {

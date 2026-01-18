@@ -2,7 +2,7 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Tests
 {
     public abstract class TestBase
     {

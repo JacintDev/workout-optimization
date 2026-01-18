@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkoutOptimization.Test.Pages;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Widgets
 {
     public class SideNavWidget : BaseWidget
     {

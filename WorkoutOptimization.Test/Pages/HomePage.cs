@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkoutOptimization.Test.Widgets;
 
-namespace WorkoutOptimization.Test
+namespace WorkoutOptimization.Test.Pages
 {
     public class HomePage : BasePage
     {
