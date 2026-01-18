@@ -27,20 +27,20 @@ export class RegisterComponent {
     http: HttpClient,
     snackbar: MatSnackBar,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
     this.formControl = new Array<FormControl>();
     this.formControl.push(
-      new FormControl('', [Validators.required, Validators.email])
+      new FormControl('', [Validators.required, Validators.email]),
     );
     this.formControl.push(
-      new FormControl('', [Validators.required, Validators.minLength(4)])
+      new FormControl('', [Validators.required, Validators.minLength(4)]),
     );
     this.formControl.push(
-      new FormControl('', [Validators.required, Validators.minLength(2)])
+      new FormControl('', [Validators.required, Validators.minLength(2)]),
     );
     this.formControl.push(
-      new FormControl('', [Validators.required, Validators.minLength(2)])
+      new FormControl('', [Validators.required, Validators.minLength(2)]),
     );
     this.http = http;
     this.snackbar = snackbar;
@@ -104,8 +104,8 @@ export class RegisterComponent {
             });
         },
         (error) => {
-          console.log(error);
-        }
+          this.snackbar.open(error.error, 'OK', { duration: 1000 });
+        },
       );
     }
   }
