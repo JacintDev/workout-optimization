@@ -9,7 +9,12 @@ namespace WorkoutOptimization.Test
 {
     public class HomePage : BasePage
     {
-        public HomePage(IWebDriver driver) : base(driver) {}
+
+        public SideNavWidget SideNavWidget { get; set; }
+
+        public HomePage(IWebDriver driver) : base(driver) {
+            SideNavWidget=new SideNavWidget(driver,Wait);
+        }
 
         private IWebElement WelcomeText => WaitAndFind(By.XPath("//p[contains(text(),'👋Üdvözöllek')]"));
 
