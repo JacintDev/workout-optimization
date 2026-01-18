@@ -33,6 +33,25 @@ namespace WorkoutOptimization.Test.Pages
             });
         }
 
+
+        public void WaitForUrlContains(string partialUrl)
+        {
+            Wait.Until(d => d.Url.Contains(partialUrl));
+        }
+
+
+
+        public void GoBack()
+        {
+            Driver.Navigate().Back();
+        }
+
+        public string GetUrl()
+        {
+            return Driver.Url;
+        }
+
+
         public abstract bool IsLoaded();
 
     }
