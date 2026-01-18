@@ -23,5 +23,10 @@ namespace WorkoutOptimization.Test.Pages
         {
             return WelcomeText.Displayed;
         }
+
+        public bool IsAt()
+        {
+            return Driver.Url.Contains("/home");
+        }
     }
 }
