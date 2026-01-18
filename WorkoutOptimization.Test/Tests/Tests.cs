@@ -28,6 +28,32 @@ namespace WorkoutOptimization.Test.Tests
             Assert.That(homePage.IsLoaded(), Is.True);
         }
 
+        [Test]
+        public void Login_ShouldFail_WithInalidCredentials()
+        {
+            var loginPage = new LoginPage(Driver).Open();
+            loginPage.Login("admin@gmail.com", "asd1234");
+
+            Assert.That(loginPage.IsLoaded(), Is.True);
+        }
+
+
+        [Test]
+        public void Login_AlreadyLoggedin_RedirectsToHome()
+        {
+            var loginPage = new LoginPage(Driver).Open();
+            var homePage = loginPage.Login("admin@gmail.com", "asd123");
+            homePage.WaitForUrlContains("/home");
+            loginPage.Open();
+            homePage.WaitForUrlContains("/home");
+
+            Assert.That(homePage.IsAt(), Is.True);
+            
+        }
+
+
+
+
         [TestCase("Dashboard")]
         [TestCase("Traning")]
         [TestCase("Statistics")]
