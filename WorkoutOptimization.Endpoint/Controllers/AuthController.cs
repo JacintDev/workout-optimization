@@ -33,18 +33,18 @@ namespace WorkoutOptimization.Endpoint.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result= await _logic.Register(model);
 
-            if (result)
+            try
             {
-                //return ok with message json format
+                var result = await _logic.Register(model);
                 return Ok(new { message = "User created successfully" });
             }
-            else
+            catch (Exception e)
             {
-                //return bad request with message json format
-               throw new Exception("User creation failed.");
+                return BadRequest($"Failed to register {e.Message}");
             }
+            
+
 
         }
 
