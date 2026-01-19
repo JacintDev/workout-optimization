@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkoutOptimization.Models.Models;
 using WorkoutOptimization.Test.Pages;
 
 namespace WorkoutOptimization.Test.Tests
@@ -29,12 +30,12 @@ namespace WorkoutOptimization.Test.Tests
         }
 
         [Test]
-        public void Login_ShouldFail_WithInalidCredentials()
+        public void Login_ShouldFail_WithInvalidCredentials()
         {
             var loginPage = new LoginPage(Driver).Open();
             loginPage.Login("admin@gmail.com", "asd1234");
 
-            Assert.That(loginPage.IsLoaded(), Is.True);
+            Assert.That(loginPage.GetErrorMessage("Sikertelen bejelentkezés!"), Is.True);
         }
 
 
@@ -49,6 +50,28 @@ namespace WorkoutOptimization.Test.Tests
 
             Assert.That(homePage.IsAt(), Is.True);
             
+        }
+
+        [Test]
+        public void Register_Entering_PageIsLoaded()
+        {
+            var registerPage = new RegisterPage(Driver).Open();
+            
+            var regUser= new RegisterModel()
+            {
+                Email = "tesztasdasdasd@gmail.com",
+                Password = "asdasdasd1234",
+                FirstName = "Kiss",
+                LastName = "Béla",
+                Sex=Sex.Man
+            };
+
+            var loginPage= registerPage.Registration(regUser);
+
+            Assert.That(loginPage.IsLoaded(), Is.True);
+
+
+
         }
 
 

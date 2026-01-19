@@ -14,7 +14,7 @@ namespace WorkoutOptimization.Test.Pages
         public LoginPage(IWebDriver driver) : base(driver) { }
 
         private IWebElement WelcomeText => WaitAndFind(By.XPath("//h2[contains(text(),'Bejelentkezés')]"));
-
+        private IWebElement SnackBarMessage => WaitAndFind(By.CssSelector(".mdc-snackbar__label, .mat-mdc-snack-bar-label"));
         private IWebElement EmailInput => WaitAndFind(By.Id("mat-input-0")); 
         private IWebElement PasswordInput => WaitAndFind(By.Id("mat-input-1"));
         private IWebElement LoginButton => WaitAndFind(By.XPath("//button[contains(., 'Bejelentkezés')]"));
@@ -44,6 +44,11 @@ namespace WorkoutOptimization.Test.Pages
         public void ClickLogin()
         {
             LoginButton.Click();
+        }
+
+        public bool GetErrorMessage(string errorMessage)
+        {
+            return SnackBarMessage.Text.Contains(errorMessage);
         }
 
         public HomePage Login(string email, string password)

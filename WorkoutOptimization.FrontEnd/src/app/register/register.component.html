@@ -7,6 +7,7 @@
           matInput
           [formControl]="this.formControl[0]"
           [(ngModel)]="RegisterModel.email"
+          data-testid="register-email"
         />
         <mat-label>Email cím</mat-label>
         <mat-icon matSuffix>email</mat-icon>
@@ -20,6 +21,7 @@
           matInput
           [formControl]="this.formControl[1]"
           [(ngModel)]="RegisterModel.password"
+          data-testid="register-password"
         />
         <mat-label>Jelszó</mat-label>
         <mat-icon matSuffix>lock</mat-icon>
@@ -32,6 +34,7 @@
           matInput
           [formControl]="this.formControl[3]"
           [(ngModel)]="RegisterModel.lastName"
+          data-testid="register-last-name"
         />
         <mat-label>Vezetéknév</mat-label>
         <mat-icon matSuffix>person</mat-icon>
@@ -44,6 +47,7 @@
           matInput
           [formControl]="this.formControl[2]"
           [(ngModel)]="RegisterModel.firstName"
+          data-testid="register-first-name"
         />
         <mat-label>Keresztnév</mat-label>
         <mat-icon matSuffix>person</mat-icon>
@@ -54,7 +58,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Nem</mat-label>
-        <mat-select [(value)]="RegisterModel.sex">
+        <mat-select [(value)]="RegisterModel.sex" data-testid="register-sex">
           <mat-option *ngFor="let x of sex" [value]="x.value">{{
             x.viewValue
           }}</mat-option>
@@ -66,6 +70,7 @@
         class="btn-send"
         (click)="sendRegister()"
         [disabled]="!btnCheck()"
+        data-testid="register-submit"
       >
         Regisztráció
       </button>
