@@ -74,6 +74,7 @@
               min="1920-01-01"
               [max]="today"
               [(ngModel)]="userUpdate.dateOfBirth"
+              data-testid="date-of-birth"
             />
             <mat-error
               *ngIf="firstFormGroup.get('firstCtrl')?.errors?.['minDate']"
@@ -113,6 +114,7 @@
               min="30"
               max="200"
               [(ngModel)]="userUpdate.weight"
+              data-testid="user-weight"
             />
           </mat-form-field>
           <div>
@@ -140,6 +142,7 @@
               min="100"
               max="220"
               [(ngModel)]="userUpdate.height"
+              data-testid="user-height"
             />
           </mat-form-field>
           <div>
@@ -165,6 +168,7 @@
               required
               formControlName="fourthCtrl"
               [(ngModel)]="userUpdate.level"
+              data-testid="user-fitness-level"
             >
               <mat-option *ngFor="let x of fitnessLevel" [value]="x.value">{{
                 x.viewValue
@@ -204,7 +208,9 @@
         </div>
         <div>
           <button mat-button matStepperPrevious>Vissza</button>
-          <button mat-button (click)="onSubmit()">Befejezés</button>
+          <button mat-button (click)="onSubmit()" data-testid="submit-button">
+            Befejezés
+          </button>
         </div>
       </mat-step>
     </mat-stepper>
