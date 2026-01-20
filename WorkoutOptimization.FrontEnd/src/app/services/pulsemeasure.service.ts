@@ -19,7 +19,10 @@ export class PulsemeasureService {
   private pulseSub = new Subject<PulseViewModel>();
   pulse$ = this.pulseSub.asObservable();
 
-  constructor(private http: HttpClient, private zone: NgZone) {
+  constructor(
+    private http: HttpClient,
+    private zone: NgZone,
+  ) {
     this.hub = new HubConnectionBuilder()
       .withUrl(`${this.link}exercisehub`)
       .withAutomaticReconnect()
@@ -34,11 +37,11 @@ export class PulsemeasureService {
   }
 
   startWebSocketPulseMeasurement(): Observable<any> {
-    return this.http.get<any>(`${this.link}/Websocket/startPulseDataSend`);
+    return this.http.get<any>(`${this.link}Websocket/startPulseDataSend`);
   }
 
   stopWebSocketPulseMeasurement(): Observable<any> {
-    return this.http.get<any>(`${this.link}/Websocket/stopPulseDataSend`);
+    return this.http.get<any>(`${this.link}Websocket/stopPulseDataSend`);
   }
 
   private start() {
