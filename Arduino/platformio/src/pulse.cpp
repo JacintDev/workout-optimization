@@ -159,7 +159,8 @@ debugOn=true;
     Serial.println(body);
   }
 
-  String url = String("http://") + IP_ADDRESS + "/Pulse/Post";
+  String url = String("http://") + IP_ADDRESS + ":" + PORT + "/Pulse/Post";
+  Serial.print("📡 Küldés URL: " + url);
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
   if (authToken.length()) {

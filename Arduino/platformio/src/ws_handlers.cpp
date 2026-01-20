@@ -38,7 +38,7 @@ static void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 }
 
 void setupWebSocket() {
-  webSocket.begin(IP_ADDRESS.c_str(), 80, "/Websocket/connect");
+  webSocket.begin(IP_ADDRESS.c_str(), PORT.toInt(), "/Websocket/connect");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(5000);
 }

@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 
 void checkActiveTraining() {
-  http.begin("http://" + IP_ADDRESS + "/Training/GetActiveTraining");
+  http.begin("http://" + IP_ADDRESS + ":" + PORT + "/Training/GetActiveTraining");
   http.addHeader("Content-Type", "application/json");
   http.addHeader("Authorization", "Bearer " + authToken);
 

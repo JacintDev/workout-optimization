@@ -61,12 +61,14 @@ static void handleLogin() {
     return;
   }
   String receivedJson = server.arg("plain");
-  Serial.println("🔹 Megkapott JSON:");
+  Serial.println("🔹 Megkapott JSON :");
   Serial.println(receivedJson);
-
-  http.begin("http://" + IP_ADDRESS + "/Auth/Login");
+  String url= "http://" + IP_ADDRESS + ":" + String(PORT) + "/Auth/Login";
+  http.begin(url);
+  Serial.println("🔹 Küldés URL: " + url);
   http.addHeader("Content-Type", "application/json");
   int code = http.POST(receivedJson);
+  Serial.println(code);
 
   if (code > 0) {
     String apiResponse = http.getString();
