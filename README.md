@@ -1,4 +1,4 @@
-# 🏋️ AI-Powered Workout Optimization & Biometric System
+# 🏋️ AI-Powered Workout Optimization
 
 An IoT-based full-stack application designed to analyze gym exercise form in real-time using Deep Learning (LSTM) and monitor cardiovascular health.
 
@@ -16,7 +16,9 @@ The system consists of a wearable **ESP32 device** that streams sensor data to a
 
 ## 🏗️ System Architecture
 
-![Architecture](docs/architecture.png)
+<p align="center">
+  <img src="docs/architecture.png" alt="Architecture" width="600">
+</p>
 
 The application follows a secure, **Event-Driven Architecture** to handle real-time data efficiently.
 
@@ -69,9 +71,17 @@ The application follows a secure, **Event-Driven Architecture** to handle real-t
 
 ---
 
-![Correct](docs/correct.png)
-![Incorrect](docs/incorrect.png)
-![Training](docs/training.png)
+
+<p align="center">
+  <img src="docs/Correct.png" alt="Correct" width="600">
+</p>
+
+<p align="center">
+  <img src="docs/Incorrect.png" alt="Incorrect" width="600">
+</p>
+<p align="center">
+  <img src="docs/Training.png" alt="Training" width="600">
+</p>
 
 
 
