@@ -68,10 +68,10 @@ namespace WorkoutOptimization.Endpoint
             {
                 options.AddPolicy("AllowFrontend",
                     policy => policy
-                        .WithOrigins("http://localhost:4200") //  Itt add meg az Angular URL-jét!
+                        .WithOrigins("http://localhost:4200", "https://workoutoptimization.jacintkovacs.hu")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowCredentials()); //  Ezt csak konkrét origin esetén lehet!
+                        .AllowCredentials()); 
             });
 
 
