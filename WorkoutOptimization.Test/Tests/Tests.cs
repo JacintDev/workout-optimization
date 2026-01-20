@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WorkoutOptimization.Models.Models;
+using WorkoutOptimization.Test.Factories;
 using WorkoutOptimization.Test.Pages;
 
 namespace WorkoutOptimization.Test.Tests
@@ -53,24 +54,29 @@ namespace WorkoutOptimization.Test.Tests
         }
 
         [Test]
-        public void Register_Entering_PageIsLoaded()
+        public void Register_ShouldWork_WithValidCredentials()
         {
             var registerPage = new RegisterPage(Driver).Open();
             
-            var regUser= new RegisterModel()
-            {
-                Email = "tesztasdasdasd@gmail.com",
-                Password = "asdasdasd1234",
-                FirstName = "Kiss",
-                LastName = "Béla",
-                Sex=Sex.Man
-            };
+            var regUser= UserFactory.CreateValidUser();
 
             var loginPage= registerPage.Registration(regUser);
 
             Assert.That(loginPage.IsLoaded(), Is.True);
 
+        }
 
+        [Test]
+        public void Register_ShouldFail_WithAlreadyExistsCredentials()
+        {
+            var registerPage = new RegisterPage(Driver).Open();
+
+            var regUser = UserFactory.CreateValidUser();
+            regUser.Email = "admin@gmail.com";
+
+            registerPage.Registration(regUser);
+
+            Assert.That(registerPage.GetErrorMessage("Failed to register User with this email already exists"), Is.True);
 
         }
 

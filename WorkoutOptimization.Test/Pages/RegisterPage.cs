@@ -49,7 +49,14 @@ namespace WorkoutOptimization.Test.Pages
         private void SelectSex(Sex sexValue)
         {
             SexSelector.Click();
-            var optionToClick = WaitAndFind(By.CssSelector($"mat-option[value='{(int)sexValue}']"));
+
+            var textToFind = sexValue switch
+            {
+                Sex.Man => "Férfi",
+                Sex.Woman => "Nő",
+                _ => throw new ArgumentOutOfRangeException(nameof(sexValue), sexValue, null)
+            };
+            var optionToClick = WaitAndFind(By.XPath($"//mat-option//span[contains(text(), '{textToFind}')]"));
             optionToClick.Click();
 
         }
